@@ -2,6 +2,7 @@
 #include "pcb_loader.hpp"
 #include <fstream>
 #include "CONTROL_UNIT.hpp"
+#include "instruction_codes.hpp"
 #include "../memory/MemoryManager.hpp"
 #include "PCB.hpp"
 #include "../IO/IOManager.hpp"
@@ -97,47 +98,14 @@ string Control_Unit::Get_source_Register(const uint32_t instruction) {
 }
 
 string Control_Unit::Identificacao_instrucao(uint32_t instruction, hw::REGISTER_BANK &registers) {
-    (void)registers; // evita warning
-    uint32_t opcode = (instruction >> 26) & 0x3Fu;
-    std::string opcode_bin = toBinStr(opcode, 6);
-
-    // Se existir mapa textual (instructionMap), mantenha compatibilidade
-    for (const auto &p : instructionMap) {
-        if (p.second == opcode_bin) {
-            std::string key = p.first;
-            for (auto &c : key) c = toupper(c);
-            return key;
-        }
-    }
-
-    // Tratamento por opcode numérico (MIPS-like / convenções comuns)
-    switch (opcode) {
-        case 0x00: { // R-type: usa funct
-            uint32_t funct = instruction & 0x3Fu;
-            if (funct == 0x20) return "ADD";
-            if (funct == 0x22) return "SUB";
-            if (funct == 0x18) return "MULT";
-            if (funct == 0x1A) return "DIV";
-            // não reconhecido -> vazio
-            return "";
-        }
-        case 0x02: return "J";        // jump
-        case 0x03: return "JAL";
-        case 0x04: return "BEQ";
-        case 0x05: return "BNE";
-        case 0x08: return "ADDI";     // 001000
-        case 0x09: return "ADDIU";    // 001001
-        case 0x0F: return "LUI";      // 001111
-        case 0x0C: return "ANDI";     // 001100 (opcional)
-        case 0x0A: return "SLTI";     // 001010 (opcional)
-        case 0x23: return "LW";       // 100011
-        case 0x2B: return "SW";       // 101011
-        case 0x0E: return "LI";       // custom LI, se usado
-        case 0x10: return "PRINT";    // custom PRINT opcode, ajuste se necessário
-        case 0x3F: return "END";      // sentinel/END (se aplicável)
-        default:
-            return ""; // desconhecido
-    }
+    (void)registers;
+    uint8_t opcode = static_cast<uint8_t>((instruction >> 26) & 0x3Fu);
+    uint8_t funct  = static_cast<uint8_t>(instruction & 0x3Fu);
+    // Usa tabela unificada (reversa)
+    std::string name = instr::nameFromOpcodeFunct(opcode, funct);
+    if (name.empty()) return "";
+    for (auto &c : name) c = static_cast<char>(::toupper(c));
+    return name;
 }
 
 void Control_Unit::Fetch(ControlContext &context) {
@@ -293,7 +261,7 @@ void Control_Unit::Execute_Immediate_Operation(hw::REGISTER_BANK &registers, Ins
 void Control_Unit::Execute_Aritmetic_Operation(hw::REGISTER_BANK &registers, Instruction_Data &data) {
     std::string name_rs = this->map.getRegisterName(binaryStringToUint(data.source_register));
     std::string name_rt = this->map.getRegisterName(binaryStringToUint(data.target_register));
-    std::string name_rd = this->map.getRegisterName(binaryStringToUint(data.target_register));
+    std::string name_rd = this->map.getRegisterName(binaryStringToUint(data.destination_register));
 
     int32_t val_rs = registers.readRegister(name_rs);
     int32_t val_rt = registers.readRegister(name_rt);

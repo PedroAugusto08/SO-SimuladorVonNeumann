@@ -1,6 +1,7 @@
 #include "parser_json.hpp"
 #include "../memory/MemoryManager.hpp" // Alterado de MainMemory.hpp
 #include "../cpu/PCB.hpp"              // Incluído para a função write
+#include "../cpu/instruction_codes.hpp" // Tabela unificada de opcodes
 #include <unordered_map>
 #include <fstream>
 #include <algorithm>
@@ -11,19 +12,7 @@
 using namespace std;
 using nlohmann::json;
 
-// ======= Tabelas (sem alterações) =======
-const unordered_map<string, int> instructionMap = {
-    {"add",0}, {"sub",0}, {"and",0}, {"or",0}, {"mult",0}, {"div",0}, {"sll",0}, {"srl",0}, {"jr",0},
-    {"addi",0b001000}, {"andi",0b001100}, {"ori",0b001101}, {"slti",0b001010},
-    {"lw",0b100011}, {"sw",0b101011}, {"beq",0b000100}, {"bne",0b000101},
-    {"bgt",0b000111}, {"blt",0b001001}, {"li",0b001111}, {"print",0b111110}, {"end",0b111111},
-    {"j",0b000010}, {"jal",0b000011}
-};
-
-const unordered_map<string, int> functMap = {
-    {"add",0b100000}, {"sub",0b100010}, {"and",0b100100}, {"or",0b100101},
-    {"mult",0b011000}, {"div",0b011010}, {"sll",0b000000}, {"srl",0b000010}, {"jr",0b001000}
-};
+// ======= Tabelas unificadas via instruction_codes.hpp =======
 
 const unordered_map<string, int> registerMap = {
     {"$zero",0},{"$at",1},{"$v0",2},{"$v1",3},
@@ -70,14 +59,12 @@ int getRegisterCode(const string &reg){
 }
 
 int getOpcode(const string &instr){
-    auto it = instructionMap.find(toLower(instr));
-    if (it!=instructionMap.end()) return it->second;
-    throw runtime_error("Instrução desconhecida: " + instr);
+    return instr::get(instr).opcode;
 }
 
 int getFunct(const string &instr){
-    auto it = functMap.find(toLower(instr));
-    return (it!=functMap.end())? it->second : 0;
+    auto code = instr::get(instr);
+    return (code.format == instr::Format::R) ? code.funct : 0;
 }
 
 uint32_t buildBinaryInstruction(int opcode, int rs, int rt, int rd, int shamt, int funct,
@@ -209,7 +196,8 @@ uint32_t parseInstruction(const json &instrJson, int currentInstrIndex){
     if (mnem=="end" || mnem=="print")
         return static_cast<uint32_t>(getOpcode(mnem)) << 26;
 
-    if (functMap.count(mnem))              return encodeRType(instrJson);
+    if (instr::exists(mnem) && instr::get(mnem).format == instr::Format::R)
+        return encodeRType(instrJson);
     if (mnem=="j" || mnem=="jal")          return encodeJType(instrJson);
     return encodeIType(instrJson, currentInstrIndex);
 }

@@ -10,6 +10,7 @@
 #include "cpu/pcb_loader.hpp"
 #include "cpu/PCB.hpp"
 #include "cpu/CONTROL_UNIT.hpp"
+#include "cpu/instruction_codes.hpp"
 #include "cpu/REGISTER_BANK.hpp"
 #include "cpu/ULA.hpp"
 #include "cpu/HASH_REGISTER.hpp"
@@ -55,13 +56,18 @@ int main() {
     uint8_t r_t3 = hw::RegisterMapper::indexFromBinary(mapper.getRegisterBinary("t3"));
     uint8_t r_t4 = hw::RegisterMapper::indexFromBinary(mapper.getRegisterBinary("t4"));
 
-    // Instruções
-    uint32_t li_t1 = makeI(0x0E, r_zero, r_t1, 5);
-    uint32_t li_t2 = makeI(0x0E, r_zero, r_t2, 7);
-    uint32_t add_t3 = makeR(r_t1, r_t2, r_t3, 0x20);
-    uint32_t sw_t3  = makeI(0x0D, r_zero, r_t3, 20);
-    uint32_t lw_t4  = makeI(0x0C, r_zero, r_t4, 20);
-    uint32_t print_t4 = makeI(0x10, r_zero, r_t4, 0);
+    // Usa tabela unificada para reduzir números mágicos
+    auto ADDI = instr::get("addi").opcode;
+    auto SW   = instr::get("sw").opcode;
+    auto LW   = instr::get("lw").opcode;
+    auto PRINT = instr::get("print").opcode;
+
+    uint32_t li_t1 = makeI(ADDI, r_zero, r_t1, 5); // li -> addi $t1, $zero, 5
+    uint32_t li_t2 = makeI(ADDI, r_zero, r_t2, 7);
+    uint32_t add_t3 = makeR(r_t1, r_t2, r_t3, instr::get("add").funct);
+    uint32_t sw_t3  = makeI(SW, r_zero, r_t3, 20);
+    uint32_t lw_t4  = makeI(LW, r_zero, r_t4, 20);
+    uint32_t print_t4 = makeI(PRINT, r_zero, r_t4, 0);
 
     // Escreve na memória usando o MemoryManager
     memManager.write(0, li_t1, pcb);
