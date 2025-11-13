@@ -17,6 +17,7 @@ include_directories(src)
 # --- LISTA DE ARQUIVOS FONTE PARA O SIMULADOR PRINCIPAL ---
 set(SIMULATOR_SOURCES
     src/main.cpp
+    src/cpu/Core.cpp
     src/cpu/CONTROL_UNIT.cpp
     src/cpu/pcb_loader.cpp
     src/cpu/REGISTER_BANK.cpp

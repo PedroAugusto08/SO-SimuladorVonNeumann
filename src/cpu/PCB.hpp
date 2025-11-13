@@ -55,7 +55,33 @@ struct PCB {
     std::atomic<uint64_t> cache_misses{0};
     std::atomic<uint64_t> io_cycles{1};
 
+    // Métricas de escalonamento (para Round Robin multicore)
+    std::atomic<uint64_t> arrival_time{0};      // Quando entrou no sistema
+    std::atomic<uint64_t> start_time{0};        // Primeira execução
+    std::atomic<uint64_t> finish_time{0};       // Quando terminou
+    std::atomic<uint64_t> total_wait_time{0};   // Tempo total em espera
+    std::atomic<uint64_t> context_switches{0};  // Número de trocas de contexto
+    std::atomic<int> assigned_core{-1};         // Núcleo atual (-1 = nenhum)
+    std::atomic<int> last_core{-1};             // Último núcleo usado
+
     MemWeights memWeights;
+    
+    // Funções auxiliares para cálculo de métricas
+    uint64_t get_turnaround_time() const {
+        if (finish_time == 0) return 0;
+        return finish_time.load() - arrival_time.load();
+    }
+    
+    uint64_t get_wait_time() const {
+        return total_wait_time.load();
+    }
+    
+    double get_cache_hit_rate() const {
+        uint64_t hits = cache_hits.load();
+        uint64_t misses = cache_misses.load();
+        if (hits + misses == 0) return 0.0;
+        return (double)hits / (hits + misses);
+    }
 };
 
 // Contabilizar cache

@@ -85,7 +85,7 @@ int main() {
     bool printLock = false;
 
     // Executa núcleo
-    Core(memManager, pcb, &ioRequests, printLock);
+    CoreExecutionLoop(memManager, pcb, &ioRequests, printLock);
 
     // Métricas
     std::cout << "=== METRICAS PCB ===\n";

@@ -403,8 +403,8 @@ void Control_Unit::Write_Back(Instruction_Data &data, ControlContext &context) {
     }
 }
 
-// A função Core agora espera um ponteiro para o PCB, pois o PCB não é mais copiável
-void* Core(MemoryManager &memoryManager, PCB &process, vector<unique_ptr<IORequest>>* ioRequests, bool &printLock) {
+// A função CoreExecutionLoop agora espera um ponteiro para o PCB, pois o PCB não é mais copiável
+void* CoreExecutionLoop(MemoryManager &memoryManager, PCB &process, vector<unique_ptr<IORequest>>* ioRequests, bool &printLock) {
     Control_Unit UC;
     Instruction_Data data;
     int clock = 0;

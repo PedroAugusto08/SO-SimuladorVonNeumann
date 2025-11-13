@@ -1,11 +1,13 @@
 # Compilador e flags
 CXX := g++
 CXXFLAGS := -Wall -Wextra -g -std=c++17 -Isrc
+LDFLAGS := -lpthread
 
 # Alvos principais
 TARGET := teste
 TARGET_HASH := test_hash_register
 TARGET_BANK := test_register_bank
+TARGET_SIM := simulador
 
 # Fontes principais
 SRC := src/teste.cpp src/cpu/ULA.cpp
@@ -19,8 +21,30 @@ OBJ_HASH := $(SRC_HASH:.cpp=.o)
 SRC_BANK := src/test_register_bank.cpp src/cpu/REGISTER_BANK.cpp
 OBJ_BANK := $(SRC_BANK:.cpp=.o)
 
+# Fontes para o simulador multicore
+SRC_SIM := src/main.cpp \
+           src/cpu/Core.cpp \
+		   src/cpu/RoundRobinScheduler.cpp \
+           src/cpu/CONTROL_UNIT.cpp \
+           src/cpu/pcb_loader.cpp \
+           src/cpu/REGISTER_BANK.cpp \
+           src/cpu/ULA.cpp \
+           src/IO/IOManager.cpp \
+           src/memory/cache.cpp \
+           src/memory/cachePolicy.cpp \
+           src/memory/MAIN_MEMORY.cpp \
+           src/memory/MemoryManager.cpp \
+           src/memory/SECONDARY_MEMORY.cpp \
+           src/parser_json/parser_json.cpp
+OBJ_SIM := $(SRC_SIM:.cpp=.o)
+
 # Make clean -> make -> make run
 all: clean $(TARGET) run
+
+# Regra para o simulador multicore
+$(TARGET_SIM): $(OBJ_SIM)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_SIM) $(LDFLAGS)
+	@echo "✓ Simulador multicore compilado com sucesso!"
 
 # Regra para o programa principal
 $(TARGET): $(OBJ)
@@ -39,7 +63,7 @@ $(TARGET_BANK): $(OBJ_BANK)
 
 clean:
 	@echo "🧹 Limpando arquivos antigos..."
-	@rm -f $(OBJ) $(OBJ_HASH) $(TARGET) $(TARGET_HASH) $(TARGET_BANK)
+	@rm -f $(OBJ) $(OBJ_HASH) $(OBJ_SIM) $(TARGET) $(TARGET_HASH) $(TARGET_BANK) $(TARGET_SIM)
 
 run:
 	@echo "🚀 Executando o programa..."
@@ -70,6 +94,8 @@ test-all: clean $(TARGET) $(TARGET_HASH)
 help:
 	@echo "📋 SO-SimuladorVonNeumann - Comandos Disponíveis:"
 	@echo ""
+	@echo "  make simulador     - 🎯 Compila simulador multicore Round-Robin"
+	@echo "  make run-sim       - 🚀 Executa simulador multicore"
 	@echo "  make / make all    - Compila e executa programa principal"
 	@echo "  make clean         - Remove arquivos gerados (.o, executáveis)"
 	@echo "  make run          - Executa programa principal (sem recompilar)"
@@ -84,7 +110,12 @@ help:
 	@echo "📊 Informações do Projeto:"
 	@echo "  Compilador: $(CXX)"
 	@echo "  Flags: $(CXXFLAGS)"
-	@echo "  Arquivos fonte: $(words $(SRC) $(SRC_HASH)) arquivos"
+	@echo "  Arquivos fonte: $(words $(SRC) $(SRC_HASH) $(SRC_SIM)) arquivos"
+
+# Executar simulador multicore
+run-sim: $(TARGET_SIM)
+	@echo "🚀 Executando simulador multicore Round-Robin..."
+	@./$(TARGET_SIM)
 
 # Verificação rápida de todos os componentes
 check: $(TARGET) $(TARGET_HASH)

@@ -21,7 +21,7 @@ class MemoryManager;
 struct PCB;
 struct IORequest;
 
-void* Core(MemoryManager &memoryManager, PCB &process, vector<unique_ptr<IORequest>>* ioRequests, bool &printLock);
+void* CoreExecutionLoop(MemoryManager &memoryManager, PCB &process, vector<unique_ptr<IORequest>>* ioRequests, bool &printLock);
 
 struct Instruction_Data {
     string source_register;
