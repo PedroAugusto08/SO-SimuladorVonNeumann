@@ -4,6 +4,7 @@
 
 * **🏆 Progresso**
   * [📊 Achievements - Rastreamento](ACHIEVEMENTS.md)
+  * [🎯 Escopo do Trabalho (Round Robin)](ESCOPO_TRABALHO.md)
 
 * **📋 Visão Geral**
   * [Introdução](01-introducao.md)
