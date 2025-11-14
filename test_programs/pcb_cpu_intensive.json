@@ -1,0 +1,10 @@
+{
+  "pid": 100,
+  "name": "CPU_Intensive_Process",
+  "quantum": 100,
+  "priority": 1,
+  "mem_weights": {
+    "primary": 5,
+    "secondary": 10
+  }
+}

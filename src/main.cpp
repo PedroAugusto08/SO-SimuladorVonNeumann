@@ -88,16 +88,46 @@ void print_metrics(const PCB& pcb) {
 }
 
 
-int main() {
+int main(int argc, char* argv[]) {
     // Configuração do sistema multicore
-    const int NUM_CORES = 2;  // Começamos com 2 núcleos para teste
+    int NUM_CORES = 2;  // Padrão: 2 núcleos
+    int QUANTUM = 100;   // Padrão: 100 ciclos
+    bool NON_PREEMPTIVE = false;  // Padrão: preemptivo
     
-    std::cout << "===========================================\n";
-    std::cout << "  SIMULADOR MULTICORE - ROUND ROBIN\n";
-    std::cout << "===========================================\n";
-    std::cout << "Configuração:\n";
+    // Parse de argumentos da linha de comando
+    for (int i = 1; i < argc; i++) {
+        std::string arg = argv[i];
+        if (arg == "--non-preemptive" || arg == "-np") {
+            NON_PREEMPTIVE = true;
+        } else if (arg == "--cores" || arg == "-c") {
+            if (i + 1 < argc) {
+                NUM_CORES = std::atoi(argv[++i]);
+            }
+        } else if (arg == "--quantum" || arg == "-q") {
+            if (i + 1 < argc) {
+                QUANTUM = std::atoi(argv[++i]);
+            }
+        } else if (arg == "--help" || arg == "-h") {
+            std::cout << "Uso: " << argv[0] << " [opções]\n";
+            std::cout << "Opções:\n";
+            std::cout << "  --cores, -c N         Número de núcleos (padrão: 2)\n";
+            std::cout << "  --quantum, -q N       Quantum em ciclos (padrão: 100)\n";
+            std::cout << "  --non-preemptive, -np Modo não-preemptivo (sem quantum)\n";
+            std::cout << "  --help, -h            Exibe esta ajuda\n";
+            return 0;
+        }
+    }
+    
+    std::cout << "===========================================";
+    std::cout << "\n  SIMULADOR MULTICORE - ROUND ROBIN\n";
+    std::cout << "===========================================";
+    std::cout << "\nConfiguração:\n";
     std::cout << "  - Núcleos: " << NUM_CORES << "\n";
     std::cout << "  - Política: Round Robin\n";
+    std::cout << "  - Modo: " << (NON_PREEMPTIVE ? "NÃO-PREEMPTIVO" : "PREEMPTIVO") << "\n";
+    if (!NON_PREEMPTIVE) {
+        std::cout << "  - Quantum: " << QUANTUM << " ciclos\n";
+    }
     std::cout << "===========================================\n\n";
     
     // 1. Inicialização dos Módulos Principais

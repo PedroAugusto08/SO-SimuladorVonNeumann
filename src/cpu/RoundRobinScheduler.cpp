@@ -9,14 +9,17 @@
 RoundRobinScheduler::RoundRobinScheduler(int num_cores,
                                          MemoryManager* mem_manager,
                                          IOManager* io_manager,
-                                         int default_quantum)
+                                         int default_quantum,
+                                         bool non_preemptive)
     : num_cores(num_cores),
       default_quantum(default_quantum),
+      non_preemptive(non_preemptive),
       memory_manager(mem_manager),
       io_manager(io_manager)
 {
     std::cout << "[Scheduler] Inicializando com " << num_cores
-              << " núcleos e quantum=" << default_quantum << "\n";
+              << " núcleos, quantum=" << default_quantum
+              << ", modo=" << (non_preemptive ? "NÃO-PREEMPTIVO" : "PREEMPTIVO") << "\n";
 
     for (int i = 0; i < num_cores; ++i) {
         cores.push_back(std::make_unique<Core>(i, memory_manager));
@@ -36,7 +39,12 @@ RoundRobinScheduler::~RoundRobinScheduler() {
 void RoundRobinScheduler::add_process(PCB* process) {
     std::lock_guard<std::mutex> lock(scheduler_mutex);
     process->arrival_time = current_time;
-    if (process->quantum == 0) process->quantum = default_quantum;
+    // Em modo não-preemptivo, quantum é desabilitado (valor grande)
+    if (non_preemptive) {
+        process->quantum = 999999;  // Sem interrupção por quantum
+    } else if (process->quantum == 0) {
+        process->quantum = default_quantum;
+    }
     process->state = State::Ready;
     ready_queue.push_back(process);
     total_count++;
@@ -62,8 +70,9 @@ void RoundRobinScheduler::schedule_cycle() {
 }
 
 void RoundRobinScheduler::assign_process_to_core(PCB* process, Core* core) {
+    std::string mode = non_preemptive ? "NÃO-PREEMPTIVO" : "quantum=" + std::to_string(process->quantum);
     std::cout << "[Scheduler] Atribuindo P" << process->pid
-              << " ao Core " << core->get_id() << " (quantum=" << process->quantum << ")\n";
+              << " ao Core " << core->get_id() << " (" << mode << ")\n";
 
     process->assigned_core = core->get_id();
 

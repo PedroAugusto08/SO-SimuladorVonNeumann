@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "task_id": "cpu_intensive_test",
+    "author": "multicore_team",
+    "description": "Programa CPU-bound com operações aritméticas intensivas sem I/O"
+  },
+  "data": {
+    "counter": 1000,
+    "accumulator": 0,
+    "temp1": 0,
+    "temp2": 0,
+    "result": 0
+  },
+  "program": [
+    { "label": "start", "instruction": "li", "rt": "$t0", "immediate": 1000 },
+    { "instruction": "li", "rt": "$t1", "immediate": 0 },
+    { "instruction": "li", "rt": "$t2", "immediate": 5 },
+    { "instruction": "li", "rt": "$t3", "immediate": 3 },
+    
+    { "label": "loop", "instruction": "beq", "rs": "$t0", "rt": "$zero", "label": "end_loop" },
+    
+    { "instruction": "add", "rd": "$t4", "rs": "$t1", "rt": "$t2" },
+    { "instruction": "mult", "rd": "$t5", "rs": "$t4", "rt": "$t3" },
+    { "instruction": "sub", "rd": "$t6", "rs": "$t5", "rt": "$t2" },
+    { "instruction": "div", "rd": "$t7", "rs": "$t6", "rt": "$t3" },
+    
+    { "instruction": "add", "rd": "$t1", "rs": "$t1", "rt": "$t7" },
+    
+    { "instruction": "addi", "rt": "$t0", "rs": "$t0", "immediate": -1 },
+    
+    { "instruction": "j", "label": "loop" },
+    
+    { "label": "end_loop", "instruction": "sw", "rt": "$t1", "offset": 0, "base": "result" },
+    
+    { "label": "end", "instruction": "end" }
+  ]
+}

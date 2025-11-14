@@ -1,0 +1,10 @@
+{
+  "pid": 101,
+  "name": "IO_Bound_Process",
+  "quantum": 100,
+  "priority": 2,
+  "mem_weights": {
+    "primary": 5,
+    "secondary": 10
+  }
+}

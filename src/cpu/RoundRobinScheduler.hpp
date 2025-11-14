@@ -26,7 +26,8 @@ public:
     RoundRobinScheduler(int num_cores,
                         MemoryManager* mem_manager,
                         IOManager* io_manager,
-                        int default_quantum = 100);
+                        int default_quantum = 100,
+                        bool non_preemptive = false);
     ~RoundRobinScheduler();
 
     void add_process(PCB* process);
@@ -44,6 +45,7 @@ private:
 
     int default_quantum{100};
     int num_cores{0};
+    bool non_preemptive{false};  // Modo não-preemptivo (sem quantum)
 
     int finished_count{0};
     int total_count{0};
