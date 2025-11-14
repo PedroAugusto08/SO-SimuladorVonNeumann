@@ -11,7 +11,8 @@
 #include "cpu/PCB.hpp"
 #include "cpu/pcb_loader.hpp"
 #include "cpu/CONTROL_UNIT.hpp"
-#include "cpu/Core.hpp"  // NOVO: Classe Core para multicore
+#include "cpu/Core.hpp"
+#include "cpu/RoundRobinScheduler.hpp"  // ✅ ADICIONAR ISSO!
 #include "parser_json/parser_json.hpp"
 #include "IO/IOManager.hpp"
 
@@ -91,6 +92,7 @@ void print_metrics(const PCB& pcb) {
 int main() {
     // Configuração do sistema multicore
     const int NUM_CORES = 2;  // Começamos com 2 núcleos para teste
+    const int DEFAULT_QUANTUM = 100;  // Quantum padrão
     
     std::cout << "===========================================\n";
     std::cout << "  SIMULADOR MULTICORE - ROUND ROBIN\n";
@@ -98,6 +100,7 @@ int main() {
     std::cout << "Configuração:\n";
     std::cout << "  - Núcleos: " << NUM_CORES << "\n";
     std::cout << "  - Política: Round Robin\n";
+    std::cout << "  - Quantum: " << DEFAULT_QUANTUM << " ciclos\n";
     std::cout << "===========================================\n\n";
     
     // 1. Inicialização dos Módulos Principais
@@ -105,17 +108,12 @@ int main() {
     MemoryManager memManager(1024, 8192);
     IOManager ioManager;
     
-    // 2. Criar núcleos de processamento
-    std::vector<std::unique_ptr<Core>> cores;
-    for (int i = 0; i < NUM_CORES; i++) {
-        cores.push_back(std::make_unique<Core>(i, &memManager));
-    }
-    std::cout << "✓ " << NUM_CORES << " núcleos criados\n\n";
+    // 2. Criar Escalonador Round Robin (gerencia núcleos internamente)
+    RoundRobinScheduler scheduler(NUM_CORES, &memManager, &ioManager, DEFAULT_QUANTUM);
+    std::cout << "✓ Escalonador Round Robin criado com " << NUM_CORES << " núcleos\n\n";
 
     // 3. Carregamento dos Processos
     std::vector<std::unique_ptr<PCB>> process_list;
-    std::deque<PCB*> ready_queue;
-    std::vector<PCB*> blocked_list;
 
     // Carrega um processo a partir de um arquivo JSON
     auto p1 = std::make_unique<PCB>();
@@ -126,125 +124,49 @@ int main() {
         // Define tempo de chegada
         p1->arrival_time = 0;
         
+        // Adiciona ao escalonador
+        scheduler.add_process(p1.get());
         process_list.push_back(std::move(p1));
     } else {
         std::cerr << "Erro ao carregar 'process1.json'. Certifique-se de que o arquivo está na pasta raiz do projeto.\n";
         return 1;
     }
 
-    // Adiciona os processos na fila de prontos
-    for (const auto& process : process_list) {
-        ready_queue.push_back(process.get());
-    }
+    std::cout << "✓ " << process_list.size() << " processo(s) carregado(s)\n\n";
 
-    int total_processes = process_list.size();
-    int finished_processes = 0;
-    uint64_t current_time = 0;
-
-    // 4. Loop Principal do Escalonador Multicore
+    // 4. Loop Principal do Escalonador Round Robin
     std::cout << "\n===========================================\n";
     std::cout << "Iniciando escalonador Round-Robin Multicore...\n";
     std::cout << "===========================================\n\n";
     
-    while (finished_processes < total_processes) {
-        current_time++;
-        
-        // 4.1 Verifica processos desbloqueados pelo IOManager
-        for (auto it = blocked_list.begin(); it != blocked_list.end(); ) {
-            if ((*it)->state == State::Ready) {
-                std::cout << "[Scheduler] Processo P" << (*it)->pid 
-                          << " desbloqueado - movendo para fila de prontos\n";
-                ready_queue.push_back(*it);
-                it = blocked_list.erase(it);
-            } else {
-                ++it;
-            }
-        }
-
-        // 4.2 Atribui processos a núcleos livres
-        for (auto& core : cores) {
-            if (core->is_idle() && !ready_queue.empty()) {
-                PCB* process = ready_queue.front();
-                ready_queue.pop_front();
-                
-                std::cout << "[Scheduler] Atribuindo P" << process->pid 
-                          << " ao Core " << core->get_id() << "\n";
-                
-                // Detecta migração de núcleo
-                if (process->last_core != -1 && 
-                    process->last_core != core->get_id()) {
-                    std::cout << "           └─> Migração: Core " 
-                              << process->last_core << " → Core " 
-                              << core->get_id() << "\n";
-                }
-                
-                try {
-                    core->execute_async(process);
-                } catch (const std::exception& e) {
-                    std::cerr << "[Scheduler] ERRO ao executar P" 
-                              << process->pid << ": " << e.what() << "\n";
-                    process->state = State::Finished;
-                }
-            }
-        }
-
-        // 4.3 Coleta processos que terminaram execução
-        for (auto& core : cores) {
-            if (!core->is_idle() && !core->is_thread_running()) {
-                PCB* process = core->get_current_process();
-                
-                if (process) {
-                    // Aguarda thread finalizar
-                    core->wait_completion();
-                    
-                    // Trata estado do processo
-                    switch (process->state) {
-                        case State::Finished:
-                            std::cout << "[Scheduler] P" << process->pid 
-                                      << " FINALIZADO no Core " << core->get_id() 
-                                      << "\n";
-                            print_metrics(*process);
-                            finished_processes++;
-                            break;
-                        
-                        case State::Blocked:
-                            std::cout << "[Scheduler] P" << process->pid 
-                                      << " BLOQUEADO (I/O) - entregando ao IOManager\n";
-                            ioManager.registerProcessWaitingForIO(process);
-                            blocked_list.push_back(process);
-                            break;
-                        
-                        default:  // Ready - quantum expirou
-                            std::cout << "[Scheduler] P" << process->pid 
-                                      << " quantum expirou - voltando para fila\n";
-                            process->total_wait_time++;
-                            ready_queue.push_back(process);
-                            break;
-                    }
-                }
-            }
-        }
-        
-        // 4.4 Atualiza tempo de espera dos processos na fila
-        for (PCB* process : ready_queue) {
-            process->total_wait_time++;
-        }
-
-        // 4.5 Pequena pausa se não há trabalho
-        if (ready_queue.empty() && 
-            std::all_of(cores.begin(), cores.end(), 
-                       [](const auto& c) { return c->is_idle(); })) {
-            if (blocked_list.empty()) {
-                break;  // Nada mais a fazer
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
+    // Executa até todos processos terminarem
+    while (scheduler.has_pending_processes()) {
+        scheduler.schedule_cycle();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-
+    
     std::cout << "\n===========================================\n";
     std::cout << "Todos os processos foram finalizados!\n";
-    std::cout << "Tempo total de simulação: " << current_time << " ciclos\n";
-    std::cout << "===========================================\n";
+    std::cout << "===========================================\n\n";
+    
+    // 5. Exibir estatísticas do escalonador
+    auto stats = scheduler.get_statistics();
+    std::cout << "--- ESTATÍSTICAS DO ESCALONADOR ---\n";
+    std::cout << "Total de processos:       " << scheduler.get_total_count() << "\n";
+    std::cout << "Processos finalizados:    " << scheduler.get_finished_count() << "\n";
+    std::cout << "Tempo médio de espera:    " << stats.avg_wait_time << " ciclos\n";
+    std::cout << "Tempo médio de retorno:   " << stats.avg_turnaround_time << " ciclos\n";
+    std::cout << "Utilização média da CPU:  " << (stats.avg_cpu_utilization * 100) << "%\n";
+    std::cout << "Throughput:               " << stats.throughput << " processos/ciclo\n";
+    std::cout << "Context switches totais:  " << stats.total_context_switches << "\n";
+    std::cout << "------------------------------------\n\n";
+    
+    // 6. Exibir métricas individuais de cada processo
+    for (const auto& process : process_list) {
+        if (process->state == State::Finished) {
+            print_metrics(*process);
+        }
+    }
 
     return 0;
 }

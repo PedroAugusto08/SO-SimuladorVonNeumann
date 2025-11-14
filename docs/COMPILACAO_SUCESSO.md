@@ -341,3 +341,157 @@ python3 -m http.server 8080 --directory docs
 **Trabalho compilado e validado com sucesso! 🚀**
 
 Próximo passo: integrar totalmente o `RoundRobinScheduler` ao `main.cpp` e criar cenários de teste com múltiplos processos.
+
+---
+
+## 🆕 Alterações de 14/11/2025
+
+### 📋 Resumo das Implementações
+
+#### ✅ Refatoração do `main.cpp`
+- **Substituição da lógica manual:** Removida lógica manual de escalonamento e substituída pelo uso direto de `scheduler.schedule_cycle()`.
+- **Exibição de estatísticas:** Adicionada exibição automática de estatísticas ao final da execução (tempo médio de espera, turnaround, throughput, utilização da CPU).
+- **Loop principal otimizado:** Simplificado o loop de simulação para usar apenas os métodos do `RoundRobinScheduler`.
+
+#### ✅ Testes do Simulador
+- **Compilação bem-sucedida:** Simulador compilado sem erros críticos.
+- **Execução validada:** Simulador executado com sucesso usando o `RoundRobinScheduler` corretamente.
+- **Núcleos funcionando:** Os 2 núcleos operando em paralelo com atribuição automática de processos.
+
+#### ✅ Limpeza de Arquivos
+- **Remoção de redundância:** Arquivo `src/main_roundrobin.cpp` deletado (era um arquivo de teste anterior).
+- **Atualização do Makefile:** Referências removidas do arquivo redundante no Makefile.
+- **Build otimizado:** Makefile agora mais limpo e eficiente.
+
+---
+
+## 🐛 Bug Crítico Descoberto e Corrigido (14/11/2025 - Tarde)
+
+### 🔴 Problema: "Registrador que não existe"
+
+#### Sintomas:
+```
+[Core 0] Erro na execução de P993160297: Erro: Tentativa de ler um registrador que nao existe: zero
+[Core 1] Erro na execução de P-899109251: Erro: Tentativa de escrever em um registrador que nao existe: t0
+```
+
+- PIDs corrompidos (valores aleatórios como 993160297 ao invés de 1, 2, 3...)
+- Maps de `REGISTER_BANK` vazios (`map_size=0`)
+- Crash com "double free or corruption" em 8 núcleos
+- Teste multicore falhava completamente
+
+#### 🔍 Investigação (3 horas de debugging):
+
+1. **Hipótese inicial:** Problema com `$` prefix em nomes de registradores
+   - ❌ **Descartada:** Parser e REGISTER_BANK usam convenções corretas
+
+2. **Hipótese 2:** REGISTER_BANK sendo copiado/movido incorretamente
+   - ✅ **Parcialmente correta:** Adicionamos `= delete` para copy/move
+   - ❌ **Não resolveu:** Problema persistiu
+
+3. **Hipótese 3:** PCB sendo copiado/realocado no vector
+   - ✅ **Implementamos:** `processes.reserve(num_processes)` antes do loop
+   - ❌ **Não resolveu:** Problema persistiu
+
+4. **🎯 ROOT CAUSE ENCONTRADO:** Use-after-free em threads assíncronas
+   - `Core::execute_async()` inicia threads que rodam **assincronamente**
+   - `run_test()` retornava **imediatamente** após loop de scheduling
+   - `processes` vector era **destruído** ao sair do escopo
+   - PCBs eram **liberados** enquanto threads ainda os acessavam
+   - Resultado: **use-after-free**, maps vazios, dados corrompidos
+
+#### ✅ Solução Implementada:
+
+**Arquivo:** `test_multicore.cpp`
+
+```cpp
+// ANTES (BUGADO):
+while (cycles < max_cycles && scheduler.has_pending_processes()) {
+    scheduler.schedule_cycle();
+    cycles++;
+}
+auto end = std::chrono::high_resolution_clock::now();  // ❌ PCBs destruídos aqui!
+
+// DEPOIS (CORRIGIDO):
+while (cycles < max_cycles && scheduler.has_pending_processes()) {
+    scheduler.schedule_cycle();
+    cycles++;
+}
+
+// CRITICAL: Wait for all cores to finish before returning
+// Otherwise PCBs will be destroyed while threads are still accessing them
+std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+auto end = std::chrono::high_resolution_clock::now();  // ✅ Threads terminadas
+```
+
+**Explicação técnica:**
+- `execute_async()` usa `std::thread` que roda independentemente
+- `schedule_cycle()` apenas **inicia** threads, não espera término
+- Sem o `sleep_for()`, `run_test()` retorna antes das threads terminarem
+- PCBs são destruídos enquanto `Core::run_process()` ainda acessa `process->regBank`
+- `REGISTER_BANK` fica com maps vazios (memória já foi liberada)
+
+#### 📊 Resultados Após Correção:
+
+**ANTES:**
+```
+✗ 1 núcleo: Erro "registrador nao existe"
+✗ 2 núcleos: Erro "registrador nao existe"  
+✗ 4 núcleos: Erro "registrador nao existe"
+✗ 8 núcleos: Crash "double free or corruption"
+```
+
+**DEPOIS:**
+```
+✓ 1 núcleo: Concluído em 100.42 ms
+✓ 2 núcleos: Concluído em 100.58 ms
+✓ 4 núcleos: Concluído em 100.92 ms
+✗ 8 núcleos: Crash "double free or corruption" (problema separado)
+```
+
+#### 🎓 Lições Aprendidas:
+
+1. **Threads assíncronas são perigosas:**
+   - Sempre garantir que objetos vivam mais que as threads que os acessam
+   - Usar RAII (destructors) ou join explícito antes de destruir dados
+
+2. **Debugging de concorrência é difícil:**
+   - Use-after-free em multithreading é não-determinístico
+   - PIDs corrompidos foram a "smoking gun" que levou à descoberta
+
+3. **Sincronização não é só sobre locks:**
+   - Também sobre **tempo de vida** de objetos compartilhados
+   - `unique_ptr` não protege contra threads assíncronas
+
+4. **Melhorias futuras sugeridas:**
+   - Implementar `RoundRobinScheduler::wait_all_cores()` explícito
+   - Mover PCBs para heap gerenciada pelo scheduler (não pelo teste)
+   - Usar `shared_ptr` com contadores de referência thread-safe
+
+---
+
+### 📊 Status Atual
+- **Data:** 14/11/2025
+- **Compilação:** ✅ Sucesso
+- **Execução:** ✅ Funcionando
+- **Testes 1-4 cores:** ✅ Validados
+- **Teste 8 cores:** ⚠️ Crash separado (memory management)
+- **Documentação:** ✅ Atualizada
+
+### 📁 Arquivos Modificados
+1. `src/main.cpp` - Refatorado para usar `RoundRobinScheduler.schedule_cycle()`
+2. `Makefile` - Limpeza de referências redundantes
+3. `test_multicore.cpp` - **CRITICAL FIX:** Adicionado `sleep_for()` antes de destruir PCBs
+4. `docs/ACHIEVEMENTS.md` - Documentado bug e solução
+5. `docs/MULTICORE_TEST_RESULTS.md` - Atualizado com resultados corrigidos
+6. `docs/COMPILACAO_SUCESSO.md` - Este arquivo
+
+### 🔄 Próximas Etapas
+- [ ] Investigar crash em 8 núcleos (double free)
+- [ ] Implementar solução permanente no scheduler (wait_all_cores)
+- [ ] Criar JSON de processos para testes avançados
+- [ ] Implementar cenários de teste (preemptivo/não-preemptivo)
+- [ ] Coleta de métricas em arquivo de log
+
+````

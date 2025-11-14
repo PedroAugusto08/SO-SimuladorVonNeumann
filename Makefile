@@ -8,6 +8,8 @@ TARGET := teste
 TARGET_HASH := test_hash_register
 TARGET_BANK := test_register_bank
 TARGET_SIM := simulador
+TARGET_MULTICORE := test_multicore
+TARGET_PREEMPT := test_preemption
 
 # Fontes principais
 SRC := src/teste.cpp src/cpu/ULA.cpp
@@ -38,6 +40,40 @@ SRC_SIM := src/main.cpp \
            src/parser_json/parser_json.cpp
 OBJ_SIM := $(SRC_SIM:.cpp=.o)
 
+# Fontes para teste de escalabilidade multicore
+SRC_MULTICORE := test_multicore.cpp \
+                 src/cpu/Core.cpp \
+                 src/cpu/RoundRobinScheduler.cpp \
+                 src/cpu/CONTROL_UNIT.cpp \
+                 src/cpu/pcb_loader.cpp \
+                 src/cpu/REGISTER_BANK.cpp \
+                 src/cpu/ULA.cpp \
+                 src/IO/IOManager.cpp \
+                 src/memory/cache.cpp \
+                 src/memory/cachePolicy.cpp \
+                 src/memory/MAIN_MEMORY.cpp \
+                 src/memory/MemoryManager.cpp \
+                 src/memory/SECONDARY_MEMORY.cpp \
+                 src/parser_json/parser_json.cpp
+OBJ_MULTICORE := $(SRC_MULTICORE:.cpp=.o)
+
+# Fontes para teste de preempção
+SRC_PREEMPT := test_preemption.cpp \
+               src/cpu/Core.cpp \
+               src/cpu/RoundRobinScheduler.cpp \
+               src/cpu/CONTROL_UNIT.cpp \
+               src/cpu/pcb_loader.cpp \
+               src/cpu/REGISTER_BANK.cpp \
+               src/cpu/ULA.cpp \
+               src/IO/IOManager.cpp \
+               src/memory/cache.cpp \
+               src/memory/cachePolicy.cpp \
+               src/memory/MAIN_MEMORY.cpp \
+               src/memory/MemoryManager.cpp \
+               src/memory/SECONDARY_MEMORY.cpp \
+               src/parser_json/parser_json.cpp
+OBJ_PREEMPT := $(SRC_PREEMPT:.cpp=.o)
+
 # Make clean -> make -> make run
 all: clean $(TARGET) run
 
@@ -58,12 +94,22 @@ $(TARGET_HASH): $(OBJ_HASH)
 $(TARGET_BANK): $(OBJ_BANK)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_BANK)
 
+# Regra para o teste de escalabilidade multicore
+$(TARGET_MULTICORE): $(OBJ_MULTICORE)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_MULTICORE) $(LDFLAGS)
+	@echo "✓ Teste de escalabilidade multicore compilado!"
+
+# Regra para o teste de preempção
+$(TARGET_PREEMPT): $(OBJ_PREEMPT)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_PREEMPT) $(LDFLAGS)
+	@echo "✓ Teste de preempção compilado!"
+
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	@echo "🧹 Limpando arquivos antigos..."
-	@rm -f $(OBJ) $(OBJ_HASH) $(OBJ_SIM) $(TARGET) $(TARGET_HASH) $(TARGET_BANK) $(TARGET_SIM)
+	@rm -f $(OBJ) $(OBJ_HASH) $(OBJ_SIM) $(OBJ_MULTICORE) $(OBJ_PREEMPT) $(TARGET) $(TARGET_HASH) $(TARGET_BANK) $(TARGET_SIM) $(TARGET_MULTICORE) $(TARGET_PREEMPT)
 
 run:
 	@echo "🚀 Executando o programa..."
@@ -78,6 +124,16 @@ test-hash: clean $(TARGET_HASH)
 test-bank: clean $(TARGET_BANK)
 	@echo "🧪 Executando teste do Register Bank..."
 	@./$(TARGET_BANK)
+
+# Teste de escalabilidade multicore (1, 2, 4, 8 núcleos)
+test-multicore: $(TARGET_MULTICORE)
+	@echo "🧪 Executando teste de escalabilidade multicore..."
+	@./$(TARGET_MULTICORE)
+
+# Teste de preempção por quantum
+test-preemption: $(TARGET_PREEMPT)
+	@echo "🧪 Executando teste de preempção..."
+	@./$(TARGET_PREEMPT)
 
 # Testa ambos os programas
 test-all: clean $(TARGET) $(TARGET_HASH)
@@ -96,6 +152,8 @@ help:
 	@echo ""
 	@echo "  make simulador     - 🎯 Compila simulador multicore Round-Robin"
 	@echo "  make run-sim       - 🚀 Executa simulador multicore"
+	@echo "  make test-preemption - 🧪 Testa preempção por quantum"
+	@echo "  make test-multicore - 🧪 Compila e executa teste de escalabilidade"
 	@echo "  make / make all    - Compila e executa programa principal"
 	@echo "  make clean         - Remove arquivos gerados (.o, executáveis)"
 	@echo "  make run          - Executa programa principal (sem recompilar)"

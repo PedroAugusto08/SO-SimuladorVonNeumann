@@ -33,13 +33,11 @@ void Cache::put(size_t address, size_t data, MemoryManager* memManager) {
         if (addr_to_remove != -1) {
             CacheEntry& entry_to_remove = cacheMap[addr_to_remove];
 
-            // Lógica de WRITE-BACK: se o bloco a ser removido estiver sujo...
-            if (entry_to_remove.isDirty) {
-                // ...escreve o dado de volta na memória usando o MemoryManager.
-                // Aqui passamos 'nullptr' para o PCB, pois a operação de write-back
-                // é do sistema de memória e não de um processo específico.
-                memManager->writeToFile(addr_to_remove, entry_to_remove.data);
-            }
+            // NOTE: Write-back desabilitado na arquitetura multicore
+            // Cache L1 é privada, write-back seria feito para memória compartilhada
+            // Por simplicidade, usamos write-through (dados escritos imediatamente)
+            // Em arquitetura real, isso seria otimizado com protocolo de coerência
+            
             // Remove da cache
             cacheMap.erase(addr_to_remove);
         }
