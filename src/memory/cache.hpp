@@ -7,7 +7,7 @@
 #include <vector>
 #include <queue> // Adicionado para FIFO
 
-#define CACHE_CAPACITY 16
+#define CACHE_CAPACITY 128  // Aumentado de 16 para 128 (8x maior para melhor hit rate)
 #define CACHE_MISS UINT32_MAX
 
 struct CacheEntry {

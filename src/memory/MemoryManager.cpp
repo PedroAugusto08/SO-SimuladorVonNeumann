@@ -21,10 +21,7 @@ MemoryManager::MemoryManager(size_t mainMemorySize, size_t secondaryMemorySize) 
 }
 
 void MemoryManager::setThreadCache(Cache* l1_cache) {
-    std::cout << "@@@ [setThreadCache] CHAMADO! current=" << (void*)current_thread_cache 
-              << " novo=" << (void*)l1_cache << " @@@" << std::endl;
     current_thread_cache = l1_cache;
-    std::cout << "@@@ [setThreadCache] SETADO! current=" << (void*)current_thread_cache << " @@@" << std::endl;
 }
 
 Cache* MemoryManager::getThreadCache() {

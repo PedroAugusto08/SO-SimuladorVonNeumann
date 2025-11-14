@@ -47,7 +47,7 @@ public:
      * @return true se a thread está ativa
      */
     bool is_thread_running() const {
-        return state.load() == CoreState::BUSY;
+        return execution_thread.joinable() && state.load() == CoreState::BUSY;
     }
     
     /**

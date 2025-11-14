@@ -55,6 +55,11 @@ void Core::execute_async(PCB* process) {
     std::cout << "[Core " << core_id << "] Iniciando execução do processo P" 
               << process->pid << " (quantum=" << process->quantum << ")\n";
     
+    // CRÍTICO: Se há thread anterior, fazer join antes de criar nova
+    if (execution_thread.joinable()) {
+        execution_thread.join();
+    }
+    
     // Inicia thread de execução
     execution_thread = std::thread(&Core::run_process, this, process);
 }
@@ -66,6 +71,9 @@ void Core::wait_completion() {
 }
 
 void Core::run_process(PCB* process) {
+    // 🔥 CRÍTICO: Registrar cache L1 privada desta thread
+    MemoryManager::setThreadCache(L1_cache.get());
+    
     // Estruturas de controle
     Control_Unit control_unit;
     int counter = 0;
@@ -149,12 +157,10 @@ void Core::run_process(PCB* process) {
                   << cycles_in_quantum << " ciclos)\n";
     }
     
-    // Libera núcleo
-    {
-        std::lock_guard<std::mutex> lock(core_mutex);
-        current_process = nullptr;
-        state.store(CoreState::IDLE);
-    }
+    // Libera núcleo (CRÍTICO: lock ANTES de mudar state para evitar race condition)
+    std::lock_guard<std::mutex> lock(core_mutex);
+    current_process = nullptr;
+    state.store(CoreState::IDLE);
     
     std::cout << "[Core " << core_id << "] Liberado (agora IDLE)\n";
 }
