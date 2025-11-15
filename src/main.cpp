@@ -94,6 +94,9 @@ int main(int argc, char* argv[]) {
     int QUANTUM = 100;   // Padrão: 100 ciclos
     bool NON_PREEMPTIVE = false;  // Padrão: preemptivo
     
+    // Lista de pares (programa.json, pcb.json) para carregar
+    std::vector<std::pair<std::string, std::string>> process_files;
+    
     // Parse de argumentos da linha de comando
     for (int i = 1; i < argc; i++) {
         std::string arg = argv[i];
@@ -107,15 +110,31 @@ int main(int argc, char* argv[]) {
             if (i + 1 < argc) {
                 QUANTUM = std::atoi(argv[++i]);
             }
+        } else if (arg == "--process" || arg == "-p") {
+            // Formato: --process programa.json pcb.json
+            if (i + 2 < argc) {
+                std::string program = argv[++i];
+                std::string pcb = argv[++i];
+                process_files.push_back({program, pcb});
+            }
         } else if (arg == "--help" || arg == "-h") {
             std::cout << "Uso: " << argv[0] << " [opções]\n";
             std::cout << "Opções:\n";
-            std::cout << "  --cores, -c N         Número de núcleos (padrão: 2)\n";
-            std::cout << "  --quantum, -q N       Quantum em ciclos (padrão: 100)\n";
-            std::cout << "  --non-preemptive, -np Modo não-preemptivo (sem quantum)\n";
-            std::cout << "  --help, -h            Exibe esta ajuda\n";
+            std::cout << "  --cores, -c N              Número de núcleos (padrão: 2)\n";
+            std::cout << "  --quantum, -q N            Quantum em ciclos (padrão: 100)\n";
+            std::cout << "  --non-preemptive, -np      Modo não-preemptivo (sem quantum)\n";
+            std::cout << "  --process, -p PROG PCB     Adiciona processo (pode repetir)\n";
+            std::cout << "  --help, -h                 Exibe esta ajuda\n";
+            std::cout << "\nExemplo:\n";
+            std::cout << "  " << argv[0] << " -c 2 -p tasks.json process1.json\n";
+            std::cout << "  " << argv[0] << " --non-preemptive -p prog1.json pcb1.json -p prog2.json pcb2.json\n";
             return 0;
         }
+    }
+    
+    // Se nenhum processo foi especificado, usa configuração padrão
+    if (process_files.empty()) {
+        process_files.push_back({"tasks.json", "process1.json"});
     }
     
     std::cout << "===========================================";
@@ -147,20 +166,67 @@ int main(int argc, char* argv[]) {
     std::deque<PCB*> ready_queue;
     std::vector<PCB*> blocked_list;
 
-    // Carrega um processo a partir de um arquivo JSON
-    auto p1 = std::make_unique<PCB>();
-    if (load_pcb_from_json("process1.json", *p1)) {
-        std::cout << "Carregando programa 'tasks.json' para o processo " << p1->pid << "...\n";
-        loadJsonProgram("tasks.json", memManager, *p1, 0);
+    std::cout << "\n===========================================\n";
+    std::cout << "  CARREGAMENTO DE PROCESSOS\n";
+    std::cout << "===========================================\n";
+    std::cout << "Total de processos a carregar: " << process_files.size() << "\n\n";
+    
+    // IMPORTANTE: Todos os processos devem ser carregados na memória ANTES da execução
+    uint32_t next_base_address = 0;
+    
+    for (size_t i = 0; i < process_files.size(); i++) {
+        const auto& [program_file, pcb_file] = process_files[i];
         
-        // Define tempo de chegada
-        p1->arrival_time = 0;
+        auto pcb = std::make_unique<PCB>();
         
-        process_list.push_back(std::move(p1));
-    } else {
-        std::cerr << "Erro ao carregar 'process1.json'. Certifique-se de que o arquivo está na pasta raiz do projeto.\n";
-        return 1;
+        // Carrega PCB do arquivo
+        if (!load_pcb_from_json(pcb_file, *pcb)) {
+            std::cerr << "❌ ERRO ao carregar PCB '" << pcb_file << "'\n";
+            std::cerr << "   Verifique se o arquivo existe e está formatado corretamente.\n";
+            return 1;
+        }
+        
+        std::cout << "Processo " << (i+1) << "/" << process_files.size() << ":\n";
+        std::cout << "  ├─ PID:       " << pcb->pid << "\n";
+        std::cout << "  ├─ Nome:      " << pcb->name << "\n";
+        std::cout << "  ├─ Quantum:   " << (NON_PREEMPTIVE ? 999999 : pcb->quantum) << "\n";
+        std::cout << "  ├─ PCB:       " << pcb_file << "\n";
+        std::cout << "  └─ Programa:  " << program_file << "\n";
+        
+        // Sobrescreve quantum se modo não-preemptivo
+        if (NON_PREEMPTIVE) {
+            pcb->quantum = 999999;
+        }
+        
+        // Carrega programa na memória
+        std::cout << "     └─> Carregando instruções na memória...\n";
+        
+        try {
+            loadJsonProgram(program_file, memManager, *pcb, next_base_address);
+            
+            std::cout << "     └─> ✓ Carregado no endereço base 0x" 
+                      << std::hex << next_base_address << std::dec << "\n";
+            
+            // Atualiza endereço base para próximo processo
+            // Cada processo ocupa no mínimo 1KB (256 words de 4 bytes)
+            next_base_address += 1024;
+            
+            // Define tempo de chegada (todos chegam no tempo 0 conforme especificação)
+            pcb->arrival_time = 0;
+            
+            process_list.push_back(std::move(pcb));
+            std::cout << "\n";
+            
+        } catch (const std::exception& e) {
+            std::cerr << "     └─> ❌ ERRO ao carregar programa: " << e.what() << "\n";
+            return 1;
+        }
     }
+
+    std::cout << "===========================================\n";
+    std::cout << "✓ Todos os " << process_list.size() 
+              << " processos foram carregados na memória\n";
+    std::cout << "===========================================\n\n";
 
     // Adiciona os processos na fila de prontos
     for (const auto& process : process_list) {

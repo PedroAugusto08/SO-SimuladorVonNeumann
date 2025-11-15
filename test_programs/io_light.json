@@ -1,0 +1,11 @@
+{
+    "format": "tasks",
+    "tasks": [
+        {"instruction": "ADDI", "args": [1, 0, 1]},
+        {"instruction": "ADDI", "args": [2, 0, 10]},
+        {"instruction": "PRINT", "args": [1, 0, 0]},
+        {"instruction": "ADDI", "args": [1, 1, 1]},
+        {"instruction": "BLT", "args": [1, 2, -12]},
+        {"instruction": "END"}
+    ]
+}
