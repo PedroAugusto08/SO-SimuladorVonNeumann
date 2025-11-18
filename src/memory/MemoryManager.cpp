@@ -32,19 +32,8 @@ uint32_t MemoryManager::read(uint32_t address, PCB& process) {
     process.mem_accesses_total.fetch_add(1);
     process.mem_reads.fetch_add(1);
 
-    // Acesso DIRETO à cache thread_local - SEM LOCKS!
+    // Cache L1 privada (thread_local, SEM LOCKS!)
     Cache* l1_cache = current_thread_cache;
-    
-    // DEBUG: CONTAR total de reads e com cache
-    static std::atomic<int> total_reads{0};
-    static std::atomic<int> reads_with_cache{0};
-    int current_count = total_reads.fetch_add(1) + 1;
-    if (l1_cache) reads_with_cache.fetch_add(1);
-    
-    if (current_count <= 10 || current_count % 50 == 0) {
-        printf("[READ #%d] l1_cache=%p\n", current_count, (void*)l1_cache);
-        fflush(stdout);
-    }
     
     if (l1_cache) {
         size_t cache_data = l1_cache->get(address);
@@ -65,16 +54,7 @@ uint32_t MemoryManager::read(uint32_t address, PCB& process) {
     // Lê da RAM/Disco (compartilhado, usa shared_lock)
     uint32_t data_from_mem;
     {
-        // Medir tempo de espera no lock
-        auto lock_start = std::chrono::high_resolution_clock::now();
         std::shared_lock<std::shared_mutex> lock(memory_mutex);
-        auto lock_end = std::chrono::high_resolution_clock::now();
-        
-        auto wait_time = std::chrono::duration_cast<std::chrono::nanoseconds>(lock_end - lock_start).count();
-        if (wait_time > 1000) { // > 1 microsegundo = contenção
-            global_stats.lock_contentions.fetch_add(1);
-            global_stats.total_lock_wait_ns.fetch_add(wait_time);
-        }
         
         if (address < mainMemoryLimit) {
             global_stats.ram_accesses.fetch_add(1);

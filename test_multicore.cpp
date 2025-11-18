@@ -9,6 +9,7 @@
 #include <chrono>
 #include <iomanip>
 #include <fstream>
+#include <cmath>
 #include "src/memory/MemoryManager.hpp"
 #include "src/cpu/PCB.hpp"
 #include "src/cpu/pcb_loader.hpp"
@@ -81,13 +82,7 @@ TestResult run_test(int num_cores, int num_processes, int quantum, int max_cycle
         IOManager ioManager;
         std::vector<std::unique_ptr<PCB>> processes;
         
-        // SCOPE para SilentMode - destruído antes das stats
-        {
-            // Suprimir saída verbosa - DESABILITADO PARA DEBUG
-            // SilentMode silent;
-        IOManager ioManager;
-        std::vector<std::unique_ptr<PCB>> processes;
-        
+        // Carregar processos (SEM redeclaração de variáveis!)
         for (int i = 0; i < num_processes; i++) {
             auto pcb = std::make_unique<PCB>();
             
@@ -117,14 +112,37 @@ TestResult run_test(int num_cores, int num_processes, int quantum, int max_cycle
                 scheduler.add_process(pcb.get());
             }
             
-            // Medir tempo de execução
+            // Medir tempo de execução REAL (apenas processos rodando)
             auto start = std::chrono::high_resolution_clock::now();
             
-            // Executar
+            // Executar ATÉ TODOS processos terminarem
             int cycles = 0;
-            while (cycles < max_cycles && scheduler.has_pending_processes()) {
+            int last_finished = 0;
+            while (scheduler.has_pending_processes()) {
                 scheduler.schedule_cycle();
                 cycles++;
+                
+                // Debug: mostrar progresso a cada 1000 ciclos
+                if (cycles % 1000 == 0) {
+                    int finished_now = scheduler.get_finished_count();
+                    printf("[PROGRESS] Ciclo %d: %d/%d processos finalizados\n", 
+                           cycles, finished_now, num_processes);
+                    fflush(stdout);
+                    
+                    // Se não houver progresso por 1000 ciclos, há um problema
+                    if (finished_now == last_finished && cycles > 2000) {
+                        printf("[ERROR] Sem progresso! Processos travados?\n");
+                        break;
+                    }
+                    last_finished = finished_now;
+                }
+                
+                // Safety: evitar loop infinito se houver bug
+                if (cycles >= max_cycles) {
+                    printf("[WARNING] Atingiu MAX_CYCLES (%d), forçando parada!\n", max_cycles);
+                    printf("[DEBUG] Finalizados: %d/%d\n", scheduler.get_finished_count(), num_processes);
+                    break;
+                }
             }
             
             auto end = std::chrono::high_resolution_clock::now();
@@ -142,10 +160,12 @@ TestResult run_test(int num_cores, int num_processes, int quantum, int max_cycle
             result.avg_turnaround_time = stats.avg_turnaround_time;
             result.cpu_utilization = stats.avg_cpu_utilization;
             
+            printf("[TEST] Teste concluído em %d ciclos (%d processos finalizados)\n", 
+                   cycles, result.processes_completed);
+            fflush(stdout);
+            
             // Scheduler será destruído aqui ao sair do scope
         }
-        
-        } // FIM DO SCOPE DO SilentMode - agora std::cout está restaurado!
         
         // Coletar estatísticas de memória (FORA do SilentMode!)
         auto& mem_stats = MemoryManager::getStats();
@@ -188,10 +208,11 @@ int main(int argc, char* argv[]) {
     std::cout << "║     TESTE DE ESCALABILIDADE MULTICORE - ROUND ROBIN          ║\n";
     std::cout << "╚════════════════════════════════════════════════════════════════╝\n\n";
     
-    // Configuração do teste - VOLTANDO AO ORIGINAL (estava funcionando)
+    // Configuração do teste - COM MÚLTIPLAS EXECUÇÕES PARA CONFIABILIDADE
     const int NUM_PROCESSES = 8;     // Original
-    const int QUANTUM = 100;         // Quantum padrão
-    const int MAX_CYCLES = 10000;    // Original
+    const int QUANTUM = 1000;        // Quantum grande (programa tem loops)
+    const int MAX_CYCLES = 10000;    // Limite seguro
+    const int NUM_RUNS = 10;         // Executar 10 vezes e calcular média
     
     // MemoryManager agora é thread-safe com recursive_mutex!
     std::vector<int> core_counts = {1, 2, 4, 8};
@@ -199,22 +220,67 @@ int main(int argc, char* argv[]) {
     
     std::cout << "Configuração do Teste:\n";
     std::cout << "  • Processos: " << NUM_PROCESSES << "\n";
+    std::cout << "  • Workload: tasks.json (90 instruções + loops)\n";
     std::cout << "  • Quantum: " << QUANTUM << " ciclos\n";
     std::cout << "  • Máximo de ciclos: " << MAX_CYCLES << "\n";
+    std::cout << "  • Execuções por configuração: " << NUM_RUNS << " (média ± desvio padrão)\n";
+    std::cout << "  • Warm-up: 1 execução inicial descartada\n";
     std::cout << "  • Núcleos testados: 1, 2, 4, 8\n";
     std::cout << "  • MemoryManager: Thread-safe com shared_mutex (leituras paralelas)\n\n";
     
+    std::cout << "⚠️  NOTA: Variabilidade é normal em sistemas multithread devido a:\n";
+    std::cout << "    - Scheduler do SO (context switches não-determinísticos)\n";
+    std::cout << "    - Cache effects (estados variam entre execuções)\n";
+    std::cout << "    - Race conditions inerentes ao paralelismo\n";
+    std::cout << "    CV < 20% é considerado aceitável para testes multicore.\n\n";
+    
     std::cout << "Executando testes (isso pode levar alguns minutos)...\n\n";
     
-    // Executar testes
+    // Executar testes com múltiplas rodadas
     for (int cores : core_counts) {
         std::cout << "  ► Testando com " << cores << " núcleo(s)... " << std::flush;
         
-        TestResult result = run_test(cores, NUM_PROCESSES, QUANTUM, MAX_CYCLES);
-        results.push_back(result);
+        // WARM-UP: Executar 1 vez para estabilizar cache (descartado)
+        std::cout << "[aquecimento...] " << std::flush;
+        run_test(cores, NUM_PROCESSES, QUANTUM, MAX_CYCLES);
         
-        std::cout << "✓ Concluído em " << std::fixed << std::setprecision(2) 
-                  << result.execution_time_ms << " ms\n";
+        // Executar NUM_RUNS vezes e calcular média
+        std::vector<double> times;
+        TestResult avg_result;
+        
+        for (int run = 0; run < NUM_RUNS; run++) {
+            TestResult result = run_test(cores, NUM_PROCESSES, QUANTUM, MAX_CYCLES);
+            times.push_back(result.execution_time_ms);
+            
+            // Acumular métricas
+            if (run == 0) {
+                avg_result = result;
+            } else {
+                avg_result.execution_time_ms += result.execution_time_ms;
+                avg_result.total_cycles += result.total_cycles;
+                avg_result.total_context_switches += result.total_context_switches;
+            }
+        }
+        
+        // Calcular média
+        avg_result.execution_time_ms /= NUM_RUNS;
+        avg_result.total_cycles /= NUM_RUNS;
+        avg_result.total_context_switches /= NUM_RUNS;
+        
+        // Calcular desvio padrão
+        double mean = avg_result.execution_time_ms;
+        double variance = 0.0;
+        for (double time : times) {
+            variance += (time - mean) * (time - mean);
+        }
+        double stddev = std::sqrt(variance / NUM_RUNS);
+        double cv = (stddev / mean) * 100.0; // Coeficiente de variação
+        
+        results.push_back(avg_result);
+        
+        std::cout << "✓ Média: " << std::fixed << std::setprecision(2) 
+                  << avg_result.execution_time_ms << " ms (CV: " 
+                  << std::setprecision(1) << cv << "%)\n";
     }
     
     std::cout << "\n";

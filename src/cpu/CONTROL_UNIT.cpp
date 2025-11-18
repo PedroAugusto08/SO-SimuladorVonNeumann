@@ -116,19 +116,31 @@ void Control_Unit::Fetch(ControlContext &context) {
     uint32_t instr = context.memManager.read(context.registers.mar.read(), context.process);
     context.registers.ir.write(instr);
 
-    // === TRACE FETCH ===
-    std::cout << "[FETCH] PC=" << context.registers.pc.value
-              << " MAR=" << context.registers.mar.read()
-              << " INSTR=0x" << std::hex << instr << std::dec
-              << " (" << toBinStr(instr, 32) << ")\n";
+    // === TRACE FETCH === (DESABILITADO PARA REDUZIR POLUIÇÃO)
+    // std::cout << "[FETCH] PC=" << context.registers.pc.value
+    //           << " MAR=" << context.registers.mar.read()
+    //           << " INSTR=0x" << std::hex << instr << std::dec
+    //           << " (" << toBinStr(instr, 32) << ")\n";
 
     const uint32_t END_SENTINEL = 0b11111100000000000000000000000000u;
     if (instr == END_SENTINEL) {
         context.endProgram = true;
         return;
     }
+    
     // PC <- PC + 4 (endereçamento por byte)
-    context.registers.pc.write(context.registers.pc.value + 4);
+    // CRITICAL: Incrementar ANTES de checar bounds para detectar corretamente
+    uint32_t next_pc = context.registers.pc.value + 4;
+    context.registers.pc.write(next_pc);
+    
+    // Verificar se PC saiu do espaço do programa (proteção contra loop infinito)
+    uint32_t program_end = context.process.program_start_addr + context.process.program_size;
+    if (next_pc >= program_end) {
+        std::cout << "[FETCH] PC fora do programa! PC=" << next_pc 
+                  << " >= program_end=" << program_end << " - Encerrando\n";
+        context.endProgram = true;
+        return;
+    }
 }
 
 void Control_Unit::Decode(hw::REGISTER_BANK &registers, Instruction_Data &data) {
@@ -173,25 +185,25 @@ void Control_Unit::Decode(hw::REGISTER_BANK &registers, Instruction_Data &data) 
         }
     }
 
-    // === TRACE DECODE ===
-    std::cout << "[DECODE] RAW=0x" << std::hex << data.rawInstruction << std::dec
-              << " OP=" << (data.op.empty() ? "<UNKNOWN>" : data.op) << "\n";
-    if (!data.source_register.empty()) {
-        std::cout << "         rs(bits)=" << data.source_register
-                  << " name=" << this->map.getRegisterName(binaryStringToUint(data.source_register)) << "\n";
-    }
-    if (!data.target_register.empty()) {
-        std::cout << "         rt(bits)=" << data.target_register
-                  << " name=" << this->map.getRegisterName(binaryStringToUint(data.target_register)) << "\n";
-    }
-    if (!data.destination_register.empty()) {
-        std::cout << "         rd(bits)=" << data.destination_register
-                  << " name=" << this->map.getRegisterName(binaryStringToUint(data.destination_register)) << "\n";
-    }
-    if (!data.addressRAMResult.empty()) {
-        std::cout << "         address/immediate(bits)=" << data.addressRAMResult
-                  << " immediate(signed)=" << data.immediate << "\n";
-    }
+    // === TRACE DECODE === (DESABILITADO PARA REDUZIR POLUIÇÃO)
+    // std::cout << "[DECODE] RAW=0x" << std::hex << data.rawInstruction << std::dec
+    //           << " OP=" << (data.op.empty() ? "<UNKNOWN>" : data.op) << "\n";
+    // if (!data.source_register.empty()) {
+    //     std::cout << "         rs(bits)=" << data.source_register
+    //               << " name=" << this->map.getRegisterName(binaryStringToUint(data.source_register)) << "\n";
+    // }
+    // if (!data.target_register.empty()) {
+    //     std::cout << "         rt(bits)=" << data.target_register
+    //               << " name=" << this->map.getRegisterName(binaryStringToUint(data.target_register)) << "\n";
+    // }
+    // if (!data.destination_register.empty()) {
+    //     std::cout << "         rd(bits)=" << data.destination_register
+    //               << " name=" << this->map.getRegisterName(binaryStringToUint(data.destination_register)) << "\n";
+    // }
+    // if (!data.addressRAMResult.empty()) {
+    //     std::cout << "         address/immediate(bits)=" << data.addressRAMResult
+    //               << " immediate(signed)=" << data.immediate << "\n";
+    // }
 }
 
 

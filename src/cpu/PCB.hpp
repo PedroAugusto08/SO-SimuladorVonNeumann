@@ -64,6 +64,10 @@ struct PCB {
     std::atomic<int> assigned_core{-1};         // Núcleo atual (-1 = nenhum)
     std::atomic<int> last_core{-1};             // Último núcleo usado
 
+    // Informações do programa carregado
+    uint32_t program_start_addr = 0;             // Endereço de início do programa
+    uint32_t program_size = 0;                   // Tamanho do programa em bytes
+
     MemWeights memWeights;
     
     // Funções auxiliares para cálculo de métricas

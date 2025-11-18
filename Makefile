@@ -9,6 +9,7 @@ TARGET_HASH := test_hash_register
 TARGET_BANK := test_register_bank
 TARGET_SIM := simulador
 TARGET_MULTICORE := test_multicore
+TARGET_THROUGHPUT := test_multicore_throughput
 TARGET_PREEMPT := test_preemption
 
 # Fontes principais
@@ -57,6 +58,23 @@ SRC_MULTICORE := test_multicore.cpp \
                  src/parser_json/parser_json.cpp
 OBJ_MULTICORE := $(SRC_MULTICORE:.cpp=.o)
 
+# Fontes para teste de throughput multicore (confiável)
+SRC_THROUGHPUT := test_multicore_throughput.cpp \
+                  src/cpu/Core.cpp \
+                  src/cpu/RoundRobinScheduler.cpp \
+                  src/cpu/CONTROL_UNIT.cpp \
+                  src/cpu/pcb_loader.cpp \
+                  src/cpu/REGISTER_BANK.cpp \
+                  src/cpu/ULA.cpp \
+                  src/IO/IOManager.cpp \
+                  src/memory/cache.cpp \
+                  src/memory/cachePolicy.cpp \
+                  src/memory/MAIN_MEMORY.cpp \
+                  src/memory/MemoryManager.cpp \
+                  src/memory/SECONDARY_MEMORY.cpp \
+                  src/parser_json/parser_json.cpp
+OBJ_THROUGHPUT := $(SRC_THROUGHPUT:.cpp=.o)
+
 # Fontes para teste de preempção
 SRC_PREEMPT := test_preemption.cpp \
                src/cpu/Core.cpp \
@@ -99,6 +117,11 @@ $(TARGET_MULTICORE): $(OBJ_MULTICORE)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_MULTICORE) $(LDFLAGS)
 	@echo "✓ Teste de escalabilidade multicore compilado!"
 
+# Regra para o teste de throughput (medição confiável)
+$(TARGET_THROUGHPUT): $(OBJ_THROUGHPUT)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_THROUGHPUT) $(LDFLAGS)
+	@echo "✓ Teste de throughput compilado!"
+
 # Regra para o teste de preempção
 $(TARGET_PREEMPT): $(OBJ_PREEMPT)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_PREEMPT) $(LDFLAGS)
@@ -109,7 +132,7 @@ $(TARGET_PREEMPT): $(OBJ_PREEMPT)
 
 clean:
 	@echo "🧹 Limpando arquivos antigos..."
-	@rm -f $(OBJ) $(OBJ_HASH) $(OBJ_SIM) $(OBJ_MULTICORE) $(OBJ_PREEMPT) $(TARGET) $(TARGET_HASH) $(TARGET_BANK) $(TARGET_SIM) $(TARGET_MULTICORE) $(TARGET_PREEMPT)
+	@rm -f $(OBJ) $(OBJ_HASH) $(OBJ_SIM) $(OBJ_MULTICORE) $(OBJ_THROUGHPUT) $(OBJ_PREEMPT) $(TARGET) $(TARGET_HASH) $(TARGET_BANK) $(TARGET_SIM) $(TARGET_MULTICORE) $(TARGET_THROUGHPUT) $(TARGET_PREEMPT)
 
 run:
 	@echo "🚀 Executando o programa..."
@@ -129,6 +152,11 @@ test-bank: clean $(TARGET_BANK)
 test-multicore: $(TARGET_MULTICORE)
 	@echo "🧪 Executando teste de escalabilidade multicore..."
 	@./$(TARGET_MULTICORE)
+
+# Teste de throughput - MEDIÇÃO CONFIÁVEL DE EFICIÊNCIA
+test-throughput: $(TARGET_THROUGHPUT)
+	@echo "🎯 Executando teste de throughput (medição confiável)..."
+	@./$(TARGET_THROUGHPUT)
 
 # Teste de preempção por quantum
 test-preemption: $(TARGET_PREEMPT)

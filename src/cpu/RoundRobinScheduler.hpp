@@ -32,8 +32,8 @@ public:
     void add_process(PCB* process);
     void schedule_cycle();
     bool has_pending_processes() const;
-    int get_finished_count() const { return finished_count; }
-    int get_total_count() const { return total_count; }
+    int get_finished_count() const { return finished_count.load(); }
+    int get_total_count() const { return total_count.load(); }
     Statistics get_statistics() const;
 
 private:
@@ -45,10 +45,17 @@ private:
     int default_quantum{100};
     int num_cores{0};
 
-    int finished_count{0};
-    int total_count{0};
+    // CRITICAL: Atomics para evitar race conditions
+    std::atomic<int> finished_count{0};
+    std::atomic<int> total_count{0};
 
     uint64_t current_time{0};
+    
+    // Otimizações de performance
+    std::atomic<int> ready_count{0};
+    std::atomic<int> idle_cores{0};
+    int batch_size{5};  // Scheduling a cada 5 ciclos (bom balanço)
+    int collect_interval{1};  // Coletar processos SEMPRE (crítico!)
 
     mutable std::mutex scheduler_mutex;
 

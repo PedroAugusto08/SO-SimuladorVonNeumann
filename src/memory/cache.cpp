@@ -9,6 +9,13 @@ Cache::Cache() {
     this->cache_hits = 0;
 }
 
+Cache::Cache(size_t custom_capacity) {
+    this->capacity = custom_capacity;
+    this->cacheMap.reserve(custom_capacity);
+    this->cache_misses = 0;
+    this->cache_hits = 0;
+}
+
 Cache::~Cache() {
     this->cacheMap.clear();
 }

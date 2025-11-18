@@ -27,6 +27,7 @@ private:
 
 public:
     Cache();
+    Cache(size_t custom_capacity);  // Construtor com tamanho customizado
     ~Cache();
     int get_misses();
     int get_hits();

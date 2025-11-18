@@ -104,7 +104,7 @@ void Core::run_process(PCB* process) {
     // Loop de execução respeitando o quantum
     int cycles_in_quantum = 0;
     
-    while (!endProgram && !endExecution && 
+    while (!context.endProgram && !context.endExecution && 
            cycles_in_quantum < process->quantum) {
         
         Instruction_Data data;
@@ -112,7 +112,7 @@ void Core::run_process(PCB* process) {
         try {
             // Pipeline MIPS de 5 estágios
             control_unit.Fetch(context);
-            if (endProgram) break;
+            if (context.endProgram) break;
             
             control_unit.Decode(context.registers, data);
             control_unit.Execute(data, context);
@@ -132,7 +132,7 @@ void Core::run_process(PCB* process) {
     }
     
     // Determina o estado final do processo
-    if (endProgram) {
+    if (context.endProgram) {
         process->state = State::Finished;
         process->finish_time = std::chrono::steady_clock::now()
                                   .time_since_epoch().count();
@@ -157,10 +157,9 @@ void Core::run_process(PCB* process) {
                   << cycles_in_quantum << " ciclos)\n";
     }
     
-    // Libera núcleo (CRÍTICO: lock ANTES de mudar state para evitar race condition)
-    std::lock_guard<std::mutex> lock(core_mutex);
-    current_process = nullptr;
+    // NÃO liberar núcleo aqui - isso será feito após o collect no scheduler!
+    // Apenas marcar como idle para que scheduler saiba que terminou
     state.store(CoreState::IDLE);
     
-    std::cout << "[Core " << core_id << "] Liberado (agora IDLE)\n";
+    std::cout << "[Core " << core_id << "] Finalizado (agora IDLE)\n";
 }

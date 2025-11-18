@@ -47,7 +47,7 @@ public:
      * @return true se a thread está ativa
      */
     bool is_thread_running() const {
-        return execution_thread.joinable() && state.load() == CoreState::BUSY;
+        return execution_thread.joinable();
     }
     
     /**
@@ -61,6 +61,14 @@ public:
      */
     PCB* get_current_process() const { 
         return current_process; 
+    }
+    
+    /**
+     * Limpa o ponteiro do processo atual (chamado após collect)
+     */
+    void clear_current_process() {
+        std::lock_guard<std::mutex> lock(core_mutex);
+        current_process = nullptr;
     }
     
     /**
@@ -94,7 +102,7 @@ private:
     
     // Thread de execução
     std::thread execution_thread;
-    std::mutex core_mutex;
+    mutable std::mutex core_mutex;  // mutable para permitir lock em métodos const
     
     /**
      * Função executada pela thread - roda o processo

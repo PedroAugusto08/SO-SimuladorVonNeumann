@@ -324,7 +324,15 @@ int loadJsonProgram(const string &filename, MemoryManager &memManager, PCB& pcb,
 
     json j = readJsonFile(filename);
     int addr = startAddr;
+    
+    // Salvar endereço inicial
+    pcb.program_start_addr = startAddr;
+    
     if (j.contains("data"))    addr = parseData(j["data"], memManager, pcb, addr);
     if (j.contains("program")) addr = parseProgram(j["program"], memManager, pcb, addr);
+    
+    // Calcular tamanho do programa carregado
+    pcb.program_size = addr - startAddr;
+    
     return addr;
 }
