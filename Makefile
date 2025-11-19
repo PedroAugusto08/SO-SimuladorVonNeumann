@@ -32,6 +32,7 @@ SRC_SIM := src/main.cpp \
            src/cpu/pcb_loader.cpp \
            src/cpu/REGISTER_BANK.cpp \
            src/cpu/ULA.cpp \
+           src/cpu/FCFSScheduler.cpp \
            src/IO/IOManager.cpp \
            src/memory/cache.cpp \
            src/memory/cachePolicy.cpp \
@@ -49,6 +50,7 @@ SRC_MULTICORE := test_multicore.cpp \
                  src/cpu/pcb_loader.cpp \
                  src/cpu/REGISTER_BANK.cpp \
                  src/cpu/ULA.cpp \
+                 src/cpu/FCFSScheduler.cpp \
                  src/IO/IOManager.cpp \
                  src/memory/cache.cpp \
                  src/memory/cachePolicy.cpp \
@@ -66,6 +68,7 @@ SRC_THROUGHPUT := test_multicore_throughput.cpp \
                   src/cpu/pcb_loader.cpp \
                   src/cpu/REGISTER_BANK.cpp \
                   src/cpu/ULA.cpp \
+                  src/cpu/FCFSScheduler.cpp \
                   src/IO/IOManager.cpp \
                   src/memory/cache.cpp \
                   src/memory/cachePolicy.cpp \
@@ -83,6 +86,7 @@ SRC_PREEMPT := test_preemption.cpp \
                src/cpu/pcb_loader.cpp \
                src/cpu/REGISTER_BANK.cpp \
                src/cpu/ULA.cpp \
+               src/cpu/FCFSScheduler.cpp \
                src/IO/IOManager.cpp \
                src/memory/cache.cpp \
                src/memory/cachePolicy.cpp \

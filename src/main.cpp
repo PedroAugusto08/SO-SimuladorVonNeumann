@@ -13,6 +13,7 @@
 #include "cpu/CONTROL_UNIT.hpp"
 #include "cpu/Core.hpp"
 #include "cpu/RoundRobinScheduler.hpp"  // ✅ ADICIONAR ISSO!
+#include "cpu/FCFSScheduler.hpp"
 #include "parser_json/parser_json.hpp"
 #include "IO/IOManager.hpp"
 
@@ -89,84 +90,97 @@ void print_metrics(const PCB& pcb) {
 }
 
 
-int main() {
+int main(int argc, char* argv[]) {
     // Configuração do sistema multicore
-    const int NUM_CORES = 2;  // Começamos com 2 núcleos para teste
-    const int DEFAULT_QUANTUM = 100;  // Quantum padrão
-    
+    int NUM_CORES = 2;
+    int DEFAULT_QUANTUM = 100;
+    std::string SCHED_POLICY = "RR";
+    // Parse de argumentos
+    for (int i = 1; i < argc; i++) {
+        std::string arg = argv[i];
+        if (arg == "--cores" || arg == "-c") {
+            if (i + 1 < argc) NUM_CORES = std::atoi(argv[++i]);
+        } else if (arg == "--quantum" || arg == "-q") {
+            if (i + 1 < argc) DEFAULT_QUANTUM = std::atoi(argv[++i]);
+        } else if (arg == "--policy" || arg == "-s") {
+            if (i + 1 < argc) SCHED_POLICY = argv[++i];
+        }
+    }
     std::cout << "===========================================\n";
-    std::cout << "  SIMULADOR MULTICORE - ROUND ROBIN\n";
+    std::cout << "  SIMULADOR MULTICORE\n";
     std::cout << "===========================================\n";
     std::cout << "Configuração:\n";
     std::cout << "  - Núcleos: " << NUM_CORES << "\n";
-    std::cout << "  - Política: Round Robin\n";
-    std::cout << "  - Quantum: " << DEFAULT_QUANTUM << " ciclos\n";
+    std::cout << "  - Política: " << (SCHED_POLICY == "FCFS" ? "FCFS" : "Round Robin") << "\n";
+    if (SCHED_POLICY == "RR") std::cout << "  - Quantum: " << DEFAULT_QUANTUM << " ciclos\n";
     std::cout << "===========================================\n\n";
-    
-    // 1. Inicialização dos Módulos Principais
-    std::cout << "Inicializando o simulador...\n";
+    // Inicialização dos módulos
     MemoryManager memManager(1024, 8192);
     IOManager ioManager;
-    
-    // 2. Criar Escalonador Round Robin (gerencia núcleos internamente)
-    RoundRobinScheduler scheduler(NUM_CORES, &memManager, &ioManager, DEFAULT_QUANTUM);
-    std::cout << "✓ Escalonador Round Robin criado com " << NUM_CORES << " núcleos\n\n";
-
-    // 3. Carregamento dos Processos
-    std::vector<std::unique_ptr<PCB>> process_list;
-
-    // Carrega um processo a partir de um arquivo JSON
-    auto p1 = std::make_unique<PCB>();
-    if (load_pcb_from_json("process1.json", *p1)) {
-        std::cout << "Carregando programa 'tasks.json' para o processo " << p1->pid << "...\n";
-        loadJsonProgram("tasks.json", memManager, *p1, 0);
-        
-        // Define tempo de chegada
-        p1->arrival_time = 0;
-        
-        // Adiciona ao escalonador
-        scheduler.add_process(p1.get());
-        process_list.push_back(std::move(p1));
+    // Escolha do escalonador
+    std::unique_ptr<RoundRobinScheduler> rr_sched;
+    std::unique_ptr<FCFSScheduler> fcfs_sched;
+    if (SCHED_POLICY == "FCFS") {
+        fcfs_sched = std::make_unique<FCFSScheduler>(NUM_CORES, &memManager, &ioManager);
     } else {
-        std::cerr << "Erro ao carregar 'process1.json'. Certifique-se de que o arquivo está na pasta raiz do projeto.\n";
-        return 1;
+        rr_sched = std::make_unique<RoundRobinScheduler>(NUM_CORES, &memManager, &ioManager, DEFAULT_QUANTUM);
     }
-
+    // Carregamento dos processos
+    std::vector<std::unique_ptr<PCB>> process_list;
+    std::vector<std::pair<std::string, std::string>> process_files;
+    // Parse de argumentos para múltiplos processos
+    for (int i = 1; i < argc; i++) {
+        std::string arg = argv[i];
+        if (arg == "--process" || arg == "-p") {
+            if (i + 2 < argc) {
+                std::string prog = argv[++i];
+                std::string pcb = argv[++i];
+                process_files.push_back({prog, pcb});
+            }
+        }
+    }
+    if (process_files.empty()) {
+        process_files.push_back({"tasks.json", "process1.json"});
+    }
+    uint32_t next_base_address = 0;
+    for (size_t i = 0; i < process_files.size(); i++) {
+        const auto& [program_file, pcb_file] = process_files[i];
+        auto pcb = std::make_unique<PCB>();
+        if (!load_pcb_from_json(pcb_file, *pcb)) {
+            std::cerr << "Erro ao carregar '" << pcb_file << "'.\n";
+            return 1;
+        }
+        loadJsonProgram(program_file, memManager, *pcb, next_base_address);
+        pcb->arrival_time = 0;
+        next_base_address += 1024;
+        if (SCHED_POLICY == "FCFS") fcfs_sched->add_process(pcb.get());
+        else rr_sched->add_process(pcb.get());
+        process_list.push_back(std::move(pcb));
+    }
     std::cout << "✓ " << process_list.size() << " processo(s) carregado(s)\n\n";
-
-    // 4. Loop Principal do Escalonador Round Robin
+    // Loop principal
     std::cout << "\n===========================================\n";
-    std::cout << "Iniciando escalonador Round-Robin Multicore...\n";
+    std::cout << "Iniciando escalonador...\n";
     std::cout << "===========================================\n\n";
-    
-    // Executa até todos processos terminarem
-    while (scheduler.has_pending_processes()) {
-        scheduler.schedule_cycle();
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    if (SCHED_POLICY == "FCFS") {
+        while (!fcfs_sched->all_finished()) {
+            fcfs_sched->schedule_cycle();
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+    } else {
+        while (rr_sched->has_pending_processes()) {
+            rr_sched->schedule_cycle();
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
     }
-    
     std::cout << "\n===========================================\n";
     std::cout << "Todos os processos foram finalizados!\n";
     std::cout << "===========================================\n\n";
-    
-    // 5. Exibir estatísticas do escalonador
-    auto stats = scheduler.get_statistics();
-    std::cout << "--- ESTATÍSTICAS DO ESCALONADOR ---\n";
-    std::cout << "Total de processos:       " << scheduler.get_total_count() << "\n";
-    std::cout << "Processos finalizados:    " << scheduler.get_finished_count() << "\n";
-    std::cout << "Tempo médio de espera:    " << stats.avg_wait_time << " ciclos\n";
-    std::cout << "Tempo médio de retorno:   " << stats.avg_turnaround_time << " ciclos\n";
-    std::cout << "Utilização média da CPU:  " << (stats.avg_cpu_utilization * 100) << "%\n";
-    std::cout << "Throughput:               " << stats.throughput << " processos/ciclo\n";
-    std::cout << "Context switches totais:  " << stats.total_context_switches << "\n";
-    std::cout << "------------------------------------\n\n";
-    
-    // 6. Exibir métricas individuais de cada processo
+    // Exibir métricas individuais
     for (const auto& process : process_list) {
         if (process->state == State::Finished) {
             print_metrics(*process);
         }
     }
-
     return 0;
 }

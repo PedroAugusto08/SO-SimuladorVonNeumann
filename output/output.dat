@@ -1,0 +1,54 @@
+=== Saída Lógica do Programa ===
+Registradores principais:
+========================================
+====== Estado do Banco de Registradores ======
+========================================
+pc    : 0x21d00000  (Decimal: 541)
+ir    : 0xffffffff  (Decimal: -1)
+mar   : 0x21900000  (Decimal: 537)
+sr    : 0x00000000  (Decimal: 0)
+hi    : 0x00000000  (Decimal: 0)
+lo    : 0x00000000  (Decimal: 0)
+----------------------------------------
+zero  : 0x00000000  (Decimal: 0)
+at    : 0x00000000  (Decimal: 0)
+v0    : 0x00000000  (Decimal: 0)
+v1    : 0x00000000  (Decimal: 0)
+a0    : 0x50000000  (Decimal: 5)
+a1    : 0x50000000  (Decimal: 5)
+a2    : 0xa0000000  (Decimal: 10)
+a3    : 0x00000000  (Decimal: 0)
+----------------------------------------
+t0    : 0x64000000  (Decimal: 100)
+t1    : 0x50000000  (Decimal: 5)
+t2    : 0x69000000  (Decimal: 105)
+t3    : 0x64000000  (Decimal: 100)
+t4    : 0x00000000  (Decimal: 0)
+t5    : 0x00000000  (Decimal: 0)
+t6    : 0x19000000  (Decimal: 25)
+t7    : 0x14000000  (Decimal: 20)
+t8    : 0x00000000  (Decimal: 0)
+t9    : 0x00000000  (Decimal: 0)
+----------------------------------------
+s0    : 0xf0000000  (Decimal: 15)
+s1    : 0x19000000  (Decimal: 25)
+s2    : 0x28000000  (Decimal: 40)
+s3    : 0xa0000000  (Decimal: 10)
+s4    : 0x50000000  (Decimal: 5)
+s5    : 0xffff0000  (Decimal: 65535)
+s6    : 0x10000000  (Decimal: 1)
+s7    : 0x20000000  (Decimal: 2)
+----------------------------------------
+gp    : 0x00000000  (Decimal: 0)
+sp    : 0x00000000  (Decimal: 0)
+fp    : 0x00000000  (Decimal: 0)
+ra    : 0x00000000  (Decimal: 0)
+k0    : 0x00000000  (Decimal: 0)
+k1    : 0x00000000  (Decimal: 0)
+========================================
+
+
+=== Operações Executadas ===
+(Nenhuma operação registrada)
+
+=== Fim das Operações Registradas ===
