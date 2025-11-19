@@ -26,13 +26,14 @@ OBJ_BANK := $(SRC_BANK:.cpp=.o)
 
 # Fontes para o simulador multicore
 SRC_SIM := src/main.cpp \
-           src/cpu/Core.cpp \
+		   src/cpu/Core.cpp \
 		   src/cpu/RoundRobinScheduler.cpp \
-           src/cpu/CONTROL_UNIT.cpp \
-           src/cpu/pcb_loader.cpp \
-           src/cpu/REGISTER_BANK.cpp \
-           src/cpu/ULA.cpp \
-           src/cpu/FCFSScheduler.cpp \
+		   src/cpu/CONTROL_UNIT.cpp \
+		   src/cpu/pcb_loader.cpp \
+		   src/cpu/REGISTER_BANK.cpp \
+		   src/cpu/ULA.cpp \
+		   src/cpu/FCFSScheduler.cpp \
+		   src/cpu/SJNScheduler.cpp \
            src/IO/IOManager.cpp \
            src/memory/cache.cpp \
            src/memory/cachePolicy.cpp \

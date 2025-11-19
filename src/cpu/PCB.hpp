@@ -68,6 +68,8 @@ struct PCB {
     uint32_t program_start_addr = 0;             // Endereço de início do programa
     uint32_t program_size = 0;                   // Tamanho do programa em bytes
 
+    uint64_t estimated_job_size = 0; // Estimativa de ciclos para SJN
+
     MemWeights memWeights;
     
     // Funções auxiliares para cálculo de métricas

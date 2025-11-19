@@ -14,6 +14,7 @@
 #include "cpu/Core.hpp"
 #include "cpu/RoundRobinScheduler.hpp"  // ✅ ADICIONAR ISSO!
 #include "cpu/FCFSScheduler.hpp"
+#include "cpu/SJNScheduler.hpp"
 #include "parser_json/parser_json.hpp"
 #include "IO/IOManager.hpp"
 
@@ -111,7 +112,11 @@ int main(int argc, char* argv[]) {
     std::cout << "===========================================\n";
     std::cout << "Configuração:\n";
     std::cout << "  - Núcleos: " << NUM_CORES << "\n";
-    std::cout << "  - Política: " << (SCHED_POLICY == "FCFS" ? "FCFS" : "Round Robin") << "\n";
+    std::cout << "  - Política: ";
+    if (SCHED_POLICY == "FCFS") std::cout << "FCFS";
+    else if (SCHED_POLICY == "SJN") std::cout << "SJN";
+    else std::cout << "Round Robin";
+    std::cout << "\n";
     if (SCHED_POLICY == "RR") std::cout << "  - Quantum: " << DEFAULT_QUANTUM << " ciclos\n";
     std::cout << "===========================================\n\n";
     // Inicialização dos módulos
@@ -120,8 +125,11 @@ int main(int argc, char* argv[]) {
     // Escolha do escalonador
     std::unique_ptr<RoundRobinScheduler> rr_sched;
     std::unique_ptr<FCFSScheduler> fcfs_sched;
+    std::unique_ptr<SJNScheduler> sjn_sched;
     if (SCHED_POLICY == "FCFS") {
         fcfs_sched = std::make_unique<FCFSScheduler>(NUM_CORES, &memManager, &ioManager);
+    } else if (SCHED_POLICY == "SJN") {
+        sjn_sched = std::make_unique<SJNScheduler>(NUM_CORES, &memManager, &ioManager);
     } else {
         rr_sched = std::make_unique<RoundRobinScheduler>(NUM_CORES, &memManager, &ioManager, DEFAULT_QUANTUM);
     }
@@ -152,8 +160,11 @@ int main(int argc, char* argv[]) {
         }
         loadJsonProgram(program_file, memManager, *pcb, next_base_address);
         pcb->arrival_time = 0;
+            // Estimativa: usar tamanho do programa como proxy de job size
+            pcb->estimated_job_size = pcb->program_size;
         next_base_address += 1024;
         if (SCHED_POLICY == "FCFS") fcfs_sched->add_process(pcb.get());
+        else if (SCHED_POLICY == "SJN") sjn_sched->add_process(pcb.get());
         else rr_sched->add_process(pcb.get());
         process_list.push_back(std::move(pcb));
     }
@@ -165,6 +176,11 @@ int main(int argc, char* argv[]) {
     if (SCHED_POLICY == "FCFS") {
         while (!fcfs_sched->all_finished()) {
             fcfs_sched->schedule_cycle();
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+    } else if (SCHED_POLICY == "SJN") {
+        while (!sjn_sched->all_finished()) {
+            sjn_sched->schedule_cycle();
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     } else {
