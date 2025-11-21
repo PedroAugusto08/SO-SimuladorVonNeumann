@@ -52,6 +52,11 @@ class MemoryManager {
 public:
     MemoryManager(size_t mainMemorySize, size_t secondaryMemorySize);
 
+    uint64_t getUsedMainMemory() const;
+    uint64_t getUsedSecondaryMemory() const;
+    uint64_t getTotalCacheHits() const { return global_stats.cache_hits.load(); }
+    uint64_t getTotalCacheMisses() const { return global_stats.cache_misses.load(); }
+
     static void setThreadCache(Cache* l1_cache);
     static Cache* getThreadCache();
 

@@ -1,4 +1,24 @@
 #include "MemoryManager.hpp"
+#include <algorithm>
+
+uint64_t MemoryManager::getUsedMainMemory() const {
+    uint64_t used = 0;
+    const auto& ram = mainMemory->getRam();
+    for (size_t i = 0; i < ram.size(); ++i) {
+        if (ram[i] != MEMORY_ACCESS_ERROR) ++used;
+    }
+    return used;
+}
+
+uint64_t MemoryManager::getUsedSecondaryMemory() const {
+    uint64_t used = 0;
+    const auto& storage = secondaryMemory->getStorage();
+    for (size_t i = 0; i < storage.size(); ++i) {
+        if (storage[i] != MEMORY_ACCESS_ERROR) ++used;
+    }
+    return used;
+}
+#include "MemoryManager.hpp"
 #include "cache.hpp"
 #include "../cpu/PCB.hpp"
 #include <mutex>

@@ -26,6 +26,8 @@ public:
     uint32_t ReadMem(uint32_t address);
     uint32_t WriteMem(uint32_t address, uint32_t data);
     uint32_t DeleteData(uint32_t address);
+
+    const std::vector<uint32_t>& getStorage() const { return storage; }
 };
 
 #endif

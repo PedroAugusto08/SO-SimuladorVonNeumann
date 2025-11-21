@@ -24,7 +24,6 @@ OBJ_HASH := $(SRC_HASH:.cpp=.o)
 SRC_BANK := src/test_register_bank.cpp src/cpu/REGISTER_BANK.cpp
 OBJ_BANK := $(SRC_BANK:.cpp=.o)
 
-# Fontes para o simulador multicore
 SRC_SIM := src/main.cpp \
 		   src/cpu/Core.cpp \
 		   src/cpu/RoundRobinScheduler.cpp \
@@ -34,13 +33,14 @@ SRC_SIM := src/main.cpp \
 		   src/cpu/ULA.cpp \
 		   src/cpu/FCFSScheduler.cpp \
 		   src/cpu/SJNScheduler.cpp \
-           src/IO/IOManager.cpp \
-           src/memory/cache.cpp \
-           src/memory/cachePolicy.cpp \
-           src/memory/MAIN_MEMORY.cpp \
-           src/memory/MemoryManager.cpp \
-           src/memory/SECONDARY_MEMORY.cpp \
-           src/parser_json/parser_json.cpp
+		   src/IO/IOManager.cpp \
+		   src/memory/cache.cpp \
+		   src/memory/cachePolicy.cpp \
+		   src/memory/MAIN_MEMORY.cpp \
+		   src/memory/MemoryManager.cpp \
+		   src/memory/SECONDARY_MEMORY.cpp \
+		   src/parser_json/parser_json.cpp \
+		   src/memory/MemoryMetrics.cpp
 OBJ_SIM := $(SRC_SIM:.cpp=.o)
 
 # Fontes para teste de escalabilidade multicore

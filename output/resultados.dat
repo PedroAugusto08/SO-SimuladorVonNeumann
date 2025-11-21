@@ -4,7 +4,7 @@ Nome: processo_teste_1
 Quantum: 100
 Prioridade: 1
 Ciclos de Pipeline: 208
-Ciclos de Memória: 1066
+Ciclos de Memória: 4280
 Cache Hits: 16
 Cache Misses: 210
 Ciclos de IO: 1

@@ -17,6 +17,7 @@
 #include "cpu/SJNScheduler.hpp"
 #include "parser_json/parser_json.hpp"
 #include "IO/IOManager.hpp"
+#include "memory/MemoryMetrics.hpp"
 
 // Função para imprimir as métricas de um processo
 void print_metrics(const PCB& pcb) {
@@ -122,6 +123,7 @@ int main(int argc, char* argv[]) {
     // Inicialização dos módulos
     MemoryManager memManager(1024, 8192);
     IOManager ioManager;
+    MemoryMetrics memMetrics("logs/memory_utilization.csv");
     // Escolha do escalonador
     std::unique_ptr<RoundRobinScheduler> rr_sched;
     std::unique_ptr<FCFSScheduler> fcfs_sched;
@@ -173,22 +175,34 @@ int main(int argc, char* argv[]) {
     std::cout << "\n===========================================\n";
     std::cout << "Iniciando escalonador...\n";
     std::cout << "===========================================\n\n";
+    auto record_mem = [&]() {
+        memMetrics.record(
+            memManager.getUsedMainMemory(),
+            memManager.getUsedSecondaryMemory(),
+            memManager.getTotalCacheHits(),
+            memManager.getTotalCacheMisses()
+        );
+    };
     if (SCHED_POLICY == "FCFS") {
         while (!fcfs_sched->all_finished()) {
             fcfs_sched->schedule_cycle();
+            record_mem();
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     } else if (SCHED_POLICY == "SJN") {
         while (!sjn_sched->all_finished()) {
             sjn_sched->schedule_cycle();
+            record_mem();
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     } else {
         while (rr_sched->has_pending_processes()) {
             rr_sched->schedule_cycle();
+            record_mem();
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
+    memMetrics.flush();
     std::cout << "\n===========================================\n";
     std::cout << "Todos os processos foram finalizados!\n";
     std::cout << "===========================================\n\n";
