@@ -438,7 +438,7 @@ public:
         }
         
         lru_list.push_front(address);
-        cache_map[address] = {{data, true, false}, lru_list.begin()};
+        cache_map[address] = {% raw %}{{data, true, false}, lru_list.begin()}{% endraw %};
     }
 };
 ```
