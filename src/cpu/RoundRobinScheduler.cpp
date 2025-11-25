@@ -50,6 +50,12 @@ RoundRobinScheduler::~RoundRobinScheduler() {
 
 void RoundRobinScheduler::add_process(PCB* process) {
     std::lock_guard<std::mutex> lock(scheduler_mutex);
+    
+    // Setar arrival_time se ainda não foi setado
+    if (process->arrival_time == 0) {
+        process->arrival_time = std::chrono::steady_clock::now().time_since_epoch().count();
+    }
+    
     ready_queue.push_back(process);
     ready_count.fetch_add(1);
     total_count.fetch_add(1);
@@ -118,7 +124,7 @@ void RoundRobinScheduler::schedule_cycle() {
                         
                         // Classificar e limpar
                         if (old_process->state == State::Finished) {
-                            old_process->finish_time = current_time;
+                            old_process->finish_time = std::chrono::steady_clock::now().time_since_epoch().count();
                             finished_list.push_back(old_process);
                             finished_count.fetch_add(1);
                             std::cout << "[Scheduler] P" << old_process->pid << " FINALIZADO! (urgent collect)\n";
@@ -212,7 +218,7 @@ void RoundRobinScheduler::assign_process_to_core(PCB* process, Core* core) {
     process->last_core = core->get_id();
 
     if (process->start_time == 0) {
-        process->start_time = current_time;
+        process->start_time = std::chrono::steady_clock::now().time_since_epoch().count();
     }
 
     process->state = State::Running;
@@ -273,7 +279,7 @@ void RoundRobinScheduler::collect_finished_processes() {
         // Classificar processo baseado no estado final
         if (process->state == State::Finished) {
             // Processo REALMENTE terminou
-            process->finish_time = current_time;
+            process->finish_time = std::chrono::steady_clock::now().time_since_epoch().count();
             finished_list.push_back(process);
             finished_count.fetch_add(1);
             
@@ -357,18 +363,34 @@ RoundRobinScheduler::Statistics RoundRobinScheduler::get_statistics() const {
     Statistics s;
     if (finished_list.empty()) return s;
 
-    double total_wait = 0.0;
-    double total_turn = 0.0;
+    uint64_t total_wait = 0;
+    uint64_t total_turnaround = 0;
+    uint64_t total_response = 0;
+    
     for (const PCB* p : finished_list) {
-        total_wait += (double)p->get_wait_time();
-        total_turn += (double)p->get_turnaround_time();
+        total_wait += p->total_wait_time.load();
+        total_turnaround += p->get_turnaround_time();
+        total_response += (p->start_time.load() - p->arrival_time.load());
         s.total_context_switches += (int)p->context_switches.load();
     }
 
-    s.avg_wait_time = total_wait / finished_list.size();
-    s.avg_turnaround_time = total_turn / finished_list.size();
-    s.throughput = (double)finished_list.size() / (current_time ? (double)current_time : 1.0);
-    // CPU util: proporção simplificada
-    s.avg_cpu_utilization = 1.0 - (double)ready_queue.size() / ((double)num_cores + 1.0);
+    s.total_processes = finished_list.size();
+    s.avg_wait_time = total_wait / (double)s.total_processes;
+    s.avg_turnaround_time = total_turnaround / (double)s.total_processes;
+    s.avg_response_time = total_response / (double)s.total_processes;
+    
+    // Utilização da CPU (estimativa baseada em processos finalizados vs tempo total)
+    uint64_t total_busy_time = 0;
+    for (const auto& core : cores) {
+        total_busy_time += current_time;
+    }
+    double total_available_time = current_time * num_cores;
+    s.avg_cpu_utilization = (total_available_time > 0) ? 
+        (total_busy_time / total_available_time) * 100.0 : 0.0;
+    
+    // Throughput: processos por milissegundo
+    s.throughput = (current_time > 0) ?
+        (s.total_processes / (double)current_time) * 1000.0 : 0.0;
+    
     return s;
 }

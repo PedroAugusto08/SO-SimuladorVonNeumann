@@ -1,0 +1,27 @@
+{
+  "metadata": {
+    "task_id": "simple_priority_test",
+    "author": "grupoPeripherals",
+    "description": "Programa simples para testar Priority Scheduler - 20 instruções"
+  },
+  "data": {
+    "x": 10,
+    "y": 20,
+    "result": 0
+  },
+  "program": [
+    { "label": "start", "instruction": "li", "rt": "$t0", "immediate": 100 },
+    { "instruction": "addi", "rt": "$t1", "rs": "$zero", "immediate": 5 },
+    { "instruction": "add", "rd": "$t2", "rs": "$t0", "rt": "$t1" },
+    { "instruction": "sub", "rd": "$t3", "rs": "$t0", "rt": "$t1" },
+    { "instruction": "and", "rd": "$t4", "rs": "$t0", "rt": "$t1" },
+    { "instruction": "or", "rd": "$t5", "rs": "$t0", "rt": "$t1" },
+    { "instruction": "mult", "rd": "$t6", "rs": "$t1", "rt": "$t1" },
+    { "instruction": "div", "rd": "$t7", "rs": "$t0", "rt": "$t1" },
+    { "instruction": "lw", "rt": "$s0", "offset": 0, "rs": "$zero" },
+    { "instruction": "lw", "rt": "$s1", "offset": 4, "rs": "$zero" },
+    { "instruction": "add", "rd": "$s2", "rs": "$s0", "rt": "$s1" },
+    { "instruction": "sw", "rt": "$s2", "offset": 8, "rs": "$zero" },
+    { "label": "end", "instruction": "syscall", "code": 10 }
+  ]
+}

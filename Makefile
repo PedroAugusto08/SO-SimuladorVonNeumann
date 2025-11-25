@@ -10,7 +10,9 @@ TARGET_BANK := test_register_bank
 TARGET_SIM := simulador
 TARGET_MULTICORE := test_multicore
 TARGET_THROUGHPUT := test_multicore_throughput
+TARGET_COMPARATIVE := test_multicore_comparative
 TARGET_PREEMPT := test_preemption
+TARGET_METRICS := test_metrics_complete
 
 # Fontes principais
 SRC := src/teste.cpp src/cpu/ULA.cpp
@@ -33,6 +35,7 @@ SRC_SIM := src/main.cpp \
 		   src/cpu/ULA.cpp \
 		   src/cpu/FCFSScheduler.cpp \
 		   src/cpu/SJNScheduler.cpp \
+		   src/cpu/PriorityScheduler.cpp \
 		   src/IO/IOManager.cpp \
 		   src/memory/cache.cpp \
 		   src/memory/cachePolicy.cpp \
@@ -79,6 +82,26 @@ SRC_THROUGHPUT := test_multicore_throughput.cpp \
                   src/parser_json/parser_json.cpp
 OBJ_THROUGHPUT := $(SRC_THROUGHPUT:.cpp=.o)
 
+# Fontes para teste comparativo de políticas multicore
+SRC_COMPARATIVE := test_multicore_comparative.cpp \
+                   src/cpu/Core.cpp \
+                   src/cpu/RoundRobinScheduler.cpp \
+                   src/cpu/CONTROL_UNIT.cpp \
+                   src/cpu/pcb_loader.cpp \
+                   src/cpu/REGISTER_BANK.cpp \
+                   src/cpu/ULA.cpp \
+                   src/cpu/FCFSScheduler.cpp \
+                   src/cpu/SJNScheduler.cpp \
+                   src/cpu/PriorityScheduler.cpp \
+                   src/IO/IOManager.cpp \
+                   src/memory/cache.cpp \
+                   src/memory/cachePolicy.cpp \
+                   src/memory/MAIN_MEMORY.cpp \
+                   src/memory/MemoryManager.cpp \
+                   src/memory/SECONDARY_MEMORY.cpp \
+                   src/parser_json/parser_json.cpp
+OBJ_COMPARATIVE := $(SRC_COMPARATIVE:.cpp=.o)
+
 # Fontes para teste de preempção
 SRC_PREEMPT := test_preemption.cpp \
                src/cpu/Core.cpp \
@@ -96,6 +119,26 @@ SRC_PREEMPT := test_preemption.cpp \
                src/memory/SECONDARY_MEMORY.cpp \
                src/parser_json/parser_json.cpp
 OBJ_PREEMPT := $(SRC_PREEMPT:.cpp=.o)
+
+# Fontes para teste de métricas completas
+SRC_METRICS := test_metrics_complete.cpp \
+               src/cpu/Core.cpp \
+               src/cpu/RoundRobinScheduler.cpp \
+               src/cpu/CONTROL_UNIT.cpp \
+               src/cpu/pcb_loader.cpp \
+               src/cpu/REGISTER_BANK.cpp \
+               src/cpu/ULA.cpp \
+               src/cpu/FCFSScheduler.cpp \
+               src/cpu/SJNScheduler.cpp \
+               src/cpu/PriorityScheduler.cpp \
+               src/IO/IOManager.cpp \
+               src/memory/cache.cpp \
+               src/memory/cachePolicy.cpp \
+               src/memory/MAIN_MEMORY.cpp \
+               src/memory/MemoryManager.cpp \
+               src/memory/SECONDARY_MEMORY.cpp \
+               src/parser_json/parser_json.cpp
+OBJ_METRICS := $(SRC_METRICS:.cpp=.o)
 
 # Make clean -> make -> make run
 all: clean $(TARGET) run
@@ -127,17 +170,27 @@ $(TARGET_THROUGHPUT): $(OBJ_THROUGHPUT)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_THROUGHPUT) $(LDFLAGS)
 	@echo "✓ Teste de throughput compilado!"
 
+# Regra para o teste comparativo de políticas
+$(TARGET_COMPARATIVE): $(OBJ_COMPARATIVE)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_COMPARATIVE) $(LDFLAGS)
+	@echo "✓ Teste comparativo de políticas compilado!"
+
 # Regra para o teste de preempção
 $(TARGET_PREEMPT): $(OBJ_PREEMPT)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_PREEMPT) $(LDFLAGS)
 	@echo "✓ Teste de preempção compilado!"
+
+# Regra para o teste de métricas completas
+$(TARGET_METRICS): $(OBJ_METRICS)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_METRICS) $(LDFLAGS)
+	@echo "✓ Teste de métricas completas compilado!"
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	@echo "🧹 Limpando arquivos antigos..."
-	@rm -f $(OBJ) $(OBJ_HASH) $(OBJ_SIM) $(OBJ_MULTICORE) $(OBJ_THROUGHPUT) $(OBJ_PREEMPT) $(TARGET) $(TARGET_HASH) $(TARGET_BANK) $(TARGET_SIM) $(TARGET_MULTICORE) $(TARGET_THROUGHPUT) $(TARGET_PREEMPT)
+	@rm -f $(OBJ) $(OBJ_HASH) $(OBJ_SIM) $(OBJ_MULTICORE) $(OBJ_THROUGHPUT) $(OBJ_COMPARATIVE) $(OBJ_PREEMPT) $(OBJ_METRICS) $(TARGET) $(TARGET_HASH) $(TARGET_BANK) $(TARGET_SIM) $(TARGET_MULTICORE) $(TARGET_THROUGHPUT) $(TARGET_COMPARATIVE) $(TARGET_PREEMPT) $(TARGET_METRICS)
 
 run:
 	@echo "🚀 Executando o programa..."

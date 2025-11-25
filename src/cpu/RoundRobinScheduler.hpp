@@ -18,9 +18,11 @@ public:
     struct Statistics {
         double avg_wait_time{0.0};
         double avg_turnaround_time{0.0};
+        double avg_response_time{0.0};
         double avg_cpu_utilization{0.0};
         double throughput{0.0};
         int total_context_switches{0};
+        int total_processes{0};
     };
 
     RoundRobinScheduler(int num_cores,

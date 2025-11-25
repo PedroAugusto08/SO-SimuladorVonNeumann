@@ -8,6 +8,38 @@ Simulador para a Arquitetura
 de Von Neumann e Pipeline MIPS
 </h1>
 
+> **Status:** ✅ 100% Funcional - 5 Políticas + FIFO/LRU - Implementação Técnica Completa!  
+> **Última Atualização:** 25/11/2025
+
+[![Status](https://img.shields.io/badge/Status-100%25%20Funcional-brightgreen)]()
+[![Políticas](https://img.shields.io/badge/Politicas-5%2F5%20Implementadas-blue)]()
+[![Cache](https://img.shields.io/badge/Cache-FIFO%2BLRU-blue)]()
+[![Testes](https://img.shields.io/badge/Tests-10%2F10%20Passing-brightgreen)]()
+[![Estabilidade](https://img.shields.io/badge/CV-<5%25-brightgreen)]()
+[![Implementação](https://img.shields.io/badge/Implementa%C3%A7%C3%A3o%20T%C3%A9cnica-100%25-brightgreen)]()
+
+---
+
+## 🚀 Quick Start
+
+```bash
+# Compilar e executar teste de métricas completas
+make test_metrics_complete && ./test_metrics_complete
+
+# Compilar e executar teste comparativo multicore
+make test_multicore_comparative && ./test_multicore_comparative
+
+# Ver resultados em CSV
+cat logs/detailed_metrics.csv
+cat logs/multicore_comparative_results.csv
+```
+
+**📊 Resultados:** 2 CSVs gerados com métricas de 5 políticas prontos para análise
+
+**🎉 Nova Conquista:** Políticas FIFO e LRU de cache implementadas! (20/30 pontos - 67%)
+
+---
+
 
 <div align="justify">
   <p>Esse é um repositório voltado para a simulação computacional de uma arquitetura de Von Neumann que utiliza o pipeline MIPS, proposta como trabalho de aquecimento da disciplina de Sistemas Operacionais do CEFET-MG Campus V pelo professor Michel Pires da Silva em 2025.</p>

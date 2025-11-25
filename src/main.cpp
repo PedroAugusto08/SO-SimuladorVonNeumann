@@ -12,9 +12,10 @@
 #include "cpu/pcb_loader.hpp"
 #include "cpu/CONTROL_UNIT.hpp"
 #include "cpu/Core.hpp"
-#include "cpu/RoundRobinScheduler.hpp"  // ✅ ADICIONAR ISSO!
+#include "cpu/RoundRobinScheduler.hpp"
 #include "cpu/FCFSScheduler.hpp"
 #include "cpu/SJNScheduler.hpp"
+#include "cpu/PriorityScheduler.hpp"
 #include "parser_json/parser_json.hpp"
 #include "IO/IOManager.hpp"
 #include "memory/MemoryMetrics.hpp"
@@ -116,6 +117,7 @@ int main(int argc, char* argv[]) {
     std::cout << "  - Política: ";
     if (SCHED_POLICY == "FCFS") std::cout << "FCFS";
     else if (SCHED_POLICY == "SJN") std::cout << "SJN";
+    else if (SCHED_POLICY == "PRIORITY") std::cout << "Priority (Preemptivo)";
     else std::cout << "Round Robin";
     std::cout << "\n";
     if (SCHED_POLICY == "RR") std::cout << "  - Quantum: " << DEFAULT_QUANTUM << " ciclos\n";
@@ -128,10 +130,14 @@ int main(int argc, char* argv[]) {
     std::unique_ptr<RoundRobinScheduler> rr_sched;
     std::unique_ptr<FCFSScheduler> fcfs_sched;
     std::unique_ptr<SJNScheduler> sjn_sched;
+    std::unique_ptr<PriorityScheduler> priority_sched;
+    
     if (SCHED_POLICY == "FCFS") {
         fcfs_sched = std::make_unique<FCFSScheduler>(NUM_CORES, &memManager, &ioManager);
     } else if (SCHED_POLICY == "SJN") {
         sjn_sched = std::make_unique<SJNScheduler>(NUM_CORES, &memManager, &ioManager);
+    } else if (SCHED_POLICY == "PRIORITY") {
+        priority_sched = std::make_unique<PriorityScheduler>(NUM_CORES, &memManager, &ioManager, DEFAULT_QUANTUM);
     } else {
         rr_sched = std::make_unique<RoundRobinScheduler>(NUM_CORES, &memManager, &ioManager, DEFAULT_QUANTUM);
     }
@@ -167,6 +173,7 @@ int main(int argc, char* argv[]) {
         next_base_address += 1024;
         if (SCHED_POLICY == "FCFS") fcfs_sched->add_process(pcb.get());
         else if (SCHED_POLICY == "SJN") sjn_sched->add_process(pcb.get());
+        else if (SCHED_POLICY == "PRIORITY") priority_sched->add_process(pcb.get());
         else rr_sched->add_process(pcb.get());
         process_list.push_back(std::move(pcb));
     }
@@ -192,6 +199,12 @@ int main(int argc, char* argv[]) {
     } else if (SCHED_POLICY == "SJN") {
         while (!sjn_sched->all_finished()) {
             sjn_sched->schedule_cycle();
+            record_mem();
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+    } else if (SCHED_POLICY == "PRIORITY") {
+        while (priority_sched->has_pending_processes()) {
+            priority_sched->schedule_cycle();
             record_mem();
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
