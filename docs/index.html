@@ -7,12 +7,13 @@
   <meta name="description" content="Documentação completa para implementar o escalonador Round Robin multicore">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖥️</text></svg>">
+  
   <!-- Tema -->
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
   
   <!-- Plugins CSS -->
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/sidebar.min.css" />
-  
   <style>
     :root {
       --base-font-size: 16px;
@@ -82,6 +83,8 @@
       auto2top: true,
       coverpage: true,
       onlyCover: false,
+      basePath: './',
+      relativePath: true,
       
       // Configuração de busca
       search: {
@@ -128,13 +131,12 @@
   
   <!-- Plugins -->
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+  <!-- Plugins -->
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-copy-code"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js"></script>
   
-  <!-- Syntax highlighting -->
-  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-cpp.min.js"></script>
+  <!-- Syntax highlighting -->net/npm/prismjs@1/components/prism-cpp.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-cmake.min.js"></script>
   
