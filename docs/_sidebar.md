@@ -27,8 +27,7 @@
   * [Estratégia de Testes](12-testes.md)
   * [Casos de Teste](13-casos-teste.md)
   * [Debugging](14-debugging.md)
-  * [🔬 Resultados de Testes](tests/)
-    * [Teste Multicore](MULTICORE_TEST_RESULTS.md)
+  * [🔬 Teste Multicore](MULTICORE_TEST_RESULTS.md)
 
 * **📄 Artigo IEEE**
   * [Estrutura do Artigo](15-estrutura-artigo.md)
