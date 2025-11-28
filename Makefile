@@ -4,15 +4,16 @@ CXXFLAGS := -Wall -Wextra -g -std=c++17 -Isrc
 LDFLAGS := -lpthread
 
 # Alvos principais
-TARGET := teste
-TARGET_HASH := test_hash_register
-TARGET_BANK := test_register_bank
-TARGET_SIM := simulador
-TARGET_MULTICORE := test_multicore
-TARGET_THROUGHPUT := test_multicore_throughput
-TARGET_COMPARATIVE := test_multicore_comparative
-TARGET_PREEMPT := test_preemption
-TARGET_METRICS := test_metrics_complete
+BIN_DIR := bin
+TARGET := $(BIN_DIR)/teste
+TARGET_HASH := $(BIN_DIR)/test_hash_register
+TARGET_BANK := $(BIN_DIR)/test_register_bank
+TARGET_SIM := $(BIN_DIR)/simulador
+TARGET_MULTICORE := $(BIN_DIR)/test_multicore
+TARGET_THROUGHPUT := $(BIN_DIR)/test_multicore_throughput
+TARGET_COMPARATIVE := $(BIN_DIR)/test_multicore_comparative
+TARGET_PREEMPT := $(BIN_DIR)/test_preemption
+TARGET_METRICS := $(BIN_DIR)/test_metrics_complete
 
 # Fontes principais
 SRC := src/teste.cpp src/cpu/ULA.cpp
@@ -47,7 +48,7 @@ SRC_SIM := src/main.cpp \
 OBJ_SIM := $(SRC_SIM:.cpp=.o)
 
 # Fontes para teste de escalabilidade multicore
-SRC_MULTICORE := test_multicore.cpp \
+SRC_MULTICORE := test/test_multicore.cpp \
                  src/cpu/Core.cpp \
                  src/cpu/RoundRobinScheduler.cpp \
                  src/cpu/CONTROL_UNIT.cpp \
@@ -65,7 +66,7 @@ SRC_MULTICORE := test_multicore.cpp \
 OBJ_MULTICORE := $(SRC_MULTICORE:.cpp=.o)
 
 # Fontes para teste de throughput multicore (confiável)
-SRC_THROUGHPUT := test_multicore_throughput.cpp \
+SRC_THROUGHPUT := test/test_multicore_throughput.cpp \
                   src/cpu/Core.cpp \
                   src/cpu/RoundRobinScheduler.cpp \
                   src/cpu/CONTROL_UNIT.cpp \
@@ -83,7 +84,7 @@ SRC_THROUGHPUT := test_multicore_throughput.cpp \
 OBJ_THROUGHPUT := $(SRC_THROUGHPUT:.cpp=.o)
 
 # Fontes para teste comparativo de políticas multicore
-SRC_COMPARATIVE := test_multicore_comparative.cpp \
+SRC_COMPARATIVE := test/test_multicore_comparative.cpp \
                    src/cpu/Core.cpp \
                    src/cpu/RoundRobinScheduler.cpp \
                    src/cpu/CONTROL_UNIT.cpp \
@@ -103,7 +104,7 @@ SRC_COMPARATIVE := test_multicore_comparative.cpp \
 OBJ_COMPARATIVE := $(SRC_COMPARATIVE:.cpp=.o)
 
 # Fontes para teste de preempção
-SRC_PREEMPT := test_preemption.cpp \
+SRC_PREEMPT := test/test_preemption.cpp \
                src/cpu/Core.cpp \
                src/cpu/RoundRobinScheduler.cpp \
                src/cpu/CONTROL_UNIT.cpp \
@@ -121,7 +122,7 @@ SRC_PREEMPT := test_preemption.cpp \
 OBJ_PREEMPT := $(SRC_PREEMPT:.cpp=.o)
 
 # Fontes para teste de métricas completas
-SRC_METRICS := test_metrics_complete.cpp \
+SRC_METRICS := test/test_metrics_complete.cpp \
                src/cpu/Core.cpp \
                src/cpu/RoundRobinScheduler.cpp \
                src/cpu/CONTROL_UNIT.cpp \
@@ -145,43 +146,52 @@ all: clean $(TARGET) run
 
 # Regra para o simulador multicore
 $(TARGET_SIM): $(OBJ_SIM)
+	mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_SIM) $(LDFLAGS)
 	@echo "✓ Simulador multicore compilado com sucesso!"
 
 # Regra para o programa principal
 $(TARGET): $(OBJ)
+	mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ)
 
 # Regra para o teste do hash register
 $(TARGET_HASH): $(OBJ_HASH)
+	mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_HASH)
 
 # Regra para o teste do register bank
 $(TARGET_BANK): $(OBJ_BANK)
+	mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_BANK)
 
 # Regra para o teste de escalabilidade multicore
 $(TARGET_MULTICORE): $(OBJ_MULTICORE)
+	mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_MULTICORE) $(LDFLAGS)
 	@echo "✓ Teste de escalabilidade multicore compilado!"
 
 # Regra para o teste de throughput (medição confiável)
 $(TARGET_THROUGHPUT): $(OBJ_THROUGHPUT)
+	mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_THROUGHPUT) $(LDFLAGS)
 	@echo "✓ Teste de throughput compilado!"
 
 # Regra para o teste comparativo de políticas
 $(TARGET_COMPARATIVE): $(OBJ_COMPARATIVE)
+	mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_COMPARATIVE) $(LDFLAGS)
 	@echo "✓ Teste comparativo de políticas compilado!"
 
 # Regra para o teste de preempção
 $(TARGET_PREEMPT): $(OBJ_PREEMPT)
+	mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_PREEMPT) $(LDFLAGS)
 	@echo "✓ Teste de preempção compilado!"
 
 # Regra para o teste de métricas completas
 $(TARGET_METRICS): $(OBJ_METRICS)
+	mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_METRICS) $(LDFLAGS)
 	@echo "✓ Teste de métricas completas compilado!"
 
@@ -190,7 +200,8 @@ $(TARGET_METRICS): $(OBJ_METRICS)
 
 clean:
 	@echo "🧹 Limpando arquivos antigos..."
-	@rm -f $(OBJ) $(OBJ_HASH) $(OBJ_SIM) $(OBJ_MULTICORE) $(OBJ_THROUGHPUT) $(OBJ_COMPARATIVE) $(OBJ_PREEMPT) $(OBJ_METRICS) $(TARGET) $(TARGET_HASH) $(TARGET_BANK) $(TARGET_SIM) $(TARGET_MULTICORE) $(TARGET_THROUGHPUT) $(TARGET_COMPARATIVE) $(TARGET_PREEMPT) $(TARGET_METRICS)
+	@rm -f $(OBJ) $(OBJ_HASH) $(OBJ_SIM) $(OBJ_MULTICORE) $(OBJ_THROUGHPUT) $(OBJ_COMPARATIVE) $(OBJ_PREEMPT) $(OBJ_METRICS) test_multicore.o
+	@rm -f $(BIN_DIR)/*
 
 run:
 	@echo "🚀 Executando o programa..."
@@ -207,6 +218,9 @@ test-bank: clean $(TARGET_BANK)
 	@./$(TARGET_BANK)
 
 # Teste de escalabilidade multicore (1, 2, 4, 8 núcleos)
+test_multicore: $(TARGET_MULTICORE)
+	@echo "🧪 Executando teste de escalabilidade multicore..."
+	@./$(TARGET_MULTICORE)
 test-multicore: $(TARGET_MULTICORE)
 	@echo "🧪 Executando teste de escalabilidade multicore..."
 	@./$(TARGET_MULTICORE)
@@ -222,7 +236,7 @@ test-preemption: $(TARGET_PREEMPT)
 	@./$(TARGET_PREEMPT)
 
 # Testa ambos os programas
-test-all: clean $(TARGET) $(TARGET_HASH)
+test-all: clean $(TARGET) $(TARGET_HASH) $(TARGET_BANK)
 	@echo "🚀 Executando programa principal..."
 	@./$(TARGET)
 	@echo ""
@@ -262,7 +276,7 @@ run-sim: $(TARGET_SIM)
 	@./$(TARGET_SIM)
 
 # Verificação rápida de todos os componentes
-check: $(TARGET) $(TARGET_HASH)
+check: $(TARGET) $(TARGET_HASH) $(TARGET_BANK)
 	@echo "✅ Executando verificações rápidas..."
 	@echo -n "  Teste principal: "; ./$(TARGET) >/dev/null 2>&1 && echo "✅ PASSOU" || echo "❌ FALHOU"
 	@echo -n "  Teste hash register: "; ./$(TARGET_HASH) >/dev/null 2>&1 && echo "✅ PASSOU" || echo "❌ FALHOU"

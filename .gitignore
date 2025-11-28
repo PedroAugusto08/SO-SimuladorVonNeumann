@@ -2,6 +2,9 @@
 *.o
 build/
 
+# Binários gerados
+bin/
+
 # Arquivos do VS Code
 .vscode/
 
