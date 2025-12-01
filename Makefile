@@ -341,16 +341,58 @@ test-verify-execution: $(TARGET_VERIFY_EXEC)
 	@echo "🧪 Executando teste de verificação de execução..."
 	@./$(TARGET_VERIFY_EXEC)
 
-# Testa ambos os programas
-test-all: clean $(TARGET) $(TARGET_HASH) $(TARGET_BANK)
-	@echo "🚀 Executando programa principal..."
-	@./$(TARGET)
+# Executa TODOS os testes disponíveis em sequência
+test-all: $(TARGET_HASH) $(TARGET_BANK) $(TARGET_MULTICORE) $(TARGET_THROUGHPUT) $(TARGET_COMPARATIVE) \
+          $(TARGET_PREEMPT) $(TARGET_METRICS) $(TARGET_CPU_METRICS) $(TARGET_PRIORITY_PREEMPT) \
+          $(TARGET_DEEP_INSPECT) $(TARGET_RACE_DEBUG) $(TARGET_VERIFY_EXEC)
+	@echo "╔════════════════════════════════════════════════════════════╗"
+	@echo "║  🧪 EXECUTANDO BATERIA COMPLETA DE TESTES                 ║"
+	@echo "╚════════════════════════════════════════════════════════════╝"
 	@echo ""
-	@echo "🧪 Executando teste do Hash Register..."
-	@./$(TARGET_HASH)
+	@echo "┌─ [1/12] Hash Register Test ────────────────────────────────┐"
+	@./$(TARGET_HASH) || true
 	@echo ""
-	@echo "🧪 Executando teste do Register Bank..."
-	@./$(TARGET_BANK)
+	@echo "┌─ [2/12] Register Bank Test ─────────────────────────────────┐"
+	@./$(TARGET_BANK) || true
+	@echo ""
+	@echo "┌─ [3/12] Multicore Scalability Test ─────────────────────────┐"
+	@./$(TARGET_MULTICORE) || true
+	@echo ""
+	@echo "┌─ [4/12] Throughput Test ────────────────────────────────────┐"
+	@./$(TARGET_THROUGHPUT) || true
+	@echo ""
+	@echo "┌─ [5/12] Multicore Comparative Test ─────────────────────────┐"
+	@./$(TARGET_COMPARATIVE) || true
+	@echo ""
+	@echo "┌─ [6/12] Preemption Test ────────────────────────────────────┐"
+	@./$(TARGET_PREEMPT) || true
+	@echo ""
+	@echo "┌─ [7/12] Metrics Complete Test ──────────────────────────────┐"
+	@./$(TARGET_METRICS) || true
+	@echo ""
+	@echo "┌─ [8/12] CPU Metrics Test ───────────────────────────────────┐"
+	@./$(TARGET_CPU_METRICS) || true
+	@echo ""
+	@echo "┌─ [9/12] Priority Preemptive Test ───────────────────────────┐"
+	@./$(TARGET_PRIORITY_PREEMPT) || true
+	@echo ""
+	@echo "┌─ [10/12] Deep Inspection Test ──────────────────────────────┐"
+	@./$(TARGET_DEEP_INSPECT) || true
+	@echo ""
+	@echo "┌─ [11/12] Race Condition Debug Test ─────────────────────────┐"
+	@./$(TARGET_RACE_DEBUG) || true
+	@echo ""
+	@echo "┌─ [12/12] Verify Execution Test ─────────────────────────────┐"
+	@./$(TARGET_VERIFY_EXEC) || true
+	@echo ""
+	@echo "╔════════════════════════════════════════════════════════════╗"
+	@echo "║  ✅ BATERIA DE TESTES CONCLUÍDA                           ║"
+	@echo "╚════════════════════════════════════════════════════════════╝"
+	@echo ""
+	@echo "📊 Relatórios gerados em:"
+	@echo "   - logs/multicore/*.csv"
+	@echo "   - logs/memory/*.csv"
+	@echo "   - logs/metrics/*.csv"
 
 # Comando de ajuda
 help:

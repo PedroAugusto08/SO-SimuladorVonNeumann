@@ -133,8 +133,10 @@ void print_help() {
     std::cout << "  ./bin/simulador --cores 4 --policy FCFS\n\n";
     std::cout << "  # Round Robin com quantum 50 em 8 núcleos\n";
     std::cout << "  ./bin/simulador -c 8 -q 50 -s RR\n\n";
-    std::cout << "  # Múltiplos processos\n";
-    std::cout << "  ./bin/simulador -p prog1.json pcb1.json -p prog2.json pcb2.json\n\n";
+    std::cout << "  # Múltiplos processos com diferentes prioridades\n";
+    std::cout << "  ./bin/simulador --policy PRIORITY \\\n";
+    std::cout << "    -p examples/programs/tasks.json examples/processes/process_high.json \\\n";
+    std::cout << "    -p examples/programs/tasks.json examples/processes/process_low.json\n\n";
     std::cout << "MAIS INFORMAÇÕES:\n";
     std::cout << "  README.md               - Documentação completa do projeto\n";
     std::cout << "  MAKEFILE_COMMANDS.md    - Comandos de compilação e teste\n";
@@ -213,7 +215,7 @@ int main(int argc, char* argv[]) {
         }
     }
     if (process_files.empty()) {
-        process_files.push_back({"tasks.json", "process1.json"});
+        process_files.push_back({"examples/programs/tasks.json", "examples/processes/process1.json"});
     }
     uint32_t next_base_address = 0;
     for (size_t i = 0; i < process_files.size(); i++) {

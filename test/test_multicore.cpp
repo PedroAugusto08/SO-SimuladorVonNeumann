@@ -350,7 +350,7 @@ int main(int argc, char* argv[]) {
     std::cout << "   • Eficiência = (Speedup / N) × 100%\n";
     
     // Salvar resultados em arquivo CSV
-    std::ofstream csv_file("logs/multicore_results.csv");
+    std::ofstream csv_file("logs/multicore/multicore_results.csv");
     if (csv_file.is_open()) {
         csv_file << "Nucleos,Ciclos,Tempo_ms,Speedup,Eficiencia_%,Context_Switches,CPU_Util_%\n";
         for (const auto& result : results) {
@@ -365,7 +365,7 @@ int main(int argc, char* argv[]) {
                     << result.cpu_utilization << "\n";
         }
         csv_file.close();
-        std::cout << "\n✅ Resultados salvos em: logs/multicore_results.csv\n";
+        std::cout << "\n✅ Resultados salvos em: logs/multicore/multicore_results.csv\n";
     }
     
     std::cout << "\n✓ Teste de escalabilidade concluído!\n\n";

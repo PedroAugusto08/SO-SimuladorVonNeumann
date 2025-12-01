@@ -374,7 +374,7 @@ int main() {
     }
     
     // Salvar resultados em CSV
-    std::ofstream csv_file("logs/multicore_comparative_results.csv");
+    std::ofstream csv_file("logs/multicore/multicore_comparative_results.csv");
     csv_file << "Politica,Cores,Tempo_ms,Speedup,Eficiencia_%,CV_%\n";
     for (const auto& policy : policies) {
         for (const auto& result : results_by_policy[policy]) {
@@ -388,7 +388,7 @@ int main() {
     }
     csv_file.close();
     
-    std::cout << "\n✅ Resultados salvos em: logs/multicore_comparative_results.csv\n";
+    std::cout << "\n✅ Resultados salvos em: logs/multicore/multicore_comparative_results.csv\n";
     
     std::cout << "\n╔════════════════════════════════════════════════════════════════╗\n";
     std::cout << "║                           CONCLUSÕES                           ║\n";

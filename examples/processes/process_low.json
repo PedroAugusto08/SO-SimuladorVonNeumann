@@ -1,0 +1,10 @@
+{
+  "pid": 4,
+  "name": "processo_baixa_prioridade",
+  "quantum": 100,
+  "priority": 1,
+  "mem_weights": {
+    "primary": 5,
+    "secondary": 20
+  }
+}

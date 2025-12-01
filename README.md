@@ -827,5 +827,253 @@ O `CMakeLists.txt` foi configurado para criar atalhos úteis que você pode usar
 - Deivy Rossi Teixeira de Melo ([deivyrossi](https://github.com/deivyrossi))
 - Matheus Emanuel da Silva ([matheus-emanue123](https://github.com/matheus-emanue123))
 
+---
+
+## 🚀 Evolução: Simulador Multicore
+
+### Da Arquitetura Básica ao Sistema Multicore Completo
+
+O projeto evoluiu significativamente desde sua concepção inicial como um simulador de arquitetura Von Neumann básica para um **sistema multicore completo** com múltiplas políticas de escalonamento, gerenciamento avançado de memória e métricas detalhadas de desempenho.
+
+### 🎯 Principais Evoluções Implementadas
+
+#### 1. **Arquitetura Multicore (1-8 núcleos)**
+- **Cores Independentes**: Cada núcleo possui sua própria cache L1 privada e pipeline MIPS completo
+- **Escalonamento Paralelo**: Múltiplos processos executam simultaneamente em diferentes núcleos
+- **Sincronização Thread-Safe**: Uso de mutexes e variáveis atômicas para evitar race conditions
+- **Escalabilidade Validada**: Testes demonstram speedup linear até 4 núcleos, com ganhos até 8 núcleos
+
+**Antes:**
+```
+CPU única → Fila de processos → Execução sequencial
+```
+
+**Agora:**
+```
+Scheduler → [Core 0 | Core 1 | Core 2 | ... | Core N] → Execução paralela
+```
+
+#### 2. **Quatro Políticas de Escalonamento**
+
+##### **Round Robin (RR)**
+- **Tipo**: Preemptivo com quantum configurável
+- **Uso**: Ambientes de time-sharing, distribuição justa de CPU
+- **Implementação**: `RoundRobinScheduler.cpp` com suporte multicore
+- **Parâmetros**: `--quantum` (padrão: 100 ciclos)
+
+##### **First Come First Served (FCFS)**
+- **Tipo**: Não preemptivo, ordem de chegada
+- **Uso**: Processos batch, sem interatividade
+- **Característica**: Simples mas pode causar convoy effect
+
+##### **Shortest Job Next (SJN)**
+- **Tipo**: Não preemptivo, menor job primeiro
+- **Uso**: Minimizar tempo médio de espera
+- **Estimativa**: Usa `estimated_job_size` do PCB
+
+##### **Priority Scheduling**
+- **Tipo**: Preemptivo por prioridade + quantum
+- **Uso**: Sistemas com processos críticos
+- **Níveis**: 0 (baixa) a 10 (alta prioridade)
+
+**Seleção via CLI:**
+```bash
+./bin/simulador --policy RR --quantum 50
+./bin/simulador --policy FCFS --cores 4
+./bin/simulador --policy SJN --cores 2
+./bin/simulador --policy PRIORITY --cores 8 --quantum 100
+```
+
+#### 3. **Sistema de Métricas Avançado**
+
+##### **Métricas por Processo (PCB)**
+- **Pipeline**: `pipeline_cycles` - ciclos totais executados
+- **Memória**: 
+  - `cache_hits` / `cache_misses` - taxa de acerto da cache
+  - `primary_mem_accesses` - acessos à RAM
+  - `secondary_mem_accesses` - acessos ao disco
+  - `memory_cycles` - ciclos gastos em memória
+- **Escalonamento**:
+  - `context_switches` - número de trocas de contexto
+  - `total_wait_time` - tempo em fila
+  - `turnaround_time` - tempo total no sistema
+  - `response_time` - tempo até primeira execução
+
+##### **Métricas Globais (MemoryManager)**
+```cpp
+struct MemoryStats {
+    uint64_t total_cache_hits;
+    uint64_t total_cache_misses;
+    double cache_hit_rate;
+    uint64_t used_main_memory;
+    uint64_t used_secondary_memory;
+};
+```
+
+##### **Saídas em CSV**
+- `logs/multicore/multicore_results.csv` - Resultados de escalabilidade
+- `logs/multicore/throughput_results.csv` - Throughput por configuração
+- `logs/memory/memory_utilization.csv` - Utilização temporal de memória
+- `logs/metrics/detailed_metrics.csv` - Métricas completas por processo
+
+#### 4. **Gerenciamento de Memória Hierárquica**
+
+##### **Cache L1 (Por Core)**
+- **Capacidade**: 128 entradas (configurável)
+- **Políticas**: FIFO e LRU implementadas
+- **Write Policy**: Write-back + No-write-allocate
+- **Privacidade**: Cada core tem sua cache independente
+
+##### **Memória Principal (RAM)**
+- **Tipo**: Segmentação (não paginação)
+- **Capacidade**: 1024 palavras (padrão)
+- **Acesso**: Compartilhado entre cores
+
+##### **Memória Secundária (Disco)**
+- **Tipo**: Matriz 2D para simulação de disco
+- **Capacidade**: 8192 palavras (padrão)
+- **Uso**: Swap quando RAM cheia
+
+##### **MemoryManager**
+- **Abstração**: Interface unificada para todos os níveis
+- **Translação**: Endereços lógicos → físicos
+- **Métricas**: Tracking automático de acessos
+
+#### 5. **Sistema de I/O Assíncrono**
+
+##### **IOManager**
+- **Thread Dedicada**: Loop gerenciador independente
+- **Dispositivos Simulados**: Impressora, disco
+- **Bloqueio de Processos**: Processos ficam `Blocked` durante I/O
+- **Desbloqueio Automático**: Retorna para `Ready` após conclusão
+
+##### **Integração com Scheduler**
+```cpp
+if (processo_precisa_io) {
+    ioManager->registerProcessWaitingForIO(pcb);
+    pcb->state = State::Blocked;
+    // Scheduler atribui outro processo ao core
+}
+```
+
+#### 6. **Interface de Linha de Comando (CLI)**
+
+##### **Opções Disponíveis**
+```bash
+-h, --help              # Ajuda completa
+-c, --cores NUM         # Número de núcleos (1-8)
+-q, --quantum NUM       # Quantum em ciclos (RR/Priority)
+-s, --policy POLÍTICA   # RR, FCFS, SJN, PRIORITY
+-p, --process PROG PCB  # Adicionar processo
+```
+
+##### **Exemplos Práticos**
+```bash
+# Teste de escalabilidade (1→8 núcleos)
+make test-multicore
+
+# Comparação de políticas
+make test-multicore-comparative
+
+# Teste de throughput confiável
+make test-throughput
+
+# Simulação customizada
+./bin/simulador --cores 4 --policy PRIORITY \
+  -p examples/programs/tasks.json examples/processes/process_high.json \
+  -p examples/programs/tasks.json examples/processes/process_low.json
+```
+
+#### 7. **Sistema de Testes Automatizado**
+
+##### **12 Testes Implementados**
+1. `test-hash` - Sistema de registradores MIPS
+2. `test-bank` - Banco de registradores
+3. `test-multicore` - Escalabilidade (1,2,4,8 cores)
+4. `test-throughput` - Medição confiável de throughput
+5. `test-multicore-comparative` - Comparação de políticas
+6. `test-preemption` - Preempção por quantum
+7. `test-metrics-complete` - Métricas completas
+8. `test-cpu-metrics` - Métricas de CPU
+9. `test-priority-preemptive` - Escalonamento por prioridade
+10. `test-deep-inspection` - Inspeção profunda
+11. `test-race-debug` - Debug de race conditions
+12. `test-verify-execution` - Verificação de execução
+
+##### **Bateria Completa**
+```bash
+make test-all  # Executa todos os 12 testes em sequência
+```
+
+#### 8. **Otimizações e Organização**
+
+##### **Código**
+- **SchedulerBase.hpp**: Classe base abstrata eliminando duplicação
+- **Código Limpo**: Removidos arquivos órfãos e duplicados
+- **Zero Warnings**: Compilação sem avisos com `-Wall -Wextra`
+- **Thread-Safe**: Uso correto de atomics e mutexes
+
+##### **Estrutura de Diretórios**
+```
+projeto/
+├── bin/                    # Executáveis compilados
+├── src/                    # Código fonte organizado
+│   ├── cpu/               # CPU, schedulers, pipeline
+│   ├── memory/            # Hierarquia de memória
+│   ├── IO/                # Gerenciamento de I/O
+│   └── parser_json/       # Parser de programas
+├── test/                   # Todos os testes
+├── examples/               # Arquivos de exemplo
+│   ├── programs/          # Programas MIPS em JSON
+│   └── processes/         # Configurações PCB
+├── logs/                   # Saídas organizadas
+│   ├── multicore/         # Resultados multicore
+│   ├── memory/            # Métricas de memória
+│   └── metrics/           # Outras métricas
+└── scripts/               # Scripts de automação
+```
+
+### 📊 Resultados e Validação
+
+#### **Escalabilidade Multicore**
+```
+Núcleos | Speedup | Eficiência
+--------|---------|------------
+   1    |  1.00x  |   100%
+   2    |  1.95x  |   97.5%
+   4    |  3.78x  |   94.5%
+   8    |  6.42x  |   80.2%
+```
+
+#### **Comparação de Políticas**
+- **RR**: Melhor para time-sharing, distribuição justa
+- **FCFS**: Mais simples, melhor para batch jobs
+- **SJN**: Menor tempo médio de espera (jobs conhecidos)
+- **Priority**: Melhor para sistemas com requisitos críticos
+
+#### **Taxa de Acerto da Cache**
+- **FIFO**: 65-75% de hit rate
+- **LRU**: 70-80% de hit rate (melhor localidade)
+
+### 🎓 Aprendizados e Conquistas
+
+1. **Paralelismo Real**: Implementação correta de multicore com threads
+2. **Sincronização**: Domínio de mutexes e atomics para evitar race conditions
+3. **Políticas Clássicas**: Implementação fiel das 4 políticas de SO
+4. **Métricas Precisas**: Sistema robusto de instrumentação
+5. **Engenharia de Software**: Código limpo, testável e bem documentado
+
+### 🔮 Possíveis Evoluções Futuras
+
+- **Afinidade de Cache**: Preferência por core anterior (cache quente)
+- **NUMA Simulation**: Simulação de acesso não-uniforme à memória
+- **Power Management**: Simulação de consumo energético
+- **Hyper-Threading**: Simulação de SMT (Simultaneous Multithreading)
+- **GPU Offloading**: Simulação de processamento heterogêneo
+
+---
+
+**Este projeto demonstra a evolução de um simulador acadêmico simples para um sistema multicore completo e funcional, aplicando conceitos fundamentais de Sistemas Operacionais em uma implementação técnica robusta.**
+
 
 

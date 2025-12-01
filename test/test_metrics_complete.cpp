@@ -13,7 +13,7 @@
  * - Throughput
  * - Context switches
  * 
- * Output: Console + CSV (logs/detailed_metrics.csv)
+ * Output: Console + CSV (logs/metrics/detailed_metrics.csv)
  */
 
 #include <iostream>
@@ -249,7 +249,7 @@ int main() {
     }
     
     // Salvar resultados em CSV
-    std::ofstream csv("logs/detailed_metrics.csv");
+    std::ofstream csv("logs/metrics/detailed_metrics.csv");
     if (csv.is_open()) {
         csv << "Policy,Avg_Wait_Time,Avg_Turnaround_Time,Avg_Response_Time,CPU_Utilization,Throughput,Context_Switches,Total_Processes\n";
         for (const auto& r : results) {
@@ -263,7 +263,7 @@ int main() {
                 << r.total_processes << "\n";
         }
         csv.close();
-        std::cout << "\n✅ Métricas detalhadas salvas em: logs/detailed_metrics.csv\n\n";
+        std::cout << "\n✅ Métricas detalhadas salvas em: logs/metrics/detailed_metrics.csv\n\n";
     }
     
     std::cout << "╔════════════════════════════════════════════════════════════════════╗\n";

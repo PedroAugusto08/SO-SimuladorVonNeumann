@@ -1,0 +1,10 @@
+{
+  "pid": 2,
+  "name": "processo_alta_prioridade",
+  "quantum": 100,
+  "priority": 10,
+  "mem_weights": {
+    "primary": 5,
+    "secondary": 20
+  }
+}

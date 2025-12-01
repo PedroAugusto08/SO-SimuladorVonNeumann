@@ -1,12 +1,30 @@
 # Arquivos compilados e de build
 *.o
+*.a
+*.so
+*.dylib
 build/
 
 # Binários gerados
 bin/
+
+# Arquivos temporários de saída
+output/
+*.dat
+
+# Logs (manter estrutura de diretórios, ignorar conteúdo)
+logs/*.csv
+logs/**/*.csv
 
 # Arquivos do VS Code
 .vscode/
 
 # Arquivos de sistema
 .DS_Store
+Thumbs.db
+
+# Arquivos temporários
+*~
+*.swp
+*.swo
+.*.swp

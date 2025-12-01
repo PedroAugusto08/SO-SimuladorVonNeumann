@@ -444,7 +444,7 @@ int main() {
     }
     
     // Salvar CSV
-    std::ofstream csv("logs/multicore_time_results.csv");
+    std::ofstream csv("logs/multicore/multicore_time_results.csv");
     csv << "Cores,Tempo_ms,Speedup,Eficiencia_%,CV_%\n";
     for (const auto& r : results) {
         csv << r.num_cores << ","
@@ -455,7 +455,7 @@ int main() {
     }
     csv.close();
     
-    std::cout << "\n✅ Resultados salvos em: logs/multicore_time_results.csv\n";
+    std::cout << "\n✅ Resultados salvos em: logs/multicore/multicore_time_results.csv\n";
     
     std::cout << "\n╔════════════════════════════════════════════════════════════════╗\n";
     std::cout << "║                        ⚠️  DIAGNÓSTICO                         ║\n";
