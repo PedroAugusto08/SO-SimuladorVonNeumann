@@ -381,7 +381,7 @@ RoundRobinScheduler::Statistics RoundRobinScheduler::get_statistics() const {
     
     // Utilização da CPU (estimativa baseada em processos finalizados vs tempo total)
     uint64_t total_busy_time = 0;
-    for (const auto& core : cores) {
+    for (size_t i = 0; i < cores.size(); ++i) {
         total_busy_time += current_time;
     }
     double total_available_time = current_time * num_cores;

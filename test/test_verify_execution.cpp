@@ -14,13 +14,13 @@
 #include <chrono>
 #include <thread>
 #include <iomanip>
-#include "src/memory/MemoryManager.hpp"
-#include "src/cpu/PCB.hpp"
-#include "src/cpu/pcb_loader.hpp"
-#include "src/cpu/Core.hpp"
-#include "src/cpu/RoundRobinScheduler.hpp"
-#include "src/parser_json/parser_json.hpp"
-#include "src/IO/IOManager.hpp"
+#include "memory/MemoryManager.hpp"
+#include "cpu/PCB.hpp"
+#include "cpu/pcb_loader.hpp"
+#include "cpu/Core.hpp"
+#include "cpu/RoundRobinScheduler.hpp"
+#include "parser_json/parser_json.hpp"
+#include "IO/IOManager.hpp"
 
 void run_verification_test(int num_cores) {
     std::cout << "\n╔════════════════════════════════════════════════════════════════╗\n";

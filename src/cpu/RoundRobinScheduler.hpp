@@ -44,8 +44,8 @@ private:
     std::deque<PCB*> blocked_queue;
     std::vector<PCB*> finished_list;
 
-    int default_quantum{100};
     int num_cores{0};
+    int default_quantum{100};
 
     // CRITICAL: Atomics para evitar race conditions
     std::atomic<int> finished_count{0};

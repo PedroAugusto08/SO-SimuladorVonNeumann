@@ -31,22 +31,22 @@ size_t Cache::get(size_t address) {
 }
 
 void Cache::put(size_t address, size_t data, MemoryManager* memManager) {
+    (void)memManager; // Parâmetro reservado para write-back em implementações futuras
+    
     // Se a cache está cheia, precisamos remover um item
     if (cacheMap.size() >= capacity) {
         CachePolicy cachepolicy;
         // A política de remoção nos dirá qual endereço remover
-        size_t addr_to_remove = cachepolicy.getAddressToReplace(fifo_queue);
+        int addr_to_remove = cachepolicy.getAddressToReplace(fifo_queue);
 
         if (addr_to_remove != -1) {
-            CacheEntry& entry_to_remove = cacheMap[addr_to_remove];
-
             // NOTE: Write-back desabilitado na arquitetura multicore
             // Cache L1 é privada, write-back seria feito para memória compartilhada
             // Por simplicidade, usamos write-through (dados escritos imediatamente)
             // Em arquitetura real, isso seria otimizado com protocolo de coerência
             
             // Remove da cache
-            cacheMap.erase(addr_to_remove);
+            cacheMap.erase(static_cast<size_t>(addr_to_remove));
         }
     }
 

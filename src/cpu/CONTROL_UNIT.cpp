@@ -475,7 +475,6 @@ void* CoreExecutionLoop(MemoryManager &memoryManager, PCB &process, vector<uniqu
         std::cout << "\n=== DUMP FINAL DE REGISTRADORES (PID=" << process.pid << ") ===\n";
 
         // Primeiro tentamos usar um mapper global se existir; caso contrário, usamos os nomes de fallback
-        bool printed = false;
         try {
             // Se sua infra tem um mapper global com getRegisterName(uint32_t), descomente a linha abaixo:
             // auto &mapper = hw::getGlobalRegisterMapper();
@@ -484,7 +483,6 @@ void* CoreExecutionLoop(MemoryManager &memoryManager, PCB &process, vector<uniqu
             //     int val = context.registers.readRegister(name);
             //     std::cout << name << " (" << i << ") = " << val << "\n";
             // }
-            // printed = true;
 
             // Se não tiver mapper global, usamos nomes de fallback:
             for (uint32_t i = 0; i < 32; ++i) {
@@ -494,10 +492,8 @@ void* CoreExecutionLoop(MemoryManager &memoryManager, PCB &process, vector<uniqu
                 int val = context.registers.readRegister(name);
                 std::cout << name << " (" << i << ") = " << val << "\n";
             }
-            printed = true;
         } catch (...) {
             // caso algo dê errado ao ler por nome, apenas tentamos imprimir PC/IR
-            printed = false;
         }
 
         // PC e IR

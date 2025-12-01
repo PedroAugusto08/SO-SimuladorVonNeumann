@@ -176,6 +176,7 @@ void ALU::calculate(){
 } // calculate()
 
 void ALU::execute(operation ALUop, uint32_t a, uint32_t b, uint32_t shamt){
+    (void)shamt; // Parâmetro reservado para operações de shift futuras
     //Carregando as entradas.
     op = ALUop;
     A = a;

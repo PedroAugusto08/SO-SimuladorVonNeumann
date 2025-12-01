@@ -11,11 +11,11 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-#include "src/cpu/PriorityScheduler.hpp"
-#include "src/cpu/PCB.hpp"
-#include "src/memory/MemoryManager.hpp"
-#include "src/IO/IOManager.hpp"
-#include "src/parser_json/parser_json.hpp"
+#include "cpu/PriorityScheduler.hpp"
+#include "cpu/PCB.hpp"
+#include "memory/MemoryManager.hpp"
+#include "IO/IOManager.hpp"
+#include "parser_json/parser_json.hpp"
 
 void print_separator() {
     std::cout << "\n" << std::string(70, '=') << "\n\n";

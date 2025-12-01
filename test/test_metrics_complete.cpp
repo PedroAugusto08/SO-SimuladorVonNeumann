@@ -25,14 +25,14 @@
 #include <chrono>
 #include <fstream>
 #include <sstream>
-#include "src/cpu/FCFSScheduler.hpp"
-#include "src/cpu/SJNScheduler.hpp"
-#include "src/cpu/RoundRobinScheduler.hpp"
-#include "src/cpu/PriorityScheduler.hpp"
-#include "src/memory/MemoryManager.hpp"
-#include "src/IO/IOManager.hpp"
-#include "src/parser_json/parser_json.hpp"
-#include "src/cpu/pcb_loader.hpp"
+#include "cpu/FCFSScheduler.hpp"
+#include "cpu/SJNScheduler.hpp"
+#include "cpu/RoundRobinScheduler.hpp"
+#include "cpu/PriorityScheduler.hpp"
+#include "memory/MemoryManager.hpp"
+#include "IO/IOManager.hpp"
+#include "parser_json/parser_json.hpp"
+#include "cpu/pcb_loader.hpp"
 
 void print_separator() {
     std::cout << "\n" << std::string(80, '=') << "\n\n";

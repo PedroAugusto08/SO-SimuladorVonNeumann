@@ -2,11 +2,11 @@
 #include <vector>
 #include <chrono>
 #include <thread>
-#include "src/memory/MemoryManager.hpp"
-#include "src/IO/IOManager.hpp"
-#include "src/cpu/pcb_loader.hpp"
-#include "src/parser_json/parser_json.hpp"
-#include "src/cpu/RoundRobinScheduler.hpp"
+#include "memory/MemoryManager.hpp"
+#include "IO/IOManager.hpp"
+#include "cpu/pcb_loader.hpp"
+#include "parser_json/parser_json.hpp"
+#include "cpu/RoundRobinScheduler.hpp"
 
 int main() {
     const int NUM_CORES = 4;

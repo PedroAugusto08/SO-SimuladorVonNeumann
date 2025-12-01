@@ -138,7 +138,7 @@ SJNScheduler::Statistics SJNScheduler::get_statistics() const {
     
     // Calcula utilização da CPU
     uint64_t total_busy_time = 0;
-    for (const auto& core : cores) {
+    for (size_t i = 0; i < cores.size(); ++i) {
         total_busy_time += total_execution_time.load();
     }
     double total_available_time = total_execution_time.load() * num_cores;

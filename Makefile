@@ -14,6 +14,11 @@ TARGET_THROUGHPUT := $(BIN_DIR)/test_multicore_throughput
 TARGET_COMPARATIVE := $(BIN_DIR)/test_multicore_comparative
 TARGET_PREEMPT := $(BIN_DIR)/test_preemption
 TARGET_METRICS := $(BIN_DIR)/test_metrics_complete
+TARGET_CPU_METRICS := $(BIN_DIR)/test_cpu_metrics
+TARGET_PRIORITY_PREEMPT := $(BIN_DIR)/test_priority_preemptive
+TARGET_DEEP_INSPECT := $(BIN_DIR)/test_deep_inspection
+TARGET_RACE_DEBUG := $(BIN_DIR)/test_race_debug
+TARGET_VERIFY_EXEC := $(BIN_DIR)/test_verify_execution
 
 # Fontes principais
 SRC := src/teste.cpp src/cpu/ULA.cpp
@@ -141,6 +146,39 @@ SRC_METRICS := test/test_metrics_complete.cpp \
                src/parser_json/parser_json.cpp
 OBJ_METRICS := $(SRC_METRICS:.cpp=.o)
 
+# Fontes base para testes (reutilizáveis)
+BASE_TEST_SRC := src/cpu/Core.cpp \
+                 src/cpu/RoundRobinScheduler.cpp \
+                 src/cpu/CONTROL_UNIT.cpp \
+                 src/cpu/pcb_loader.cpp \
+                 src/cpu/REGISTER_BANK.cpp \
+                 src/cpu/ULA.cpp \
+                 src/cpu/FCFSScheduler.cpp \
+                 src/cpu/SJNScheduler.cpp \
+                 src/cpu/PriorityScheduler.cpp \
+                 src/IO/IOManager.cpp \
+                 src/memory/cache.cpp \
+                 src/memory/cachePolicy.cpp \
+                 src/memory/MAIN_MEMORY.cpp \
+                 src/memory/MemoryManager.cpp \
+                 src/memory/SECONDARY_MEMORY.cpp \
+                 src/parser_json/parser_json.cpp
+
+SRC_CPU_METRICS := test/test_cpu_metrics.cpp $(BASE_TEST_SRC)
+OBJ_CPU_METRICS := $(SRC_CPU_METRICS:.cpp=.o)
+
+SRC_PRIORITY_PREEMPT := test/test_priority_preemptive.cpp $(BASE_TEST_SRC)
+OBJ_PRIORITY_PREEMPT := $(SRC_PRIORITY_PREEMPT:.cpp=.o)
+
+SRC_DEEP_INSPECT := test/test_deep_inspection.cpp $(BASE_TEST_SRC)
+OBJ_DEEP_INSPECT := $(SRC_DEEP_INSPECT:.cpp=.o)
+
+SRC_RACE_DEBUG := test/test_race_debug.cpp $(BASE_TEST_SRC)
+OBJ_RACE_DEBUG := $(SRC_RACE_DEBUG:.cpp=.o)
+
+SRC_VERIFY_EXEC := test/test_verify_execution.cpp $(BASE_TEST_SRC)
+OBJ_VERIFY_EXEC := $(SRC_VERIFY_EXEC:.cpp=.o)
+
 # Make clean -> make -> make run
 all: clean $(TARGET) run
 
@@ -149,6 +187,9 @@ $(TARGET_SIM): $(OBJ_SIM)
 	mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_SIM) $(LDFLAGS)
 	@echo "✓ Simulador multicore compilado com sucesso!"
+
+# Atalho para compilar o simulador
+simulador: $(TARGET_SIM)
 
 # Regra para o programa principal
 $(TARGET): $(OBJ)
@@ -195,12 +236,42 @@ $(TARGET_METRICS): $(OBJ_METRICS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_METRICS) $(LDFLAGS)
 	@echo "✓ Teste de métricas completas compilado!"
 
+# Regra para teste de métricas de CPU
+$(TARGET_CPU_METRICS): $(OBJ_CPU_METRICS)
+	mkdir -p $(BIN_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_CPU_METRICS) $(LDFLAGS)
+	@echo "✓ Teste de métricas de CPU compilado!"
+
+# Regra para teste de prioridade preemptiva
+$(TARGET_PRIORITY_PREEMPT): $(OBJ_PRIORITY_PREEMPT)
+	mkdir -p $(BIN_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_PRIORITY_PREEMPT) $(LDFLAGS)
+	@echo "✓ Teste de prioridade preemptiva compilado!"
+
+# Regra para teste de inspeção profunda
+$(TARGET_DEEP_INSPECT): $(OBJ_DEEP_INSPECT)
+	mkdir -p $(BIN_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_DEEP_INSPECT) $(LDFLAGS)
+	@echo "✓ Teste de inspeção profunda compilado!"
+
+# Regra para teste de debug de race conditions
+$(TARGET_RACE_DEBUG): $(OBJ_RACE_DEBUG)
+	mkdir -p $(BIN_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_RACE_DEBUG) $(LDFLAGS)
+	@echo "✓ Teste de race debug compilado!"
+
+# Regra para teste de verificação de execução
+$(TARGET_VERIFY_EXEC): $(OBJ_VERIFY_EXEC)
+	mkdir -p $(BIN_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_VERIFY_EXEC) $(LDFLAGS)
+	@echo "✓ Teste de verificação de execução compilado!"
+
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	@echo "🧹 Limpando arquivos antigos..."
-	@rm -f $(OBJ) $(OBJ_HASH) $(OBJ_SIM) $(OBJ_MULTICORE) $(OBJ_THROUGHPUT) $(OBJ_COMPARATIVE) $(OBJ_PREEMPT) $(OBJ_METRICS) test_multicore.o
+	@rm -f $(OBJ) $(OBJ_HASH) $(OBJ_SIM) $(OBJ_MULTICORE) $(OBJ_THROUGHPUT) $(OBJ_COMPARATIVE) $(OBJ_PREEMPT) $(OBJ_METRICS) $(OBJ_CPU_METRICS) $(OBJ_PRIORITY_PREEMPT) $(OBJ_DEEP_INSPECT) $(OBJ_RACE_DEBUG) $(OBJ_VERIFY_EXEC) test_multicore.o
 	@rm -f $(BIN_DIR)/*
 
 run:
@@ -234,6 +305,31 @@ test-throughput: $(TARGET_THROUGHPUT)
 test-preemption: $(TARGET_PREEMPT)
 	@echo "🧪 Executando teste de preempção..."
 	@./$(TARGET_PREEMPT)
+
+# Teste de métricas de CPU
+test-cpu-metrics: $(TARGET_CPU_METRICS)
+	@echo "🧪 Executando teste de métricas de CPU..."
+	@./$(TARGET_CPU_METRICS)
+
+# Teste de prioridade preemptiva
+test-priority-preemptive: $(TARGET_PRIORITY_PREEMPT)
+	@echo "🧪 Executando teste de prioridade preemptiva..."
+	@./$(TARGET_PRIORITY_PREEMPT)
+
+# Teste de inspeção profunda
+test-deep-inspection: $(TARGET_DEEP_INSPECT)
+	@echo "🧪 Executando teste de inspeção profunda..."
+	@./$(TARGET_DEEP_INSPECT)
+
+# Teste de race conditions
+test-race-debug: $(TARGET_RACE_DEBUG)
+	@echo "🧪 Executando teste de race debug..."
+	@./$(TARGET_RACE_DEBUG)
+
+# Teste de verificação de execução
+test-verify-execution: $(TARGET_VERIFY_EXEC)
+	@echo "🧪 Executando teste de verificação de execução..."
+	@./$(TARGET_VERIFY_EXEC)
 
 # Testa ambos os programas
 test-all: clean $(TARGET) $(TARGET_HASH) $(TARGET_BANK)

@@ -126,7 +126,7 @@ FCFSScheduler::Statistics FCFSScheduler::get_statistics() const {
     
     // Calcula utilização da CPU
     uint64_t total_busy_time = 0;
-    for (const auto& core : cores) {
+    for (size_t i = 0; i < cores.size(); ++i) {
         // Estimativa: tempo que os cores estiveram ocupados
         total_busy_time += total_execution_time.load();
     }
