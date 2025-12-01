@@ -93,7 +93,64 @@ void print_metrics(const PCB& pcb) {
 }
 
 
+void print_help() {
+    std::cout << "===========================================\n";
+    std::cout << "  SIMULADOR VON NEUMANN MULTICORE\n";
+    std::cout << "===========================================\n\n";
+    std::cout << "USO:\n";
+    std::cout << "  ./bin/simulador [OPÇÕES]\n\n";
+    std::cout << "OPÇÕES:\n";
+    std::cout << "  -h, --help              Exibe esta mensagem de ajuda\n\n";
+    std::cout << "  -c, --cores NUM         Define o número de núcleos (padrão: 2)\n";
+    std::cout << "                          Exemplo: --cores 4\n\n";
+    std::cout << "  -q, --quantum NUM       Define o quantum para escalonamento RR e Priority\n";
+    std::cout << "                          (padrão: 100 ciclos)\n";
+    std::cout << "                          Exemplo: --quantum 50\n\n";
+    std::cout << "  -s, --policy POLÍTICA   Define a política de escalonamento\n";
+    std::cout << "                          Opções: RR, FCFS, SJN, PRIORITY\n";
+    std::cout << "                          Padrão: RR (Round Robin)\n";
+    std::cout << "                          Exemplo: --policy FCFS\n\n";
+    std::cout << "  -p, --process PROG PCB  Adiciona um processo ao sistema\n";
+    std::cout << "                          PROG: arquivo JSON com o programa\n";
+    std::cout << "                          PCB: arquivo JSON com metadados do processo\n";
+    std::cout << "                          Pode ser usado múltiplas vezes\n";
+    std::cout << "                          Exemplo: --process tasks.json process1.json\n\n";
+    std::cout << "POLÍTICAS DE ESCALONAMENTO:\n";
+    std::cout << "  RR        - Round Robin (preemptivo com quantum)\n";
+    std::cout << "  FCFS      - First Come First Served (não preemptivo)\n";
+    std::cout << "  SJN       - Shortest Job Next (não preemptivo)\n";
+    std::cout << "  PRIORITY  - Priority Scheduling (preemptivo com quantum)\n\n";
+    std::cout << "ARQUIVOS DE SAÍDA:\n";
+    std::cout << "  output/resultados.dat           - Métricas de execução\n";
+    std::cout << "  output/output.dat               - Saída lógica do programa\n";
+    std::cout << "  logs/memory_utilization.csv     - Utilização de memória\n";
+    std::cout << "  logs/multicore_results.csv      - Resultados multicore (testes)\n";
+    std::cout << "  logs/throughput_results.csv     - Métricas de throughput (testes)\n\n";
+    std::cout << "EXEMPLOS:\n";
+    std::cout << "  # Executar com configurações padrão\n";
+    std::cout << "  ./bin/simulador\n\n";
+    std::cout << "  # 4 núcleos com política FCFS\n";
+    std::cout << "  ./bin/simulador --cores 4 --policy FCFS\n\n";
+    std::cout << "  # Round Robin com quantum 50 em 8 núcleos\n";
+    std::cout << "  ./bin/simulador -c 8 -q 50 -s RR\n\n";
+    std::cout << "  # Múltiplos processos\n";
+    std::cout << "  ./bin/simulador -p prog1.json pcb1.json -p prog2.json pcb2.json\n\n";
+    std::cout << "MAIS INFORMAÇÕES:\n";
+    std::cout << "  README.md               - Documentação completa do projeto\n";
+    std::cout << "  MAKEFILE_COMMANDS.md    - Comandos de compilação e teste\n";
+    std::cout << "===========================================\n";
+}
+
 int main(int argc, char* argv[]) {
+    // Verificar se --help foi solicitado
+    for (int i = 1; i < argc; i++) {
+        std::string arg = argv[i];
+        if (arg == "--help" || arg == "-h") {
+            print_help();
+            return 0;
+        }
+    }
+    
     // Configuração do sistema multicore
     int NUM_CORES = 2;
     int DEFAULT_QUANTUM = 100;

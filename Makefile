@@ -296,6 +296,11 @@ test-multicore: $(TARGET_MULTICORE)
 	@echo "🧪 Executando teste de escalabilidade multicore..."
 	@./$(TARGET_MULTICORE)
 
+# Teste comparativo multicore
+test-multicore-comparative: $(TARGET_COMPARATIVE)
+	@echo "🔬 Executando teste comparativo multicore..."
+	@./$(TARGET_COMPARATIVE)
+
 # Teste de throughput - MEDIÇÃO CONFIÁVEL DE EFICIÊNCIA
 test-throughput: $(TARGET_THROUGHPUT)
 	@echo "🎯 Executando teste de throughput (medição confiável)..."
@@ -305,6 +310,11 @@ test-throughput: $(TARGET_THROUGHPUT)
 test-preemption: $(TARGET_PREEMPT)
 	@echo "🧪 Executando teste de preempção..."
 	@./$(TARGET_PREEMPT)
+
+# Teste de métricas completas
+test-metrics-complete: $(TARGET_METRICS)
+	@echo "📊 Executando teste de métricas completas..."
+	@./$(TARGET_METRICS)
 
 # Teste de métricas de CPU
 test-cpu-metrics: $(TARGET_CPU_METRICS)
