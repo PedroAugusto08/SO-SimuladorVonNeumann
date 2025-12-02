@@ -56,6 +56,8 @@ public:
     uint64_t getUsedSecondaryMemory() const;
     uint64_t getTotalCacheHits() const { return global_stats.cache_hits.load(); }
     uint64_t getTotalCacheMisses() const { return global_stats.cache_misses.load(); }
+    size_t getMainMemoryCapacity() const { return mainMemoryLimit; }
+    size_t getSecondaryMemoryCapacity() const;
 
     static void setThreadCache(Cache* l1_cache);
     static Cache* getThreadCache();

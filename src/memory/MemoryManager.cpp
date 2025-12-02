@@ -18,6 +18,10 @@ uint64_t MemoryManager::getUsedSecondaryMemory() const {
     }
     return used;
 }
+
+size_t MemoryManager::getSecondaryMemoryCapacity() const {
+    return secondaryMemory->getStorage().size();
+}
 #include "MemoryManager.hpp"
 #include "cache.hpp"
 #include "../cpu/PCB.hpp"
