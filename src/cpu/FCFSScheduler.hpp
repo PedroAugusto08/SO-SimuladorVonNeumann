@@ -7,6 +7,7 @@
 #include "Core.hpp"
 #include "../IO/IOManager.hpp"
 #include "memory/MemoryManager.hpp"
+#include "Constants.hpp"
 
 class FCFSScheduler {
 public:
@@ -43,5 +44,7 @@ private:
     std::atomic<int> finished_count{0};
     std::atomic<int> total_count{0};
     std::atomic<uint64_t> total_execution_time{0};
-    uint64_t simulation_start_time{0};
+    std::chrono::steady_clock::time_point simulation_start_time;  // 🆕 Tempo real
+    std::atomic<uint64_t> total_simulation_cycles{0};  // 🆕 Total de ciclos da simulação
+    int context_switches{0};  // Contador de trocas de contexto
 };

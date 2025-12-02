@@ -20,32 +20,34 @@ RoundRobinScheduler::RoundRobinScheduler(int num_cores,
 
     for (int i = 0; i < num_cores; ++i) {
         cores.push_back(std::make_unique<Core>(i, memory_manager));
+        cores[i]->reset_metrics();
     }
+    total_simulation_cycles.store(0);
+    global_context_switches.store(0);
+    finished_count.store(0);
+    total_count.store(0);
     
     // Inicializar contador de cores ociosos
     idle_cores.store(num_cores);
+    
+    simulation_start = std::chrono::steady_clock::now();
 }
 
 RoundRobinScheduler::~RoundRobinScheduler() {
     std::cout << "[Scheduler] Encerrando...\n";
     
-    // 1. Aguarda término de todos os cores PRIMEIRO
+    // Aguardar conclusão de todos os cores
     for (auto& core : cores) {
         if (!core->is_idle()) {
             core->wait_completion();
         }
     }
     
-    // 2. CRITICAL: Limpar todas as filas de ponteiros  IMEDIATAMENTE
-    // Fazemos isso ANTES de qualquer outra operação
-    {
-        std::lock_guard<std::mutex> lock(scheduler_mutex);
-        ready_queue.clear();
-        blocked_queue.clear();
-        finished_list.clear();
-    }
-    
-    std::cout << "[Scheduler] Filas limpas, finalizando...\n";
+    // Limpar filas
+    std::lock_guard<std::mutex> lock(scheduler_mutex);
+    ready_queue.clear();
+    blocked_queue.clear();
+    finished_list.clear();
 }
 
 void RoundRobinScheduler::add_process(PCB* process) {
@@ -64,16 +66,15 @@ void RoundRobinScheduler::add_process(PCB* process) {
 
 void RoundRobinScheduler::schedule_cycle() {
     current_time++;
+    total_simulation_cycles++;
     
-    // **CRITICAL: COLETAR ANTES DE ATRIBUIR!**
-    // Se core terminou processo e ficou IDLE, coletar ANTES de atribuir novo
-    // Caso contrário, processo antigo é perdido quando novo é atribuído
+    // Coletar processos finalizados antes de atribuir novos
     {
         std::lock_guard<std::mutex> lock(scheduler_mutex);
         collect_finished_processes();
     }
     
-    // OTIMIZAÇÃO: Verificação rápida lock-free antes de tentar lock
+    // Verificação rápida antes de tentar lock
     bool should_schedule = (ready_count.load() > 0 && idle_cores.load() > 0);
     
     if (current_time <= 20 && current_time % 5 == 0) {
@@ -83,8 +84,7 @@ void RoundRobinScheduler::schedule_cycle() {
                   << " should_schedule=" << should_schedule << "\n";
     }
     
-    // OTIMIZAÇÃO: Batch scheduling - só trava mutex a cada N ciclos OU quando necessário
-    // Reduz locks de 10.000 para ~1.000 (10x menos contenção)
+    // Batch scheduling: só trava mutex a cada N ciclos ou quando necessário
     if (current_time % batch_size == 0 || should_schedule) {
         std::lock_guard<std::mutex> lock(scheduler_mutex);
         
@@ -98,9 +98,8 @@ void RoundRobinScheduler::schedule_cycle() {
             }
         }
         
-        // Atribuir TODOS os processos possíveis de uma vez (maximiza paralelismo)
-        // CRITICAL FIX: Continuar tentando até esvaziar ready_queue ou todos cores ocupados
-        size_t max_attempts = ready_queue.size() * 2;  // Evita loop infinito
+        // Atribuir processos aos cores livres
+        size_t max_attempts = ready_queue.size() * 2;
         size_t attempts = 0;
         
         while (!ready_queue.empty() && attempts < max_attempts) {
@@ -109,8 +108,7 @@ void RoundRobinScheduler::schedule_cycle() {
             
             for (auto& core : cores) {
                 if (core->is_idle() && !ready_queue.empty()) {
-                    // CRITICAL: Coletar processo antigo ANTES de atribuir novo!
-                    // Se core tem processo, coletar primeiro
+                    // Coletar processo antigo se existir
                     PCB* old_process = core->get_current_process();
                     if (old_process != nullptr) {
                         // Core está IDLE mas ainda tem processo antigo não coletado!
@@ -135,13 +133,10 @@ void RoundRobinScheduler::schedule_cycle() {
                         }
                         
                         core->clear_current_process();
-                        
-                        // CRITICAL: Incrementar idle_cores após coletar!
-                        // Antes estava apenas no collect_finished_processes()
                         idle_cores.fetch_add(1);
                     }
                     
-                    // Agora sim, atribuir novo processo
+                    // Atribuir novo processo
                     PCB* process = ready_queue.front();
                     ready_queue.pop_front();
                     ready_count.fetch_sub(1);
@@ -150,9 +145,8 @@ void RoundRobinScheduler::schedule_cycle() {
                 }
             }
             
-            // Se nenhum processo foi atribuído E todos cores estão ocupados, parar
+            // Se nenhum processo foi atribuído, verificar se todos cores ocupados
             if (!assigned) {
-                // Verificar se realmente todos cores estão ocupados
                 bool all_busy = true;
                 for (auto& core : cores) {
                     if (core->is_idle()) {
@@ -161,51 +155,45 @@ void RoundRobinScheduler::schedule_cycle() {
                     }
                 }
                 
-                if (all_busy) break;  // Todos cores ocupados, parar
-                // Caso contrário, tentar novamente (race condition)
+                if (all_busy) break;
             }
         }
     }
     
-    // Atualizar tempos de espera (lock-free, apenas incrementa contadores)
+    // Atualizar tempos de espera
     if (current_time % batch_size == 0) {
         std::lock_guard<std::mutex> lock(scheduler_mutex);
         update_wait_times();
     }
     
-    // CRITICAL: Dar oportunidade para as threads executarem
-    // std::this_thread::yield() permite que threads assíncronas rodem
     std::this_thread::yield();
     
-    // CRITICAL: Segunda coleta após yield para pegar processos que terminaram agora
-    // (resolve race condition onde thread termina mas não foi detectado na primeira coleta)
+    // Segunda coleta após yield
     {
         std::lock_guard<std::mutex> lock(scheduler_mutex);
         collect_finished_processes();
     }
     
-    // CRITICAL: Se todos cores IDLE mas ainda faltam processos, fazer coleta forçada
-    // Isso resolve race conditions onde threads terminaram mas is_idle() ainda não atualizou
+    // Coleta forçada se todos cores idle mas faltam processos
     int idle = idle_cores.load();
     int finished = finished_count.load();
     int total = total_count.load();
     
     if (idle >= num_cores && finished < total) {
-        // Todos cores idle mas faltam processos - race condition!
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        
-        // Tentar coletar novamente
         std::lock_guard<std::mutex> lock(scheduler_mutex);
         collect_finished_processes();
     }
     
-    // Extra: pequeno sleep a cada N ciclos para reduzir busy-wait
+    // Sleep periódico para reduzir busy-wait
     if (current_time % 100 == 0) {
         std::this_thread::sleep_for(std::chrono::microseconds(10));
     }
 }
 
 void RoundRobinScheduler::assign_process_to_core(PCB* process, Core* core) {
+    global_context_switches++;
+    
     std::cout << "[Scheduler] Atribuindo P" << process->pid
               << " ao Core " << core->get_id() << " (quantum=" << process->quantum << ")\n";
 
@@ -222,8 +210,6 @@ void RoundRobinScheduler::assign_process_to_core(PCB* process, Core* core) {
     }
 
     process->state = State::Running;
-    
-    // CRITICAL: Decrementar idle_cores quando atribui processo
     idle_cores.fetch_sub(1);
     
     core->execute_async(process);
@@ -247,36 +233,28 @@ void RoundRobinScheduler::collect_finished_processes() {
                       << " is_idle=" << core->is_idle() << "\n";
         }
         
-        // Se não há processo, pular
         if (process == nullptr) {
+            core->increment_idle_cycles(1);
             continue;
         }
         
-        // CRITICAL: Coletar se core está IDLE **OU** thread não está mais rodando
-        // Isso pega ambos os casos:
-        // 1. Core marcou IDLE (caso normal)
-        // 2. Thread terminou mas is_idle() ainda não atualizou (race condition)
+        // Coletar se core está idle ou thread terminou
         bool is_idle = core->is_idle();
         bool thread_done = !core->is_thread_running();
         
-        // Se core ainda está executando E thread ainda está rodando, pular
         if (!is_idle && !thread_done) {
-            continue;  // Ainda executando
+            continue;
         }
         
-        // Thread terminou OU core está idle - coletar!
         std::cout << "[COLLECT] Core " << core->get_id() << " coletando P" << process->pid 
                   << " (state=" << (int)process->state 
                   << " is_idle=" << is_idle 
                   << " thread_done=" << thread_done << ")\n";
         
-        // Fazer wait_completion() se thread ainda é joinable
         if (core->is_thread_running()) {
             core->wait_completion();
         }
         collected++;
-        
-        // Classificar processo baseado no estado final
         if (process->state == State::Finished) {
             // Processo REALMENTE terminou
             process->finish_time = std::chrono::steady_clock::now().time_since_epoch().count();
@@ -297,20 +275,13 @@ void RoundRobinScheduler::collect_finished_processes() {
             std::cout << "[Scheduler] P" << process->pid << " RE-AGENDADO (preemptado)\n";
         }
         
-        // Limpar o core após coletar o processo
         core->clear_current_process();
-        
-        // CRITICAL: Incrementar idle_cores quando core fica livre
-        // (independente do estado do processo)
         idle_cores.fetch_add(1);
     }
 }
 
 void RoundRobinScheduler::handle_blocked_processes() {
-    // Simples: checar bloqueados e mover para prontos após I/O (placeholder)
     if (blocked_queue.empty()) return;
-
-    // Aqui poderia haver lógica de tempo de I/O; para now movemos tudo de volta
     while (!blocked_queue.empty()) {
         PCB* p = blocked_queue.front();
         blocked_queue.pop_front();
@@ -320,43 +291,33 @@ void RoundRobinScheduler::handle_blocked_processes() {
 }
 
 void RoundRobinScheduler::update_wait_times() {
-    // incrementa tempo de espera para processos na ready_queue
     for (PCB* p : ready_queue) {
+        p->total_wait_time++;
+    }
+    
+    for (PCB* p : blocked_queue) {
         p->total_wait_time++;
     }
 }
 
 bool RoundRobinScheduler::has_pending_processes() const {
-    // OTIMIZAÇÃO: Verificação lock-free usando atomics
-    // Evita deadlock não travando mutex em método const
-    
     int finished = finished_count.load(std::memory_order_acquire);
     int total = total_count.load(std::memory_order_acquire);
-    int idle = idle_cores.load(std::memory_order_acquire);
     
-    // Verificação rápida: se todos cores IDLE e todos processos finalizados
-    if (idle >= num_cores && finished >= total) {
-        return false;  // TERMINOU!
+    if (finished >= total && total > 0) {
+        return false;
     }
     
-    // CRITICAL: Se todos cores IDLE mas ainda faltam processos
-    // Há race condition - processos finalizaram mas não foram coletados
-    // Como agora fazemos urgent-collect, isso não deveria acontecer
-    // Mas dar uma chance com delay mínimo
+    int idle = idle_cores.load(std::memory_order_acquire);
     if (idle >= num_cores && finished < total) {
-        // Delay muito curto - urgent collect já deve ter resolvido
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        
-        // Re-verificar
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
         finished = finished_count.load(std::memory_order_acquire);
-        
         if (finished >= total) {
-            return false;  // Agora terminou!
+            return false;
         }
     }
     
-    // Ainda há trabalho pendente
-    return finished < total || idle < num_cores;
+    return finished < total;
 }
 
 RoundRobinScheduler::Statistics RoundRobinScheduler::get_statistics() const {
@@ -379,18 +340,34 @@ RoundRobinScheduler::Statistics RoundRobinScheduler::get_statistics() const {
     s.avg_turnaround_time = total_turnaround / (double)s.total_processes;
     s.avg_response_time = total_response / (double)s.total_processes;
     
-    // Utilização da CPU (estimativa baseada em processos finalizados vs tempo total)
-    uint64_t total_busy_time = 0;
-    for (size_t i = 0; i < cores.size(); ++i) {
-        total_busy_time += current_time;
+    // Tempo real de simulação: máximo de (busy + idle) entre todos os cores
+    uint64_t sim_cycles = 0;
+    for (const auto& core : cores) {
+        uint64_t core_cycles = core->get_busy_cycles() + core->get_idle_cycles();
+        if (core_cycles > sim_cycles) {
+            sim_cycles = core_cycles;
+        }
     }
-    double total_available_time = current_time * num_cores;
-    s.avg_cpu_utilization = (total_available_time > 0) ? 
-        (total_busy_time / total_available_time) * 100.0 : 0.0;
     
-    // Throughput: processos por milissegundo
-    s.throughput = (current_time > 0) ?
-        (s.total_processes / (double)current_time) * 1000.0 : 0.0;
+    // Calcular utilização da CPU (busy cycles / capacidade total)
+    uint64_t total_busy = 0;
+    for (const auto& core : cores) {
+        total_busy += core->get_busy_cycles();
+    }
+    
+    if (sim_cycles > 0) {
+        uint64_t total_capacity = sim_cycles * num_cores;
+        s.avg_cpu_utilization = (total_busy * 100.0) / total_capacity;
+    } else {
+        s.avg_cpu_utilization = 0.0;
+    }
+    
+    // Throughput = processos/segundo = 1 / (tempo médio por processo)
+    double avg_turn_cycles = s.avg_turnaround_time;
+    double seconds_per_proc = avg_turn_cycles / CLOCK_FREQ_HZ;
+    double throughput_proc_per_s = (seconds_per_proc > 0.0) ? (1.0 / seconds_per_proc) : 0.0;
+    s.throughput = throughput_proc_per_s;
+    s.total_context_switches = global_context_switches.load();
     
     return s;
 }

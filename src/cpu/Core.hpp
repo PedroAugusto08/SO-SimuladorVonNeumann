@@ -79,6 +79,19 @@ public:
         return core_id; 
     }
     
+    // 🆕 NOVOS MÉTODOS PARA RASTREAMENTO DE CICLOS
+    uint64_t get_busy_cycles() const { return busy_cycles.load(); }
+    uint64_t get_idle_cycles() const { return idle_cycles.load(); }
+    uint64_t get_total_cycles() const { return busy_cycles.load() + idle_cycles.load(); }
+    void increment_busy_cycles(uint64_t count = 1) { busy_cycles += count; }
+    void increment_idle_cycles(uint64_t count = 1) { idle_cycles += count; }
+    
+    // ✅ CORREÇÃO 4: Reset de métricas entre execuções
+    void reset_metrics() {
+        busy_cycles.store(0);
+        idle_cycles.store(0);
+    }
+    
 private:
     // Estados possíveis do núcleo
     enum class CoreState {
@@ -103,6 +116,10 @@ private:
     // Thread de execução
     std::thread execution_thread;
     mutable std::mutex core_mutex;  // mutable para permitir lock em métodos const
+    
+    // 🆕 CONTADORES DE CICLOS
+    std::atomic<uint64_t> busy_cycles{0};
+    std::atomic<uint64_t> idle_cycles{0};
     
     /**
      * Função executada pela thread - roda o processo

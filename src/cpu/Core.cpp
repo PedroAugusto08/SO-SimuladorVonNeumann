@@ -123,6 +123,9 @@ void Core::run_process(PCB* process) {
             cycles_in_quantum++;
             process->pipeline_cycles++;
             
+            // 🆕 RASTREAR CICLO BUSY
+            busy_cycles++;
+            
         } catch (const std::exception& e) {
             std::cerr << "[Core " << core_id << "] Erro na execução de P" 
                       << process->pid << ": " << e.what() << "\n";
@@ -150,7 +153,8 @@ void Core::run_process(PCB* process) {
     } else {
         // Quantum expirou
         process->state = State::Ready;
-        process->context_switches++;
+        // 🆕 NÃO incrementar aqui - será feito no scheduler!
+        // process->context_switches++;  // ❌ REMOVIDO
         
         std::cout << "[Core " << core_id << "] P" << process->pid 
                   << " PREEMPTADO (quantum expirado após " 

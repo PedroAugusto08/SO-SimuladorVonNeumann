@@ -22,6 +22,7 @@
 #include "Core.hpp"
 #include "../IO/IOManager.hpp"
 #include "memory/MemoryManager.hpp"
+#include "Constants.hpp"
 
 class PriorityScheduler {
 public:
@@ -65,5 +66,6 @@ private:
     int total_count;
     int context_switches;  // Contador de trocas de contexto
     uint64_t total_execution_time;
-    uint64_t simulation_start_time;
+    std::chrono::steady_clock::time_point simulation_start_time;  // 🆕 Tempo real
+    uint64_t total_simulation_cycles;  // 🆕 Total de ciclos da simulação
 };

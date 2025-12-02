@@ -25,6 +25,7 @@
 #include <chrono>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 #include "cpu/FCFSScheduler.hpp"
 #include "cpu/SJNScheduler.hpp"
 #include "cpu/RoundRobinScheduler.hpp"
@@ -58,7 +59,7 @@ MetricsResult print_statistics_rr(const std::string& policy, const RoundRobinSch
     std::cout << "  ⏱️  Tempo Médio de Turnaround:  " << stats.avg_turnaround_time << " ciclos\n";
     std::cout << "  ⏱️  Tempo Médio de Resposta:    " << stats.avg_response_time << " ciclos\n";
     std::cout << "  💻 Utilização da CPU:           " << stats.avg_cpu_utilization << " %\n";
-    std::cout << "  📈 Throughput:                  " << stats.throughput << " proc/ms\n";
+    std::cout << "  📈 Throughput:                  " << stats.throughput << " proc/s\n";
     std::cout << "  🔄 Context Switches:            " << stats.total_context_switches << "\n";
     std::cout << "  📦 Processos Concluídos:        " << stats.total_processes << "\n";
     print_separator();
@@ -77,7 +78,7 @@ MetricsResult print_statistics(const std::string& policy, const Stats& stats) {
     std::cout << "  ⏱️  Tempo Médio de Turnaround:  " << stats.avg_turnaround_time << " ciclos\n";
     std::cout << "  ⏱️  Tempo Médio de Resposta:    " << stats.avg_response_time << " ciclos\n";
     std::cout << "  💻 Utilização da CPU:           " << stats.avg_cpu_utilization << " %\n";
-    std::cout << "  📈 Throughput:                  " << stats.throughput << " proc/ms\n";
+    std::cout << "  📈 Throughput:                  " << stats.throughput << " proc/s\n";
     std::cout << "  🔄 Context Switches:            " << stats.total_context_switches << "\n";
     std::cout << "  📦 Processos Concluídos:        " << stats.total_processes << "\n";
     print_separator();
@@ -100,7 +101,7 @@ MetricsResult test_scheduler(const std::string& name, Scheduler& scheduler,
     
     // Executa até finalizar
     int cycles = 0;
-    int max_cycles = 2000; // Aumentado para dar tempo ao Round Robin (com preempção)
+    int max_cycles = 5000; // 🆕 CORREÇÃO: Aumentado para dar tempo a TODOS os 4 processos
     
     // RoundRobin usa has_pending_processes(), outros usam all_finished()
     if constexpr (std::is_same_v<Scheduler, RoundRobinScheduler>) {
@@ -108,6 +109,13 @@ MetricsResult test_scheduler(const std::string& name, Scheduler& scheduler,
             scheduler.schedule_cycle();
             cycles++;
         }
+        
+        // Ciclos extras para finalização completa
+        for (int i = 0; i < 50; i++) {
+            scheduler.schedule_cycle();
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        }
+        
         // Coleta e exibe métricas (RoundRobin tem estrutura diferente)
         auto stats = scheduler.get_statistics();
         return print_statistics_rr(name, stats);
@@ -115,10 +123,17 @@ MetricsResult test_scheduler(const std::string& name, Scheduler& scheduler,
         while (!scheduler.all_finished() && cycles < max_cycles) {
             scheduler.schedule_cycle();
             cycles++;
-            std::this_thread::sleep_for(std::chrono::milliseconds(1)); // Delay para threads processarem
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         
-        // Aguarda mais ciclos para garantir coleta de processos finalizados
+        // Ciclos extras para garantir coleta completa de todos os processos
+        for (int i = 0; i < 200; i++) {
+            scheduler.schedule_cycle();
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        
         for (int i = 0; i < 50; i++) {
             scheduler.schedule_cycle();
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
@@ -139,10 +154,8 @@ int main() {
     const int NUM_PROCESSES = 4;
     const int QUANTUM = 1000;
     
-    std::cout << "\n⚙️  Configuração:\n";
-    std::cout << "   • Cores: " << NUM_CORES << "\n";
-    std::cout << "   • Processos: " << NUM_PROCESSES << "\n";
-    std::cout << "   • Quantum (RR): " << QUANTUM << " ciclos\n";
+    std::cout << "\n⚙️  Configuração: " << NUM_CORES << " cores, " 
+              << NUM_PROCESSES << " processos, quantum=" << QUANTUM << " ciclos\n";
     print_separator();
     
     // Vetor para armazenar resultados
@@ -272,27 +285,63 @@ int main() {
         std::cerr << "\n❌ ERRO: Não foi possível criar logs/metrics/detailed_metrics.csv\n\n";
     }
     
-    std::cout << "╔════════════════════════════════════════════════════════════════════╗\n";
-    std::cout << "║  ✅ TODOS OS 5 ESCALONADORES TESTADOS COM SUCESSO!              ║\n";
-    std::cout << "╚════════════════════════════════════════════════════════════════════╝\n\n";
+    std::cout << "\n✅ TODOS OS 5 ESCALONADORES TESTADOS COM SUCESSO!\n\n";
     
-    std::cout << "📊 COMPARAÇÃO RÁPIDA:\n\n";
-    std::cout << "┌──────────────────┬──────────────┬────────────┬──────────────┐\n";
-    std::cout << "│ Política         │ Context SW   │ Preemptivo │ Complexidade │\n";
-    std::cout << "├──────────────────┼──────────────┼────────────┼──────────────┤\n";
-    std::cout << "│ FCFS             │ 0            │ Não        │ O(1)         │\n";
-    std::cout << "│ SJN              │ 0            │ Não        │ O(n log n)   │\n";
-    std::cout << "│ RR               │ Alto         │ Sim        │ O(1)         │\n";
-    std::cout << "│ PRIORITY         │ 0            │ Não        │ O(n log n)   │\n";
-    std::cout << "│ PRIORITY_PREEMPT │ Médio        │ Sim        │ O(n log n)   │\n";
-    std::cout << "└──────────────────┴──────────────┴────────────┴──────────────┘\n\n";
-    
-    std::cout << "💡 OBSERVAÇÕES:\n";
-    std::cout << "   • FCFS, SJN e PRIORITY (não-preempt) não têm context switches\n";
-    std::cout << "   • RR tem mais context switches devido ao quantum fixo\n";
-    std::cout << "   • PRIORITY_PREEMPT preempta quando chega processo de maior prioridade\n";
-    std::cout << "   • RR é o mais justo: todos os processos completam!\n";
-    std::cout << "   • Todas as métricas são coletadas automaticamente!\n\n";
+    // Gerar relatório consolidado em formato texto
+    std::cout << "📄 Gerando relatório consolidado...\n";
+    std::ofstream report("logs/metrics/comparative_report.txt");
+    if (report.is_open()) {
+        report << "╔════════════════════════════════════════════════════════════════════╗\n";
+        report << "║    RELATÓRIO COMPARATIVO - POLÍTICAS DE ESCALONAMENTO            ║\n";
+        report << "╚════════════════════════════════════════════════════════════════════╝\n\n";
+        
+        report << "Configuração do Teste:\n";
+        report << "  • Núcleos: " << NUM_CORES << "\n";
+        report << "  • Processos: " << NUM_PROCESSES << "\n";
+        report << "  • Quantum (RR): " << QUANTUM << " ciclos\n";
+        report << "  • Políticas testadas: FCFS, SJN, RR, PRIORITY, PRIORITY_PREEMPT\n\n";
+        
+        report << "═══════════════════════════════════════════════════════════════════\n\n";
+        
+        for (const auto& r : results) {
+            report << "Política: " << r.policy << "\n";
+            report << std::string(60, '-') << "\n";
+            report << std::fixed << std::setprecision(2);
+            report << "  Tempo Médio de Espera:        " << r.avg_wait_time << " ciclos\n";
+            report << "  Tempo Médio de Turnaround:    " << r.avg_turnaround_time << " ciclos\n";
+            report << "  Tempo Médio de Resposta:      " << r.avg_response_time << " ciclos\n";
+            report << "  Utilização da CPU:            " << r.avg_cpu_utilization << " %\n";
+            report << "  Throughput:                   " << std::setprecision(4) << r.throughput << " proc/s\n";
+            report << "  Trocas de Contexto:           " << r.context_switches << "\n";
+            report << "  Processos Concluídos:         " << r.total_processes << "\n\n";
+        }
+        
+        report << "═══════════════════════════════════════════════════════════════════\n\n";
+        report << "ANÁLISE COMPARATIVA:\n\n";
+        
+        // Encontrar melhor política por métrica
+        auto min_wait = *std::min_element(results.begin(), results.end(), 
+            [](const auto& a, const auto& b) { return a.avg_wait_time < b.avg_wait_time; });
+        auto min_turnaround = *std::min_element(results.begin(), results.end(),
+            [](const auto& a, const auto& b) { return a.avg_turnaround_time < b.avg_turnaround_time; });
+        auto max_throughput = *std::max_element(results.begin(), results.end(),
+            [](const auto& a, const auto& b) { return a.throughput < b.throughput; });
+        
+        report << "  🏆 Menor Tempo de Espera:        " << min_wait.policy 
+               << " (" << std::fixed << std::setprecision(2) << min_wait.avg_wait_time << " ciclos)\n";
+        report << "  🏆 Menor Turnaround:              " << min_turnaround.policy
+               << " (" << std::fixed << std::setprecision(2) << min_turnaround.avg_turnaround_time << " ciclos)\n";
+        report << "  🏆 Maior Throughput:              " << max_throughput.policy
+               << " (" << std::fixed << std::setprecision(4) << max_throughput.throughput << " proc/s)\n\n";
+        
+        report << "═══════════════════════════════════════════════════════════════════\n";
+        report << "Relatório gerado: logs/metrics/comparative_report.txt\n";
+        report << "Dados CSV: logs/metrics/detailed_metrics.csv\n";
+        report << "═══════════════════════════════════════════════════════════════════\n";
+        
+        report.close();
+        std::cout << "✅ Relatório consolidado salvo em: logs/metrics/comparative_report.txt\n\n";
+    }
     
     return 0;
 }

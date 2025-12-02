@@ -13,6 +13,8 @@
 class MemoryManager;
 class IOManager;
 
+#include "Constants.hpp"
+
 class RoundRobinScheduler {
 public:
     struct Statistics {
@@ -52,6 +54,7 @@ private:
     std::atomic<int> total_count{0};
 
     uint64_t current_time{0};
+    std::atomic<uint64_t> total_simulation_cycles{0};  // 🆕 Ciclos totais de simulação
     
     // Otimizações de performance
     std::atomic<int> ready_count{0};
@@ -63,6 +66,10 @@ private:
 
     MemoryManager* memory_manager{nullptr};
     IOManager* io_manager{nullptr};
+    
+    // 🆕 MÉTRICAS GLOBAIS
+    std::atomic<uint64_t> global_context_switches{0};  // Contador global de trocas
+    std::chrono::steady_clock::time_point simulation_start;  // Tempo real de início
 
     // helpers
     void assign_process_to_core(PCB* process, Core* core);

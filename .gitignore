@@ -12,6 +12,12 @@ bin/
 output/
 *.dat
 
+# Logs e relatórios (exceto READMEs)
+logs/**/*.csv
+logs/**/*.txt
+!logs/**/README.md
+logs/memory_utilization.csv
+
 
 # Arquivos do VS Code
 .vscode/
