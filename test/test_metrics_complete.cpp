@@ -160,7 +160,7 @@ int main() {
             pcb->pid = i + 1;
             pcb->state = State::Ready;
             pcb->estimated_job_size = (i + 1) * 50;
-            loadJsonProgram("tasks.json", memManager, *pcb, i * 1024);
+            loadJsonProgram("examples/programs/tasks.json", memManager, *pcb, i * 1024);
             processes.push_back(std::move(pcb));
         }
         
@@ -180,7 +180,7 @@ int main() {
             pcb->pid = i + 1;
             pcb->state = State::Ready;
             pcb->estimated_job_size = (NUM_PROCESSES - i) * 50; // Ordem inversa
-            loadJsonProgram("tasks.json", memManager, *pcb, i * 1024);
+            loadJsonProgram("examples/programs/tasks.json", memManager, *pcb, i * 1024);
             processes.push_back(std::move(pcb));
         }
         
@@ -200,7 +200,7 @@ int main() {
             pcb->pid = i + 1;
             pcb->state = State::Ready;
             pcb->quantum = QUANTUM;
-            loadJsonProgram("tasks.json", memManager, *pcb, i * 1024);
+            loadJsonProgram("examples/programs/tasks.json", memManager, *pcb, i * 1024);
             processes.push_back(std::move(pcb));
         }
         
@@ -220,7 +220,7 @@ int main() {
             pcb->pid = i + 1;
             pcb->state = State::Ready;
             pcb->priority = (NUM_PROCESSES - i); // Prioridade decrescente (maior = mais importante)
-            loadJsonProgram("tasks.json", memManager, *pcb, i * 1024);
+            loadJsonProgram("examples/programs/tasks.json", memManager, *pcb, i * 1024);
             processes.push_back(std::move(pcb));
         }
         
@@ -240,7 +240,7 @@ int main() {
             pcb->pid = i + 1;
             pcb->state = State::Ready;
             pcb->priority = (NUM_PROCESSES - i); // Prioridade decrescente (maior = mais importante)
-            loadJsonProgram("tasks.json", memManager, *pcb, i * 1024);
+            loadJsonProgram("examples/programs/tasks.json", memManager, *pcb, i * 1024);
             processes.push_back(std::move(pcb));
         }
         
@@ -248,12 +248,16 @@ int main() {
         results.push_back(result);
     }
     
+    // Criar diretório se não existir
+    system("mkdir -p logs/metrics");
+    
     // Salvar resultados em CSV
     std::ofstream csv("logs/metrics/detailed_metrics.csv");
     if (csv.is_open()) {
         csv << "Policy,Avg_Wait_Time,Avg_Turnaround_Time,Avg_Response_Time,CPU_Utilization,Throughput,Context_Switches,Total_Processes\n";
         for (const auto& r : results) {
             csv << r.policy << ","
+                << std::fixed << std::setprecision(2)
                 << r.avg_wait_time << ","
                 << r.avg_turnaround_time << ","
                 << r.avg_response_time << ","
@@ -264,6 +268,8 @@ int main() {
         }
         csv.close();
         std::cout << "\n✅ Métricas detalhadas salvas em: logs/metrics/detailed_metrics.csv\n\n";
+    } else {
+        std::cerr << "\n❌ ERRO: Não foi possível criar logs/metrics/detailed_metrics.csv\n\n";
     }
     
     std::cout << "╔════════════════════════════════════════════════════════════════════╗\n";

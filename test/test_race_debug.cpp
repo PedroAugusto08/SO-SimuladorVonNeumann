@@ -18,13 +18,13 @@ int main() {
     std::vector<PCB*> process_ptrs;
     for (int i = 0; i < 8; i++) {
         PCB* pcb = new PCB();
-        load_pcb_from_json("process1.json", *pcb);
+        load_pcb_from_json("examples/processes/process1.json", *pcb);
         pcb->pid = i + 1;
         pcb->name = "P" + std::to_string(i + 1);
         pcb->quantum = QUANTUM;
         
         int start_addr = i * 1000;
-        int end_addr = loadJsonProgram("tasks.json", *memManager, *pcb, start_addr);
+        int end_addr = loadJsonProgram("examples/programs/tasks.json", *memManager, *pcb, start_addr);
         
         pcb->program_start_addr = start_addr;
         pcb->program_size = end_addr - start_addr;

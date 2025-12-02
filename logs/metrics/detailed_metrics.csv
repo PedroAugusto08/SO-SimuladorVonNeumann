@@ -1,0 +1,6 @@
+Policy,Avg_Wait_Time,Avg_Turnaround_Time,Avg_Response_Time,CPU_Utilization,Throughput,Context_Switches,Total_Processes
+FCFS (First Come First Served),6.00,16273974.00,6794564.00,100.00,31.25,0,2
+SJN (Shortest Job Next),7.50,12536117.00,8854452.50,100.00,32.79,0,2
+Round Robin (Preemptivo),0.00,9411413.00,1213233.00,100.00,0.50,0,1
+PRIORITY (Não-Preemptivo),6.00,13133218.50,7281017.00,100.00,31.75,0,2
+PRIORITY PREEMPTIVO (por Prioridade),4.50,11563339.00,5682734.50,100.00,33.33,0,2

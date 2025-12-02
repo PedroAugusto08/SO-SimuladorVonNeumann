@@ -65,7 +65,7 @@ int main() {
         }
         
         // Carrega programa de teste
-        loadJsonProgram("tasks.json", memManager, *pcb, i * 1024);
+        loadJsonProgram("examples/programs/tasks.json", memManager, *pcb, i * 1024);
         
         processes.push_back(std::move(pcb));
     }

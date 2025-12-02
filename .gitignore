@@ -12,9 +12,6 @@ bin/
 output/
 *.dat
 
-# Logs (manter estrutura de diretórios, ignorar conteúdo)
-logs/*.csv
-logs/**/*.csv
 
 # Arquivos do VS Code
 .vscode/

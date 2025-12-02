@@ -30,7 +30,7 @@ void run_verification_test(int num_cores) {
     const int NUM_PROCESSES = 8;
     const int QUANTUM = 1000;
     const int MAX_CYCLES = 10000000;
-    std::string tasks_file = "tasks.json";
+    std::string tasks_file = "examples/programs/tasks.json";
     
     std::vector<PCB*> process_ptrs;
     
@@ -41,7 +41,7 @@ void run_verification_test(int num_cores) {
     std::cout << "1️⃣  Carregando " << NUM_PROCESSES << " processos...\n";
     for (int i = 0; i < NUM_PROCESSES; i++) {
         PCB* pcb = new PCB();
-        if (load_pcb_from_json("process1.json", *pcb)) {
+        if (load_pcb_from_json("examples/processes/process1.json", *pcb)) {
             pcb->pid = i + 1;
             pcb->name = "P" + std::to_string(i + 1);
             pcb->quantum = QUANTUM;

@@ -86,14 +86,14 @@ TestResult run_test(int num_cores, int num_processes, int quantum, int max_cycle
         for (int i = 0; i < num_processes; i++) {
             auto pcb = std::make_unique<PCB>();
             
-            if (load_pcb_from_json("process1.json", *pcb)) {
+            if (load_pcb_from_json("examples/processes/process1.json", *pcb)) {
                 pcb->pid = i + 1;
                 pcb->name = "P" + std::to_string(i + 1);
                 pcb->quantum = quantum;
                 
                 printf("[LOADING] Carregando programa para P%d\n", pcb->pid);
                 fflush(stdout);
-                loadJsonProgram("tasks.json", memManager, *pcb, 0);
+                loadJsonProgram("examples/programs/tasks.json", memManager, *pcb, 0);
                 printf("[LOADING] P%d carregado\n", pcb->pid);
                 fflush(stdout);
                 processes.push_back(std::move(pcb));
@@ -350,6 +350,9 @@ int main(int argc, char* argv[]) {
     std::cout << "   • Eficiência = (Speedup / N) × 100%\n";
     
     // Salvar resultados em arquivo CSV
+    // Criar diretório se não existir
+    system("mkdir -p logs/multicore");
+    
     std::ofstream csv_file("logs/multicore/multicore_results.csv");
     if (csv_file.is_open()) {
         csv_file << "Nucleos,Ciclos,Tempo_ms,Speedup,Eficiencia_%,Context_Switches,CPU_Util_%\n";

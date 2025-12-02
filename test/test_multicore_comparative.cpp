@@ -87,7 +87,7 @@ TestResult run_test(const std::string& policy, int num_cores, int num_processes,
         // Carregar processos
         for (int i = 0; i < num_processes; i++) {
             PCB* pcb = new PCB();
-            if (load_pcb_from_json("process1.json", *pcb)) {
+            if (load_pcb_from_json("examples/processes/process1.json", *pcb)) {
                 pcb->pid = i + 1;
                 pcb->name = "P" + std::to_string(i + 1);
                 pcb->quantum = quantum;
@@ -181,7 +181,7 @@ int main() {
     const int NUM_PROCESSES = 8;
     const int QUANTUM = 1000;
     const int MAX_CYCLES = 10000000;
-    const std::string TASKS_FILE = "tasks.json";
+    const std::string TASKS_FILE = "examples/programs/tasks.json";
     const int ITERATIONS = 3;
     const int WARMUP_ITERATIONS = 1;
     
@@ -372,6 +372,9 @@ int main() {
         }
         std::cout << "\n";
     }
+    
+    // Criar diretório se não existir
+    system("mkdir -p logs/multicore");
     
     // Salvar resultados em CSV
     std::ofstream csv_file("logs/multicore/multicore_comparative_results.csv");
