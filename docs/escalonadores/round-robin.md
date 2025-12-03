@@ -186,6 +186,7 @@ P3: [8-11] FIM
 ```
 
 **Métricas:**
+
 | Processo | Burst | Turnaround | Espera |
 |----------|-------|------------|--------|
 | P1 | 8 | 20 | 12 |

@@ -196,6 +196,7 @@ void apply_aging() {
 ## Exemplo de Execução
 
 **Processos:**
+
 | Processo | Prioridade | Burst |
 |----------|------------|-------|
 | P1 | 3 | 100 |
