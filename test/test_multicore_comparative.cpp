@@ -160,12 +160,14 @@ TestResult run_test(const std::string& policy, int num_cores, int num_processes,
             result.processes_finished = scheduler.get_finished_count();
         }
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         auto end = std::chrono::high_resolution_clock::now();
         
         std::chrono::duration<double, std::milli> duration = end - start;
         execution_time_ms = duration.count();
         result.execution_time_ms = execution_time_ms;
+        
+        // Sleep APÓS a medição para estabilidade entre iterações
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
         
     } catch (const std::exception& e) {
         result.execution_time_ms = 0.0;

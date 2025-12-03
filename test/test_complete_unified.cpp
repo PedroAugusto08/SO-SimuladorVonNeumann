@@ -248,11 +248,13 @@ UnifiedResult run_unified_test(const std::string& policy, int num_cores, int num
             }
         }
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
         auto end = std::chrono::high_resolution_clock::now();
         
         std::chrono::duration<double, std::milli> duration = end - start;
         result.execution_time_ms = duration.count();
+        
+        // Sleep APÓS a medição para estabilidade entre iterações
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
         
         // Coletar métricas de cache
         result.cache_hits = memManager->getTotalCacheHits();
