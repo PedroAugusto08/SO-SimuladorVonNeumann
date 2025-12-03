@@ -470,24 +470,9 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
 [IMM] LI t0 = 100
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
@@ -499,28 +484,13 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[IMM] LI s3 = 10
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s5 = -1
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
@@ -619,16 +589,6 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -636,11 +596,6 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
@@ -663,6 +618,7 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -678,7 +634,6 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI s5 = -1
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -694,29 +649,14 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[IMM] LI s6 = 1
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [IMM] LI s3 = 10
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
@@ -790,40 +730,55 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[IMM] LI t0 = 100
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[IMM] LI s5 = 10
+[IMM] LI s6 = 1
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [IMM] LI s3 = 10
-[IMM] LI s5 = 10
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
+[IMM] LI s5 = 10
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
+[IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[IMM] LI s6 = 1
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [IMM] LI s3 = 10
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [IMM] LI s5 = 10
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s6 = 1
+[IMM] LI s3 = 10
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [IMM] LI s5 = -1
+[IMM] LI s5 = 10
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[IMM] LI s6 = 1
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
@@ -844,6 +799,7 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
+[IMM] LI t0 = 100
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -853,55 +809,54 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
+[IMM] LI t1 = 5
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI s6 = 1
+[IMM] LI t0 = 100
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
+[IMM] LI t0 = 100
 [IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[IMM] LI t0 = 100
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[IMM] LI s5 = 10
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
+[IMM] LI s6 = 1
 [IMM] LI s5 = 10
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI s6 = 1
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI s5 = -1
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[IMM] LI s5 = -1
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
 [IMM] LI t0 = 100
@@ -919,33 +874,18 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[IMM] LI s5 = 10
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s6 = 1
 [IMM] LI s3 = 10
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[IMM] LI s5 = 10
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
@@ -956,24 +896,39 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI t0 = 100
+[IMM] LI t1 = 5
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI s5 = -1
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[IMM] LI s5 = 10
 [IMM] LI s6 = 1
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI t0 = 100
+[IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [IMM] LI s3 = 10
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [IMM] LI s5 = 10
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [IMM] LI s6 = 1
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI s3 = 10
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[IMM] LI s5 = 10
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
+[IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
@@ -994,9 +949,18 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
+[IMM] LI t0 = 100
+[IMM] LI t1 = 5
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s3 = 10
+[IMM] LI t0 = 100
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
@@ -1014,31 +978,37 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s5 = 10
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s5 = 10
+[IMM] LI s3 = 10
 [IMM] LI s6 = 1
+[IMM] LI s5 = 10
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI s6 = 1
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s6 = 1
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s5 = -1
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -1046,16 +1016,12 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI t0 = 100
+[IMM] LI t1 = 5
 [IMM] LI s3 = 10
+[IMM] LI t0 = 100
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
@@ -1072,23 +1038,23 @@ k1    : 0x00000000  (Decimal: 0)
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI t1 = 5
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[IMM] LI t0 = 100
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[IMM] LI t1 = 5
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[IMM] LI s3 = 10
+[IMM] LI s5 = -1
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
@@ -1099,16 +1065,20 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[IMM] LI s5 = 10
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[IMM] LI s6 = 1
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [IMM] LI s3 = 10
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [IMM] LI s5 = 10
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s6 = 1
+[IMM] LI s5 = -1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
@@ -1122,55 +1092,70 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI t0 = 100
+[IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
+[IMM] LI s5 = 10
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s6 = 1
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
+[IMM] LI s5 = -1
 [IMM] LI s5 = 10
+[IMM] LI s6 = 1
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[IMM] LI t0 = 100
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[IMM] LI t1 = 5
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[IMM] LI s3 = 10
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[IMM] LI s5 = -1
+[IMM] LI s5 = 10
 [IMM] LI s6 = 1
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI s6 = 1
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s3 = 10
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI s5 = 10
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI s5 = -1
 [IMM] LI s6 = 1
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s5 = -1
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
@@ -1182,52 +1167,67 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
+[IMM] LI t0 = 100
+[IMM] LI t0 = 100
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI t0 = 100
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = 10
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[IMM] LI s5 = -1
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s5 = 10
+[IMM] LI t0 = 100
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[IMM] LI s6 = 1
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI t0 = 100
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [IMM] LI t1 = 5
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[IMM] LI s5 = -1
+[IMM] LI s3 = 10
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[IMM] LI s5 = 10
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s6 = 1
+[IMM] LI s5 = -1
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI s3 = 10
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [IMM] LI s5 = 10
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -1240,15 +1240,10 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI t0 = 100
+[IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -1264,51 +1259,50 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI t0 = 100
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[IMM] LI s3 = 10
+[IMM] LI t0 = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s5 = 10
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [IMM] LI t1 = 5
+[IMM] LI s6 = 1
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s3 = 10
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [IMM] LI s5 = 10
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s6 = 1
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[IMM] LI s6 = 1
+[IMM] LI s3 = 10
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [IMM] LI s5 = 10
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -1338,15 +1332,6 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
@@ -1676,25 +1661,10 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
 [IMM] LI s3 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [IMM] LI s5 = 10
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [IMM] LI s6 = 1
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[IMM] LI s5 = -1
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
@@ -1744,57 +1714,27 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s5 = 10
 [IMM] LI s3 = 10
-[IMM] LI s6 = 1
 [IMM] LI s5 = 10
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI s6 = 1
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
@@ -1829,6 +1769,11 @@ k1    : 0x00000000  (Decimal: 0)
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -1836,14 +1781,9 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [IMM] LI s3 = 10
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [IMM] LI s5 = 10
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s6 = 1
-[IMM] LI s5 = -1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
@@ -1969,9 +1909,6 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -1984,6 +1921,9 @@ k1    : 0x00000000  (Decimal: 0)
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -1991,29 +1931,46 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI t0 = 100
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
+[IMM] LI t0 = 100
+[IMM] LI t1 = 5
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI s6 = 1
+[IMM] LI t1 = 5
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[IMM] LI s5 = -1
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
+[IMM] LI s3 = 10
+[IMM] LI s5 = 10
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
+[IMM] LI s6 = 1
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
@@ -2027,8 +1984,6 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -2051,38 +2006,55 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s3 = 10
+[IMM] LI t0 = 100
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[IMM] LI s5 = 10
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI s6 = 1
 [IMM] LI s3 = 10
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI s5 = 10
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [IMM] LI s6 = 1
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI s5 = -1
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
+[IMM] LI t1 = 5
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
+[IMM] LI s3 = 10
+[IMM] LI s5 = 10
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
+[IMM] LI s6 = 1
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
@@ -2100,8 +2072,6 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
 [IMM] LI t0 = 100
@@ -2111,42 +2081,52 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI t0 = 100
 [IMM] LI s3 = 10
+[IMM] LI t1 = 5
 [IMM] LI s5 = 10
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI s6 = 1
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI t0 = 100
 [IMM] LI t1 = 5
+[IMM] LI s5 = -1
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[IMM] LI s3 = 10
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI s5 = 10
 [IMM] LI s3 = 10
+[IMM] LI s6 = 1
+[IMM] LI s5 = 10
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s6 = 1
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [IMM] LI s5 = -1
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [IMM] LI s3 = 10
+[IMM] LI s5 = -1
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
@@ -2154,9 +2134,6 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -2164,12 +2141,6 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
@@ -2177,7 +2148,6 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [IMM] LI s5 = -1
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
@@ -2187,71 +2157,56 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
+[IMM] LI t0 = 100
 [IMM] LI s5 = 10
+[IMM] LI t1 = 5
 [IMM] LI s6 = 1
+[IMM] LI t0 = 100
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[IMM] LI t0 = 100
-[IMM] LI t0 = 100
 [IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
 [IMM] LI t0 = 100
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [IMM] LI t1 = 5
+[IMM] LI s3 = 10
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[IMM] LI s5 = 10
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [IMM] LI s6 = 1
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s3 = 10
+[IMM] LI s3 = 10
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[IMM] LI s5 = 10
+[IMM] LI s5 = 10
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t1 = 5
 [IMM] LI s6 = 1
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s5 = 10
-[IMM] LI s3 = 10
-[IMM] LI s6 = 1
-[IMM] LI s5 = 10
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [IMM] LI s6 = 1
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[IMM] LI s5 = -1
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
 [IMM] LI t0 = 100
@@ -2262,10 +2217,6 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
@@ -2273,6 +2224,12 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
+[IMM] LI t0 = 100
+[IMM] LI t1 = 5
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -2282,15 +2239,15 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
+[IMM] LI t0 = 100
+[IMM] LI t1 = 5
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
@@ -2303,8 +2260,6 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
@@ -2330,72 +2285,102 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
 [IMM] LI t0 = 100
+[IMM] LI t1 = 5
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
+[IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI s3 = 10
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s5 = 10
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s6 = 1
 [IMM] LI s5 = -1
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s5 = 10
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [IMM] LI t0 = 100
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI t1 = 5
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI t0 = 100
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[IMM] LI s5 = -1
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [IMM] LI s5 = 10
-[IMM] LI s6 = 1
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI s3 = 10
+[IMM] LI s5 = 10
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [IMM] LI s6 = 1
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
+[IMM] LI s3 = 10
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
+[IMM] LI s5 = 10
+[IMM] LI s5 = -1
+[IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI s5 = -1
+[IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[IMM] LI t0 = 100
+[IMM] LI t1 = 5
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI s3 = 10
+[IMM] LI s5 = 10
+[IMM] LI s6 = 1
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
@@ -2411,24 +2396,43 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI t0 = 100
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[IMM] LI t1 = 5
 [IMM] LI t0 = 100
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s5 = -1
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
+[IMM] LI s3 = 10
+[IMM] LI s5 = 10
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
+[IMM] LI s6 = 1
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
 [IMM] LI s5 = -1
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
@@ -2451,27 +2455,53 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[IMM] LI t0 = 100
+[IMM] LI t1 = 5
+[IMM] LI t0 = 100
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI t1 = 5
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI s6 = 1
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI s3 = 10
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI s3 = 10
 [IMM] LI t0 = 100
+[IMM] LI s5 = 10
+[IMM] LI s5 = 10
 [IMM] LI t1 = 5
+[IMM] LI s6 = 1
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s6 = 1
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s5 = -1
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s3 = 10
+[IMM] LI s5 = -1
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
@@ -2936,21 +2966,21 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI t0 = 100
+[IMM] LI t1 = 5
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI s6 = 1
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI s5 = -1
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
@@ -3032,6 +3062,8 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -3047,8 +3079,6 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -3101,16 +3131,15 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI t0 = 100
 [IMM] LI s3 = 10
+[IMM] LI t1 = 5
 [IMM] LI s5 = 10
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[IMM] LI t0 = 100
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
@@ -3120,48 +3149,34 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[IMM] LI t0 = 100
 [IMM] LI t1 = 5
+[IMM] LI s3 = 10
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s5 = 10
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[IMM] LI s6 = 1
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
+[IMM] LI s3 = 10
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
@@ -3183,49 +3198,64 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
 [IMM] LI t0 = 100
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [IMM] LI t1 = 5
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[IMM] LI s3 = 10
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[IMM] LI s5 = 10
+[IMM] LI t0 = 100
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
+[IMM] LI t1 = 5
 [IMM] LI s6 = 1
-[IMM] LI s5 = 10
+[IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI s6 = 1
+[IMM] LI t0 = 100
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI t1 = 5
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [IMM] LI s5 = -1
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[IMM] LI s3 = 10
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI s5 = 10
 [IMM] LI s3 = 10
+[IMM] LI s6 = 1
 [IMM] LI s5 = 10
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI s6 = 1
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s5 = -1
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
@@ -3250,67 +3280,52 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [IMM] LI s3 = 10
+[IMM] LI t0 = 100
 [IMM] LI s5 = 10
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [IMM] LI s6 = 1
+[IMM] LI t1 = 5
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[IMM] LI s6 = 1
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [IMM] LI s5 = -1
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s3 = 10
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [IMM] LI t0 = 100
+[IMM] LI s5 = 10
 [IMM] LI t1 = 5
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
 [IMM] LI s6 = 1
+[IMM] LI s5 = -1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI s5 = -1
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
@@ -3341,6 +3356,7 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI t0 = 100
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
@@ -3349,58 +3365,52 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[IMM] LI t0 = 100
+[IMM] LI t1 = 5
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[IMM] LI t0 = 100
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI t1 = 5
 [IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
+[IMM] LI s5 = 10
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [IMM] LI s6 = 1
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s6 = 1
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[IMM] LI s3 = 10
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
 [IMM] LI s5 = 10
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [IMM] LI s6 = 1
+[IMM] LI s5 = -1
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI s5 = -1
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
@@ -3421,19 +3431,13 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI t0 = 100
 [IMM] LI s3 = 10
+[IMM] LI t1 = 5
 [IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
 [IMM] LI s6 = 1
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
@@ -3445,25 +3449,36 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [IMM] LI t0 = 100
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [IMM] LI t1 = 5
+[IMM] LI s3 = 10
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[IMM] LI s5 = 10
+[IMM] LI s3 = 10
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[IMM] LI s5 = 10
+[IMM] LI s6 = 1
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[IMM] LI s6 = 1
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [IMM] LI s3 = 10
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [IMM] LI s5 = 10
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s6 = 1
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
+[IMM] LI s5 = -1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
@@ -3475,16 +3490,14 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[IMM] LI t0 = 100
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
+[IMM] LI t0 = 100
 [IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI t0 = 100
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
@@ -3497,131 +3510,64 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [IMM] LI t0 = 100
+[IMM] LI s6 = 1
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
 [IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[IMM] LI t1 = 5
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
 [IMM] LI s5 = 10
+[IMM] LI s3 = 10
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI s5 = 10
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI s3 = 10
-[IMM] LI t0 = 100
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
 [IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[IMM] LI s5 = -1
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
-[IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI s5 = 10
 [IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[IMM] LI t0 = 100
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
@@ -3635,43 +3581,52 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI t0 = 100
 [IMM] LI s5 = -1
+[IMM] LI s5 = 10
+[IMM] LI t0 = 100
+[IMM] LI s6 = 1
+[IMM] LI t1 = 5
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[IMM] LI t0 = 100
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI t1 = 5
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s3 = 10
+[IMM] LI s5 = -1
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
+[IMM] LI s5 = 10
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s6 = 1
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI s5 = -1
-[IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI s5 = -1
 [IMM] LI s3 = 10
+[IMM] LI s5 = -1
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
@@ -3686,19 +3641,17 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI t0 = 100
+[IMM] LI t1 = 5
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
+[IMM] LI t0 = 100
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
@@ -3706,94 +3659,51 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
+[IMM] LI t1 = 5
 [IMM] LI s6 = 1
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[IMM] LI s5 = -1
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = 10
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
+[IMM] LI s6 = 1
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s5 = -1
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[IMM] LI s5 = 10
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
-[IMM] LI s5 = 10
 [IMM] LI s6 = 1
+[IMM] LI s5 = 10
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[IMM] LI s6 = 1
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
@@ -4143,8 +4053,8 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI t0 = 100
 [IMM] LI s5 = -1
+[IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
@@ -4219,30 +4129,15 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [IMM] LI s5 = 10
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -4369,36 +4264,12 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
 [IMM] LI t0 = 100
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
@@ -4423,12 +4294,6 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -4444,14 +4309,6 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -4467,6 +4324,7 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
+[IMM] LI t0 = 100
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
@@ -4475,21 +4333,33 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
+[IMM] LI t1 = 5
 [IMM] LI s5 = 10
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI s3 = 10
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [IMM] LI s5 = 10
+[IMM] LI s5 = -1
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
+[IMM] LI t0 = 100
+[IMM] LI t1 = 5
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [IMM] LI t0 = 100
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
@@ -4504,11 +4374,6 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
@@ -4532,31 +4397,61 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[IMM] LI t0 = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI t1 = 5
 [IMM] LI s5 = -1
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [IMM] LI t0 = 100
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [IMM] LI t1 = 5
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s3 = 10
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[IMM] LI s5 = 10
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[IMM] LI s6 = 1
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [IMM] LI s3 = 10
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[IMM] LI t0 = 100
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI t1 = 5
+[IMM] LI s5 = -1
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [IMM] LI s5 = -1
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI s3 = 10
+[IMM] LI s5 = 10
+[IMM] LI s6 = 1
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s3 = 10
+[IMM] LI s5 = -1
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
@@ -4575,33 +4470,43 @@ k1    : 0x00000000  (Decimal: 0)
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI t0 = 100
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI t1 = 5
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [IMM] LI s5 = -1
 [IMM] LI t0 = 100
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [IMM] LI t1 = 5
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[IMM] LI s3 = 10
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
+[IMM] LI s5 = 10
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
+[IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[IMM] LI t0 = 100
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[IMM] LI t1 = 5
 [IMM] LI t0 = 100
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI t1 = 5
+[IMM] LI s5 = -1
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s5 = -1
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
@@ -4609,31 +4514,21 @@ k1    : 0x00000000  (Decimal: 0)
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI t0 = 100
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[IMM] LI s5 = -1
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s5 = -1
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
-[IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
@@ -4648,18 +4543,18 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
+[IMM] LI t0 = 100
 [IMM] LI s6 = 1
+[IMM] LI t1 = 5
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[IMM] LI s5 = -1
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
@@ -4677,15 +4572,30 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
+[IMM] LI t0 = 100
 [IMM] LI s5 = 10
+[IMM] LI t1 = 5
 [IMM] LI s6 = 1
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [IMM] LI s5 = -1
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI s3 = 10
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
+[IMM] LI s5 = 10
+[IMM] LI s6 = 1
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
@@ -4706,35 +4616,65 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI t0 = 100
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI t0 = 100
+[IMM] LI t1 = 5
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s5 = -1
 [IMM] LI t0 = 100
+[IMM] LI s3 = 10
+[IMM] LI t1 = 5
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
+[IMM] LI t0 = 100
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI s3 = 10
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[IMM] LI t1 = 5
+[IMM] LI s5 = 10
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI s3 = 10
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
+[IMM] LI s6 = 1
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s6 = 1
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[IMM] LI s5 = -1
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
@@ -4755,11 +4695,11 @@ k1    : 0x00000000  (Decimal: 0)
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[IMM] LI t0 = 100
+[IMM] LI t0 = 100
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
@@ -4772,12 +4712,18 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
+[IMM] LI t1 = 5
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI t0 = 100
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[IMM] LI t1 = 5
+[IMM] LI s5 = -1
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[IMM] LI s5 = -1
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
@@ -4787,16 +4733,11 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
@@ -4804,9 +4745,7 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
@@ -4814,6 +4753,7 @@ k1    : 0x00000000  (Decimal: 0)
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
+[IMM] LI s5 = -1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
@@ -4825,21 +4765,24 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[IMM] LI t0 = 100
+[IMM] LI t1 = 5
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [IMM] LI s3 = 10
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [IMM] LI s5 = 10
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [IMM] LI t0 = 100
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
@@ -4866,11 +4809,12 @@ k1    : 0x00000000  (Decimal: 0)
 [IMM] LI s5 = -1
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI s5 = -1
 [IMM] LI s3 = 10
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
@@ -4878,12 +4822,8 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
-[IMM] LI t0 = 100
-[IMM] LI t1 = 5
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[IMM] LI s5 = -1
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
@@ -4892,60 +4832,75 @@ k1    : 0x00000000  (Decimal: 0)
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
-[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
-[IMM] LI s3 = 10
-[IMM] LI s5 = 10
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
-[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
-[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s3 = 10
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [IMM] LI s5 = 10
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[IMM] LI s6 = 1
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s3 = 10
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[IMM] LI t0 = 100
+[IMM] LI t1 = 5
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[IMM] LI s5 = 10
+[IMM] LI s3 = 10
 [IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] SUB t3 = t0(100) SUB t1(5) = 95
+[IMM] LI s5 = 10
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
+[IMM] LI s6 = 1
 [IMM] LI t0 = 100
 [IMM] LI t1 = 5
+[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
+[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
+[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
+[IMM] LI s5 = -1
+[IMM] LI s5 = -1
 [ARIT] SUB t3 = t0(100) SUB t1(5) = 95
 [ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] DIV t7 = t0(100) DIV t1(5) = 20
+[ARIT] MULT t6 = t1(5) MULT t1(5) = 25
 [ARIT] ADD s2 = s0(15) ADD s1(25) = 40
+[ARIT] DIV t7 = t0(100) DIV t1(5) = 20
 [IMM] LI s3 = 10
+[ARIT] ADD s2 = s0(15) ADD s1(25) = 40
 [IMM] LI s5 = 10
 [IMM] LI s6 = 1
-[ARIT] ADD s7 = s7(1) ADD s6(1) = 2
-[ARIT] ADD t2 = t0(100) ADD t1(5) = 105
-[ARIT] SUB t3 = t2(105) SUB t1(5) = 100
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = -1
 [IMM] LI s3 = 10
-[ARIT] ADD a2 = a0(5) ADD a1(5) = 10
-[IMM] LI s5 = 10
-[IMM] LI s5 = -1
-[IMM] LI s6 = 1
 [ARIT] ADD s7 = s7(1) ADD s6(1) = 2
 [ARIT] ADD t2 = t0(100) ADD t1(5) = 105
 [ARIT] SUB t3 = t2(105) SUB t1(5) = 100
+[IMM] LI s5 = 10
 [ARIT] ADD a2 = a0(5) ADD a1(5) = 10
 [IMM] LI s5 = -1
 [IMM] LI s6 = 1

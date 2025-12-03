@@ -178,7 +178,10 @@ SRC_VERIFY_EXEC := test/test_verify_execution.cpp $(BASE_TEST_SRC)
 OBJ_VERIFY_EXEC := $(SRC_VERIFY_EXEC:.cpp=.o)
 
 # Make clean -> make -> make run
-all: clean $(TARGET) run
+all: clean $(TARGET_SIM)
+
+# Alvo para compilar e executar
+build-and-run: clean $(TARGET) run
 
 # Regra para o simulador multicore
 $(TARGET_SIM): $(OBJ_SIM)

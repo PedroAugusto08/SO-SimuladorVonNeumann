@@ -5,52 +5,78 @@
 #include "TimeUtils.hpp"
 
 FCFSScheduler::FCFSScheduler(int num_cores, MemoryManager* memManager, IOManager* ioManager)
-    : num_cores(num_cores), memManager(memManager), ioManager(ioManager),
-      finished_count(0), total_count(0), total_execution_time(0) {
+    : num_cores(num_cores), memManager(memManager), ioManager(ioManager) {
+    
+    std::cout << "[FCFS] Inicializando com " << num_cores << " núcleos\n";
+    
     for (int i = 0; i < num_cores; i++) {
         cores.push_back(std::make_unique<Core>(i, memManager));
         cores[i]->reset_metrics();
     }
+    
+    // Inicializar contadores atômicos
     total_simulation_cycles.store(0);
+    finished_count.store(0);
+    total_count.store(0);
+    total_execution_time.store(0);
+    ready_count.store(0);
+    idle_cores_count.store(num_cores);
     context_switches = 0;
     
     simulation_start_time = std::chrono::steady_clock::now();
 }
 
-void FCFSScheduler::add_process(PCB* process) {
-    if (process->arrival_time == 0) {
-        process->arrival_time = cpu_time::now_ns();
-        total_count++;  // Só incrementa se for processo novo
-    }
-    process->enter_ready_queue();
-    ready_queue.push_back(process);
-}
-
-void FCFSScheduler::schedule_cycle() {
-    total_execution_time++;
-    total_simulation_cycles++;
+FCFSScheduler::~FCFSScheduler() {
+    std::cout << "[FCFS] Encerrando...\n";
     
-    // Incrementar ciclos ociosos para cores sem processo
+    // Aguardar conclusão de todos os cores
     for (auto& core : cores) {
-        if (core->is_idle() && core->get_current_process() == nullptr) {
-            core->increment_idle_cycles(1);
+        if (!core->is_idle()) {
+            core->wait_completion();
         }
     }
     
-    // Coletar processos finalizados ou bloqueados antes de agendar novos
+    // Limpar filas
+    std::lock_guard<std::mutex> lock(scheduler_mutex);
+    ready_queue.clear();
+    blocked_list.clear();
+    finished_list.clear();
+}
+
+void FCFSScheduler::add_process(PCB* process) {
+    std::lock_guard<std::mutex> lock(scheduler_mutex);
+    
+    if (process->arrival_time == 0) {
+        process->arrival_time = cpu_time::now_ns();
+    }
+    
+    enqueue_ready_process(process);
+    total_count.fetch_add(1);
+    process->state = State::Ready;
+}
+
+void FCFSScheduler::enqueue_ready_process(PCB* process) {
+    process->enter_ready_queue();
+    ready_queue.push_back(process);
+    ready_count.fetch_add(1);
+}
+
+void FCFSScheduler::collect_finished_processes() {
     for (auto& core : cores) {
         PCB* process = core->get_current_process();
-        if (process == nullptr) continue;
+        if (process == nullptr) {
+            core->increment_idle_cycles(1);
+            continue;
+        }
         
-        // Coletar se core está IDLE OU thread não está mais rodando
+        // Coletar se core está idle ou thread terminou
         bool is_idle = core->is_idle();
         bool thread_done = !core->is_thread_running();
         
         if (!is_idle && !thread_done) {
-            continue;  // Ainda executando
+            continue;
         }
         
-        // Thread terminou OU core está idle - coletar processo
         if (core->is_thread_running()) {
             core->wait_completion();
         }
@@ -59,118 +85,154 @@ void FCFSScheduler::schedule_cycle() {
             case State::Finished:
                 process->finish_time = cpu_time::now_ns();
                 finished_list.push_back(process);
-                finished_count.fetch_add(1);  // Incremento atômico seguro
-                core->clear_current_process(); // Evita coleta duplicada
+                finished_count.fetch_add(1);
+                std::cout << "[FCFS] P" << process->pid << " FINALIZADO!\n";
                 break;
             case State::Blocked:
                 ioManager->registerProcessWaitingForIO(process);
                 blocked_list.push_back(process);
-                core->clear_current_process();
+                std::cout << "[FCFS] P" << process->pid << " BLOQUEADO (I/O)\n";
                 break;
             default:
-                process->enter_ready_queue();
-                ready_queue.push_back(process);
-                core->clear_current_process();
+                enqueue_ready_process(process);
+                std::cout << "[FCFS] P" << process->pid << " RE-AGENDADO\n";
                 break;
         }
-    }
-    
-    // Desbloqueia processos do IO
-    for (auto it = blocked_list.begin(); it != blocked_list.end(); ) {
-        if ((*it)->state == State::Ready) {
-            (*it)->enter_ready_queue();
-            ready_queue.push_back(*it);
-            it = blocked_list.erase(it);
-        } else {
-            ++it;
-        }
-    }
-    
-    // Atribui processos aos núcleos livres
-    for (auto& core : cores) {
-        if (core->is_available_for_new_process() && !ready_queue.empty()) {
-            PCB* process = ready_queue.front();
-            ready_queue.pop_front();
-            process->leave_ready_queue();
-            
-            if (process->start_time == 0) {
-                process->start_time = cpu_time::now_ns();
-            }
-            process->assigned_core = core->get_id();
-            
-            // FCFS é não-preemptivo: quantum infinito (processo executa até completar)
-            process->quantum = 999999;
-            
-            // Context switch: processo sendo despachado para core
-            context_switches++;
-            process->context_switches++;
-            
-            core->execute_async(process);
-        }
-    }
-    
-    // Se todos os cores estão ocupados, aguardar um pouco para evitar busy-wait
-    bool all_busy = true;
-    for (auto& core : cores) {
-        if (core->is_idle() || core->get_current_process() == nullptr) {
-            all_busy = false;
-            break;
-        }
-    }
-    
-    if (all_busy && !ready_queue.empty()) {
-        // Cores ocupados mas ainda há processos na fila - aguardar threads
-        std::this_thread::sleep_for(std::chrono::microseconds(100));
-    } else {
-        // Yield para reduzir busy-wait
-        std::this_thread::yield();
-    }
-    
-    // Segunda passagem de coleta após yield (para capturar processos que terminaram durante o yield)
-    for (auto& core : cores) {
-        PCB* process = core->get_current_process();
-        if (process == nullptr) continue;
         
-        if (core->is_idle() || !core->is_thread_running()) {
-            if (core->is_thread_running()) {
-                core->wait_completion();
-            }
-            
-            switch (process->state) {
-                case State::Finished:
-                    process->finish_time = cpu_time::now_ns();
-                    finished_list.push_back(process);
-                    finished_count.fetch_add(1);
-                    core->clear_current_process();
-                    break;
-                case State::Blocked:
-                    ioManager->registerProcessWaitingForIO(process);
-                    blocked_list.push_back(process);
-                    core->clear_current_process();
-                    break;
-                default:
-                    // Ready ou outro estado - volta para a fila
-                    process->enter_ready_queue();
-                    ready_queue.push_back(process);
-                    core->clear_current_process();
-                    break;
+        core->clear_current_process();
+        idle_cores_count.fetch_add(1);
+    }
+}
+
+void FCFSScheduler::schedule_cycle() {
+    total_execution_time.fetch_add(1);
+    total_simulation_cycles.fetch_add(1);
+    uint64_t current_time = total_execution_time.load();
+    
+    // Coletar processos finalizados antes de atribuir novos
+    {
+        std::lock_guard<std::mutex> lock(scheduler_mutex);
+        collect_finished_processes();
+    }
+    
+    // Verificação rápida antes de tentar lock (fast-path)
+    bool should_schedule = (ready_count.load() > 0 && idle_cores_count.load() > 0);
+    
+    // Batch scheduling: só trava mutex a cada N ciclos ou quando necessário
+    if (current_time % batch_size == 0 || should_schedule) {
+        std::lock_guard<std::mutex> lock(scheduler_mutex);
+        
+        // Desbloqueia processos do IO
+        for (auto it = blocked_list.begin(); it != blocked_list.end(); ) {
+            if ((*it)->state == State::Ready) {
+                enqueue_ready_process(*it);
+                it = blocked_list.erase(it);
+            } else {
+                ++it;
             }
         }
+        
+        // Atribui processos aos núcleos livres (FIFO)
+        size_t max_attempts = ready_queue.size() * 2;
+        size_t attempts = 0;
+        
+        while (!ready_queue.empty() && attempts < max_attempts) {
+            bool assigned = false;
+            attempts++;
+            
+            for (auto& core : cores) {
+                if (core->is_idle() && !ready_queue.empty()) {
+                    // Urgent collect: verificar se há processo antigo não coletado
+                    PCB* old_process = core->get_current_process();
+                    if (old_process != nullptr) {
+                        if (core->is_thread_running()) {
+                            core->wait_completion();
+                        }
+                        
+                        if (old_process->state == State::Finished) {
+                            old_process->finish_time = cpu_time::now_ns();
+                            finished_list.push_back(old_process);
+                            finished_count.fetch_add(1);
+                        } else if (old_process->state == State::Ready) {
+                            enqueue_ready_process(old_process);
+                        }
+                        
+                        core->clear_current_process();
+                        idle_cores_count.fetch_add(1);
+                    }
+                    
+                    // Atribuir novo processo
+                    PCB* process = ready_queue.front();
+                    ready_queue.pop_front();
+                    ready_count.fetch_sub(1);
+                    process->leave_ready_queue();
+                    
+                    if (process->start_time == 0) {
+                        process->start_time = cpu_time::now_ns();
+                    }
+                    process->assigned_core = core->get_id();
+                    
+                    // FCFS é não-preemptivo: quantum infinito
+                    process->quantum = 999999;
+                    
+                    context_switches++;
+                    process->context_switches++;
+                    
+                    idle_cores_count.fetch_sub(1);
+                    core->execute_async(process);
+                    assigned = true;
+                }
+            }
+            
+            if (!assigned) {
+                bool all_busy = true;
+                for (auto& core : cores) {
+                    if (core->is_idle()) {
+                        all_busy = false;
+                        break;
+                    }
+                }
+                if (all_busy) break;
+            }
+        }
+    }
+    
+    std::this_thread::yield();
+    
+    // Segunda coleta após yield
+    {
+        std::lock_guard<std::mutex> lock(scheduler_mutex);
+        collect_finished_processes();
+    }
+    
+    // Coleta forçada se todos cores idle mas faltam processos
+    int idle = idle_cores_count.load();
+    int finished = finished_count.load();
+    int total = total_count.load();
+    
+    if (idle >= num_cores && finished < total) {
+        std::this_thread::yield();
+        std::lock_guard<std::mutex> lock(scheduler_mutex);
+        collect_finished_processes();
+    }
+    
+    // Sleep periódico para reduzir busy-wait
+    if (current_time % 100 == 0) {
+        std::this_thread::yield();
     }
 }
 
 bool FCFSScheduler::all_finished() const {
-    int finished = finished_count.load();
-    int total = total_count.load();
+    int finished = finished_count.load(std::memory_order_acquire);
+    int total = total_count.load(std::memory_order_acquire);
     
     if (finished >= total && total > 0) {
         // Verificar se há processos ainda em execução nos cores
         for (const auto& core : cores) {
             if (core->get_current_process() != nullptr) {
-                return false;  // Ainda há processo no core, aguardar coleta
+                return false;
             }
         }
-        // Também verificar se há threads ainda rodando
         for (const auto& core : cores) {
             if (core->is_thread_running()) {
                 return false;
@@ -179,6 +241,26 @@ bool FCFSScheduler::all_finished() const {
         return true;
     }
     return false;
+}
+
+bool FCFSScheduler::has_pending_processes() const {
+    int finished = finished_count.load(std::memory_order_acquire);
+    int total = total_count.load(std::memory_order_acquire);
+    
+    if (finished >= total && total > 0) {
+        return false;
+    }
+    
+    int idle = idle_cores_count.load(std::memory_order_acquire);
+    if (idle >= num_cores && finished < total) {
+        std::this_thread::yield();
+        finished = finished_count.load(std::memory_order_acquire);
+        if (finished >= total) {
+            return false;
+        }
+    }
+    
+    return finished < total;
 }
 
 std::vector<std::unique_ptr<Core>>& FCFSScheduler::get_cores() { return cores; }

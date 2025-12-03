@@ -1,7 +1,7 @@
 === Resultados de Execução ===
 PID: 1
 Nome: processo_teste_1
-Quantum: 999999
+Quantum: 100
 Prioridade: 1
 Ciclos de Pipeline: 208
 Ciclos de Memória: 1066

@@ -3,6 +3,7 @@
 #include <deque>
 #include <memory>
 #include <atomic>
+#include <mutex>
 #include "PCB.hpp"
 #include "Core.hpp"
 #include "../IO/IOManager.hpp"
@@ -22,9 +23,11 @@ public:
     };
 
     FCFSScheduler(int num_cores, MemoryManager* memManager, IOManager* ioManager);
+    ~FCFSScheduler();
     void add_process(PCB* process);
     void schedule_cycle();
     bool all_finished() const;
+    bool has_pending_processes() const;
     int get_finished_count() const { return finished_count.load(); }
     int get_total_count() const { return total_count.load(); }
     Statistics get_statistics() const;
@@ -41,10 +44,22 @@ private:
     std::vector<PCB*> blocked_list;
     std::vector<PCB*> finished_list;
     
+    // CRITICAL: Atomics para evitar race conditions (igual ao RoundRobin)
     std::atomic<int> finished_count{0};
     std::atomic<int> total_count{0};
     std::atomic<uint64_t> total_execution_time{0};
-    std::chrono::steady_clock::time_point simulation_start_time;  // 🆕 Tempo real
-    std::atomic<uint64_t> total_simulation_cycles{0};  // 🆕 Total de ciclos da simulação
-    int context_switches{0};  // Contador de trocas de contexto
+    std::chrono::steady_clock::time_point simulation_start_time;
+    std::atomic<uint64_t> total_simulation_cycles{0};
+    
+    // Otimizações de performance (igual ao RoundRobin)
+    std::atomic<int> ready_count{0};      // Processos prontos na fila
+    std::atomic<int> idle_cores_count{0}; // Cores disponíveis
+    int batch_size{5};                    // Scheduling a cada N ciclos
+    mutable std::mutex scheduler_mutex;   // Mutex para thread-safety
+    
+    int context_switches{0};
+    
+    // Helpers
+    void collect_finished_processes();
+    void enqueue_ready_process(PCB* process);
 };
