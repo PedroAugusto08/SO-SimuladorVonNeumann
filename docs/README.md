@@ -1,153 +1,98 @@
-# Guia de Implementação: Simulador Multicore Round Robin
+# Simulador Von Neumann Multicore
 
-## 🎯 Bem-vindo!
+## Visão Geral
 
-Este é um guia completo e prático para implementar o **Trabalho Final de Sistemas Operacionais**: um simulador de arquitetura multicore com escalonamento Round Robin e gerenciamento de memória segmentada.
+Simulador de sistema operacional multi-core baseado na arquitetura Von Neumann, implementado em C++17 com suporte a múltiplas políticas de escalonamento e hierarquia de memória com cache.
 
-> 🏆 **NOVO:** [**Ver Progresso do Projeto (Achievements)**](ACHIEVEMENTS.md) - Acompanhe o que já foi feito e o que falta!
+## Características
 
-### 📌 O que você encontrará aqui:
+| Componente | Descrição |
+|------------|-----------|
+| **Núcleos** | 1-8 núcleos configuráveis |
+| **Escalonadores** | FCFS, SJN, Round Robin, Priority, Priority Preemptivo |
+| **Memória** | Cache L1 por núcleo + RAM compartilhada + Disco |
+| **Cache** | 128 linhas por núcleo, políticas FIFO/LRU |
+| **Métricas** | Wait time, turnaround, throughput, cache hit rate |
 
-- ✅ **Análise detalhada** do código base atual
-- ✅ **Roadmap passo a passo** para implementação
-- ✅ **Exemplos de código** comentados e testados
-- ✅ **Estratégias de teste** e validação
-- ✅ **Guia de escrita** do artigo IEEE
-- ✅ **Métricas e análises** de desempenho
+## Início Rápido
 
-## 🎓 Sobre o Trabalho
+### Requisitos
 
-**Disciplina:** Sistemas Operacionais - CEFET-MG Campus V  
-**Professor:** Michel Pires da Silva  
-**Data de Entrega:** 06/12/2025  
-**Valor:** 30 pontos (20 Implementação + 10 Artigo)
+- Linux (Ubuntu 20.04+) ou WSL2
+- GCC 9.0+ com suporte a C++17
+- Make
 
-### Objetivo
+### Instalação
 
-Desenvolver um simulador de arquitetura multicore que:
+```bash
+# Instalar dependências
+sudo apt install build-essential g++ make
 
-1. **Expanda** o simulador Von Neumann single-core já existente
-2. **Implemente** escalonamento Round Robin preemptivo
-3. **Gerencie** memória segmentada com políticas de substituição
-4. **Colete** métricas detalhadas de desempenho
-5. **Compare** resultados com a baseline single-core
+# Compilar
+make
 
-## 🚀 Como Usar Este Guia
-
-### Para Leitura Linear
-Siga a ordem dos capítulos na sidebar à esquerda. Recomendado para quem está começando.
-
-### Para Consulta Rápida
-Use a busca (🔍) no topo para encontrar tópicos específicos.
-
-### Para Implementação Prática
-Vá direto para a seção **"⚙️ Implementação"** se você já entende os conceitos.
-
-## 📊 Status do Projeto Base
-
-O simulador atual possui:
-
-| Componente | Status | Descrição |
-|------------|--------|-----------|
-| **CPU MIPS Pipeline** | ✅ Completo | Pipeline de 5 estágios (IF, ID, EX, MEM, WB) |
-| **Banco de Registradores** | ✅ Completo | 32 registradores MIPS + especiais |
-| **ULA** | ✅ Completo | Operações aritméticas e lógicas |
-| **Memória Principal** | ✅ Completo | RAM com vector linear |
-| **Memória Secundária** | ✅ Completo | Disco com matriz 2D |
-| **Cache L1** | ✅ Completo | FIFO, write-back, no-write-allocate |
-| **Gerenciador de Memória** | ✅ Completo | Unifica acesso RAM/Disco/Cache |
-| **PCB** | ✅ Completo | Métricas, estado, quantum |
-| **Escalonador** | ⚠️ Básico | Round-robin single-core simples |
-| **I/O Manager** | ✅ Completo | Simulação de dispositivos I/O |
-
-## 🎯 O Que Precisa Ser Implementado
-
-<div class="alert alert-info">
-<strong>Foco do Trabalho:</strong> Expandir o simulador para arquitetura multicore com escalonamento Round Robin adequado.
-</div>
-
-### Componentes Novos/Modificados:
-
-- [ ] **Arquitetura Multicore** (n núcleos)
-- [ ] **Escalonador Round Robin** multicore
-- [ ] **Fila de Processos Global** ou por núcleo
-- [ ] **Sincronização** entre núcleos
-- [ ] **Gerenciamento de Memória** com segmentação
-- [ ] **Políticas de Substituição** (FIFO, LRU)
-- [ ] **Sistema de Métricas** expandido
-- [ ] **Comparação** single-core vs multicore
-
-## 📝 Estrutura da Documentação
-
-```mermaid
-graph LR
-    A[Visão Geral] --> B[Planejamento]
-    B --> C[Implementação]
-    C --> D[Testes]
-    D --> E[Artigo IEEE]
-    E --> F[Entrega]
+# Executar teste
+./simulador --policy FCFS --cores 2 \
+    -p examples/programs/tasks.json examples/processes/process1.json
 ```
 
-### 1️⃣ Visão Geral
-Entenda o trabalho, requisitos e o código base atual.
+## Uso Básico
 
-### 2️⃣ Planejamento
-Roadmap detalhado, divisão de tarefas e cronograma.
+```bash
+# FCFS com 2 núcleos
+./simulador --policy FCFS --cores 2 -p tasks.json process.json
 
-### 3️⃣ Implementação
-Código passo a passo para cada componente novo.
+# Round Robin com quantum de 1000
+./simulador --policy RR --cores 4 --quantum 1000 -p tasks.json process.json
 
-### 4️⃣ Testes e Validação
-Estratégias para garantir correção e desempenho.
+# SJN (Shortest Job Next)
+./simulador --policy SJN --cores 2 -p tasks.json process.json
 
-### 5️⃣ Artigo IEEE
-Como estruturar, escrever e apresentar resultados.
+# Priority com cache LRU
+./simulador --policy PRIORITY --cores 4 --cache-policy LRU -p tasks.json process.json
+```
 
-## 💡 Dicas Importantes
+## Documentação
 
-> **⚠️ Não reinvente a roda!** Use o código base existente como fundação.
+| Seção | Descrição |
+|-------|-----------|
+| [Introdução](guia/introducao.md) | Visão geral do sistema |
+| [Arquitetura](guia/arquitetura.md) | Estrutura e componentes |
+| [Escalonadores](escalonadores/fcfs.md) | Políticas disponíveis |
+| [Memória](memoria/visao-geral.md) | Hierarquia e cache |
+| [Métricas](metricas/metricas.md) | Sistema de coleta |
+| [Instalação](uso/instalacao.md) | Guia de setup |
+| [Comandos](uso/comandos.md) | Uso via CLI |
+| [FAQ](referencias/faq.md) | Perguntas frequentes |
 
-> **📊 Métricas desde o início!** Instrumente o código conforme implementa.
+## Estrutura do Projeto
 
-> **🧪 Teste incrementalmente!** Não deixe testes para o final.
+```
+SO-SimuladorVonNeumann/
+├── src/
+│   ├── cpu/          # CPU, cores, escalonadores
+│   ├── memory/       # RAM, cache, gerenciador
+│   ├── IO/           # I/O manager
+│   └── main.cpp      # Ponto de entrada
+├── test/             # Testes automatizados
+├── examples/         # Programas e processos exemplo
+├── docs/             # Documentação
+└── Makefile
+```
 
-> **📝 Documente tudo!** Facilita a escrita do artigo depois.
+## Compilação
 
-## 🤝 Organização da Equipe
+```bash
+make              # Compila simulador
+make test         # Compila testes
+make clean        # Limpa objetos
+make run          # Compila e executa
+```
 
-Este guia pressupõe uma equipe de **4 alunos**. Sugestão de divisão:
+## Licença
 
-| Membro | Responsabilidade Principal |
-|--------|---------------------------|
-| **Dev 1** | Arquitetura Multicore + Sincronização |
-| **Dev 2** | Escalonador Round Robin |
-| **Dev 3** | Gerenciamento de Memória |
-| **Dev 4** | Métricas + Artigo IEEE |
-
-<div class="alert alert-success">
-<strong>Trabalho colaborativo:</strong> Todos devem entender todos os componentes, mas cada um lidera uma área.
-</div>
-
-## 📖 Começando
-
-Pronto para começar? Vá para a próxima seção:
-
-➡️ [**Introdução ao Trabalho**](01-introducao.md)
+Este projeto foi desenvolvido para fins acadêmicos.
 
 ---
 
-## 🆘 Precisa de Ajuda?
-
-- 📖 Consulte o [FAQ](20-faq.md)
-- 🐛 Veja [Troubleshooting](23-troubleshooting.md)
-- 📚 Confira as [Referências](18-bibliografia.md)
-
----
-
-<div align="center">
-
-**Boa sorte com o projeto! 🚀**
-
-*Desenvolvido com ❤️ para a turma de SO 2025*
-
-</div>
+📚 [Documentação Completa](guia/introducao.md) | 🐛 [Troubleshooting](uso/troubleshooting.md) | ❓ [FAQ](referencias/faq.md)
