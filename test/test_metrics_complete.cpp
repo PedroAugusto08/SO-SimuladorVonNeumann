@@ -87,8 +87,13 @@ MetricsResult test_scheduler(const std::string& name, Scheduler& scheduler,
                     MemoryManager& memManager) {
     std::cout << "🚀 Testando " << name << "...\n";
     
-    // Criar monitor de memória
-    MemoryMonitor monitor("logs/memory/memory_" + name + ".csv");
+    // Criar monitor de memória - sanitizar nome para arquivo
+    std::string safe_name = name;
+    std::replace(safe_name.begin(), safe_name.end(), ' ', '_');
+    std::replace(safe_name.begin(), safe_name.end(), '(', '_');
+    std::replace(safe_name.begin(), safe_name.end(), ')', '_');
+    std::replace(safe_name.begin(), safe_name.end(), '-', '_');
+    MemoryMonitor monitor("dados_graficos/memoria_" + safe_name + ".csv");
     
     // Registrar estado inicial
     monitor.record_snapshot(
@@ -306,15 +311,22 @@ int main() {
     }
     
     // Criar diretório se não existir
-    system("mkdir -p logs/metrics");
+    system("mkdir -p dados_graficos");
     
     // Salvar resultados em CSV
-    std::ofstream csv("logs/metrics/detailed_metrics.csv");
+    std::ofstream csv("dados_graficos/metricas_escalonadores.csv");
     if (csv.is_open()) {
-        csv << "Policy,Avg_Wait_Time_ms,Avg_Execution_Time_ms,CPU_Utilization,Throughput_proc_per_s,Efficiency\n";
+        csv << "Politica,Tempo_Espera_ms,Tempo_Execucao_ms,CPU_Utilizacao_Pct,Throughput_proc_s,Eficiencia\n";
         for (const auto& r : results) {
+            // Sanitizar nome da política
+            std::string policy_name = r.policy;
+            std::replace(policy_name.begin(), policy_name.end(), ' ', '_');
+            std::replace(policy_name.begin(), policy_name.end(), '(', '_');
+            std::replace(policy_name.begin(), policy_name.end(), ')', '_');
+            std::replace(policy_name.begin(), policy_name.end(), '-', '_');
+            
             double efficiency = (r.avg_cpu_utilization / 100.0) * r.throughput;
-            csv << r.policy << ","
+            csv << policy_name << ","
                 << std::fixed << std::setprecision(2)
                 << r.avg_wait_time << ","
                 << r.avg_turnaround_time << ","
@@ -323,8 +335,8 @@ int main() {
                 << efficiency << "\n";
         }
         csv.close();
-        std::cout << "\n✅ Métricas salvas em: logs/metrics/detailed_metrics.csv\n";
-        std::cout << "✅ Utilização de memória salva em: logs/memory/memory_*.csv\n";
+        std::cout << "\n✅ Métricas salvas em: dados_graficos/metricas_escalonadores.csv\n";
+        std::cout << "✅ Uso de memória salvo em: dados_graficos/memoria_*.csv\n";
     } else {
         std::cerr << "\n❌ ERRO: Não foi possível criar logs/metrics/detailed_metrics.csv\n\n";
     }
@@ -333,7 +345,7 @@ int main() {
     
     // Gerar relatório consolidado em formato texto
     std::cout << "📄 Gerando relatório consolidado...\n";
-    std::ofstream report("logs/metrics/comparative_report.txt");
+    std::ofstream report("dados_graficos/relatorio_comparativo.txt");
     if (report.is_open()) {
         report << "╔════════════════════════════════════════════════════════════════════╗\n";
         report << "║    RELATÓRIO COMPARATIVO - POLÍTICAS DE ESCALONAMENTO            ║\n";
@@ -380,12 +392,12 @@ int main() {
                << " (" << std::fixed << std::setprecision(2) << max_throughput.throughput << " proc/s)\n\n";
         
         report << "═══════════════════════════════════════════════════════════════════\n";
-        report << "Relatório gerado: logs/metrics/comparative_report.txt\n";
-        report << "Dados CSV: logs/metrics/detailed_metrics.csv\n";
+        report << "Relatório gerado: dados_graficos/relatorio_comparativo.txt\n";
+        report << "Dados CSV: dados_graficos/metricas_escalonadores.csv\n";
         report << "═══════════════════════════════════════════════════════════════════\n";
         
         report.close();
-        std::cout << "✅ Relatório consolidado salvo em: logs/metrics/comparative_report.txt\n\n";
+        std::cout << "✅ Relatório consolidado salvo em: dados_graficos/relatorio_comparativo.txt\n\n";
     }
     
     return 0;

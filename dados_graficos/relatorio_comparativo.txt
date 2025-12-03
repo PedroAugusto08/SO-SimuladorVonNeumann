@@ -12,54 +12,54 @@ Configuração do Teste:
 
 Política: FCFS (First Come First Served)
 ------------------------------------------------------------
-  • Tempo Médio de Espera:      0.40 ms
-  • Tempo Médio de Execução:    1.12 ms
-  • Utilização da CPU:          33.68 %
-  • Throughput:                 2066.48 proc/s
-  • Eficiência:                 696.05 proc/s efetivos
+  • Tempo Médio de Espera:      0.35 ms
+  • Tempo Médio de Execução:    0.94 ms
+  • Utilização da CPU:          46.28 %
+  • Throughput:                 2982.81 proc/s
+  • Eficiência:                 1380.51 proc/s efetivos
 
 Política: SJN (Shortest Job Next)
 ------------------------------------------------------------
-  • Tempo Médio de Espera:      0.37 ms
-  • Tempo Médio de Execução:    2.17 ms
-  • Utilização da CPU:          7.49 %
-  • Throughput:                 710.75 proc/s
-  • Eficiência:                 53.25 proc/s efetivos
+  • Tempo Médio de Espera:      0.93 ms
+  • Tempo Médio de Execução:    2.10 ms
+  • Utilização da CPU:          6.35 %
+  • Throughput:                 1184.08 proc/s
+  • Eficiência:                 75.16 proc/s efetivos
 
 Política: Round Robin (Preemptivo)
 ------------------------------------------------------------
-  • Tempo Médio de Espera:      0.39 ms
-  • Tempo Médio de Execução:    1.22 ms
-  • Utilização da CPU:          75.12 %
-  • Throughput:                 2346.29 proc/s
-  • Eficiência:                 1762.60 proc/s efetivos
+  • Tempo Médio de Espera:      0.34 ms
+  • Tempo Médio de Execução:    0.85 ms
+  • Utilização da CPU:          56.07 %
+  • Throughput:                 3217.36 proc/s
+  • Eficiência:                 1803.85 proc/s efetivos
 
 Política: PRIORITY (Não-Preemptivo)
 ------------------------------------------------------------
-  • Tempo Médio de Espera:      1.07 ms
-  • Tempo Médio de Execução:    2.05 ms
-  • Utilização da CPU:          6.82 %
-  • Throughput:                 904.46 proc/s
-  • Eficiência:                 61.71 proc/s efetivos
+  • Tempo Médio de Espera:      0.34 ms
+  • Tempo Médio de Execução:    0.86 ms
+  • Utilização da CPU:          6.01 %
+  • Throughput:                 2746.82 proc/s
+  • Eficiência:                 164.97 proc/s efetivos
 
 Política: PRIORITY PREEMPTIVO (por Prioridade)
 ------------------------------------------------------------
-  • Tempo Médio de Espera:      0.61 ms
-  • Tempo Médio de Execução:    1.83 ms
-  • Utilização da CPU:          6.86 %
-  • Throughput:                 1372.29 proc/s
-  • Eficiência:                 94.11 proc/s efetivos
+  • Tempo Médio de Espera:      0.56 ms
+  • Tempo Médio de Execução:    1.05 ms
+  • Utilização da CPU:          6.00 %
+  • Throughput:                 1769.68 proc/s
+  • Eficiência:                 106.15 proc/s efetivos
 
 ═══════════════════════════════════════════════════════════════════
 
 RESUMO COMPARATIVO:
 
-  🏆 Melhor Tempo de Espera:     SJN (Shortest Job Next) (0.37 ms)
-  🏆 Melhor Tempo de Execução:   FCFS (First Come First Served) (1.12 ms)
-  🏆 Melhor Utilização de CPU:   Round Robin (Preemptivo) (75.12 %)
-  🏆 Maior Throughput:            Round Robin (Preemptivo) (2346.29 proc/s)
+  🏆 Melhor Tempo de Espera:     Round Robin (Preemptivo) (0.34 ms)
+  🏆 Melhor Tempo de Execução:   Round Robin (Preemptivo) (0.85 ms)
+  🏆 Melhor Utilização de CPU:   Round Robin (Preemptivo) (56.07 %)
+  🏆 Maior Throughput:            Round Robin (Preemptivo) (3217.36 proc/s)
 
 ═══════════════════════════════════════════════════════════════════
-Relatório gerado: logs/metrics/comparative_report.txt
-Dados CSV: logs/metrics/detailed_metrics.csv
+Relatório gerado: dados_graficos/relatorio_comparativo.txt
+Dados CSV: dados_graficos/metricas_escalonadores.csv
 ═══════════════════════════════════════════════════════════════════

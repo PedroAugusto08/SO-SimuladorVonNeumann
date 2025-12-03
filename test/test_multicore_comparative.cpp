@@ -69,7 +69,7 @@ public:
     }
 };
 
-TestResult run_test(const std::string& policy, int num_cores, int num_processes, int quantum, int max_cycles, const std::string& tasks_file) {
+TestResult run_test(const std::string& policy, int num_cores, int num_processes, int quantum, int max_cycles, const std::string& tasks_file, bool verbose = false) {
     TestResult result;
     result.policy = policy;
     result.num_cores = num_cores;
@@ -78,6 +78,7 @@ TestResult run_test(const std::string& policy, int num_cores, int num_processes,
     std::vector<PCB*> process_ptrs;
     
     try {
+        if (verbose) std::cerr << "." << std::flush;  // Progress indicator via stderr
         SilentMode silent;
         MemoryManager::resetStats();
         
@@ -180,7 +181,7 @@ TestResult run_test(const std::string& policy, int num_cores, int num_processes,
 int main() {
     const int NUM_PROCESSES = 8;
     const int QUANTUM = 1000;
-    const int MAX_CYCLES = 10000000;
+    const int MAX_CYCLES = 10000000;  // Restaurado para valor original
     const std::string TASKS_FILE = "examples/programs/tasks.json";
     const int ITERATIONS = 3;
     const int WARMUP_ITERATIONS = 1;
@@ -218,18 +219,20 @@ int main() {
             
             // Warm-up
             for (int w = 0; w < WARMUP_ITERATIONS; w++) {
-                std::cout << "[warm-up.] " << std::flush;
-                run_test(policy, num_cores, NUM_PROCESSES, QUANTUM, MAX_CYCLES, TASKS_FILE);
+                std::cout << "[warm-up" << std::flush;
+                run_test(policy, num_cores, NUM_PROCESSES, QUANTUM, MAX_CYCLES, TASKS_FILE, true);
+                std::cout << "] " << std::flush;
             }
             
             // Iterações válidas
-            std::cout << "[medindo] " << std::flush;
+            std::cout << "[medindo" << std::flush;
             for (int i = 0; i < ITERATIONS; i++) {
-                TestResult result = run_test(policy, num_cores, NUM_PROCESSES, QUANTUM, MAX_CYCLES, TASKS_FILE);
+                TestResult result = run_test(policy, num_cores, NUM_PROCESSES, QUANTUM, MAX_CYCLES, TASKS_FILE, true);
                 if (result.execution_time_ms > 0) {
                     times.push_back(result.execution_time_ms);
                 }
             }
+            std::cout << "] " << std::flush;
             
             if (times.empty()) {
                 std::cout << "✗ Falhou\n";
@@ -374,11 +377,11 @@ int main() {
     }
     
     // Criar diretório se não existir
-    system("mkdir -p logs/multicore");
+    system("mkdir -p dados_graficos");
     
     // Salvar resultados em CSV
-    std::ofstream csv_file("logs/multicore/multicore_comparative_results.csv");
-    csv_file << "Politica,Cores,Tempo_ms,Speedup,Eficiencia_%,CV_%\n";
+    std::ofstream csv_file("dados_graficos/escalonadores_multicore.csv");
+    csv_file << "Politica,Cores,Tempo_ms,Speedup,Eficiencia_Pct,CV_Pct\n";
     for (const auto& policy : policies) {
         for (const auto& result : results_by_policy[policy]) {
             csv_file << policy << ","
@@ -391,7 +394,7 @@ int main() {
     }
     csv_file.close();
     
-    std::cout << "\n✅ Resultados salvos em: logs/multicore/multicore_comparative_results.csv\n";
+    std::cout << "\n✅ Resultados salvos em: dados_graficos/escalonadores_multicore.csv\n";
     
     std::cout << "\n╔════════════════════════════════════════════════════════════════╗\n";
     std::cout << "║                           CONCLUSÕES                           ║\n";

@@ -1,0 +1,6 @@
+Politica,Tempo_Espera_ms,Tempo_Execucao_ms,CPU_Utilizacao_Pct,Throughput_proc_s,Eficiencia
+FCFS__First_Come_First_Served_,0.35,0.94,46.28,2982.81,1380.51
+SJN__Shortest_Job_Next_,0.93,2.10,6.35,1184.08,75.16
+Round_Robin__Preemptivo_,0.34,0.85,56.07,3217.36,1803.85
+PRIORITY__Não_Preemptivo_,0.34,0.86,6.01,2746.82,164.97
+PRIORITY_PREEMPTIVO__por_Prioridade_,0.56,1.05,6.00,1769.68,106.15

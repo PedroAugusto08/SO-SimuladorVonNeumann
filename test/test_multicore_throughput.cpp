@@ -445,10 +445,10 @@ int main() {
     
     // Salvar CSV
     // Criar diretório se não existir
-    system("mkdir -p logs/multicore");
+    system("mkdir -p dados_graficos");
     
-    std::ofstream csv("logs/multicore/multicore_time_results.csv");
-    csv << "Cores,Tempo_ms,Speedup,Eficiencia_%,CV_%\n";
+    std::ofstream csv("dados_graficos/throughput_multicore.csv");
+    csv << "Cores,Tempo_ms,Speedup,Eficiencia_Pct,CV_Pct\n";
     for (const auto& r : results) {
         csv << r.num_cores << ","
             << std::fixed << std::setprecision(2) << r.execution_time_ms << ","
@@ -458,7 +458,7 @@ int main() {
     }
     csv.close();
     
-    std::cout << "\n✅ Resultados salvos em: logs/multicore/multicore_time_results.csv\n";
+    std::cout << "\n✅ Resultados salvos em: dados_graficos/throughput_multicore.csv\n";
     
     std::cout << "\n╔════════════════════════════════════════════════════════════════╗\n";
     std::cout << "║                        ⚠️  DIAGNÓSTICO                         ║\n";
