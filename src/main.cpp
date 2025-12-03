@@ -103,7 +103,7 @@ void print_help() {
     std::cout << "  -h, --help              Exibe esta mensagem de ajuda\n\n";
     std::cout << "  -c, --cores NUM         Define o número de núcleos (padrão: 2)\n";
     std::cout << "                          Exemplo: --cores 4\n\n";
-    std::cout << "  -q, --quantum NUM       Define o quantum para escalonamento RR e Priority\n";
+    std::cout << "  -q, --quantum NUM       Define o quantum para escalonamento RR\n";
     std::cout << "                          (padrão: 100 ciclos)\n";
     std::cout << "                          Exemplo: --quantum 50\n\n";
     std::cout << "  -s, --policy POLÍTICA   Define a política de escalonamento\n";
@@ -119,7 +119,7 @@ void print_help() {
     std::cout << "  RR        - Round Robin (preemptivo com quantum)\n";
     std::cout << "  FCFS      - First Come First Served (não preemptivo)\n";
     std::cout << "  SJN       - Shortest Job Next (não preemptivo)\n";
-    std::cout << "  PRIORITY  - Priority Scheduling (preemptivo com quantum)\n\n";
+    std::cout << "  PRIORITY  - Priority Scheduling (não preemptivo, por prioridade)\n\n";
     std::cout << "ARQUIVOS DE SAÍDA:\n";
     std::cout << "  output/resultados.dat           - Métricas de execução\n";
     std::cout << "  output/output.dat               - Saída lógica do programa\n";
@@ -176,7 +176,7 @@ int main(int argc, char* argv[]) {
     std::cout << "  - Política: ";
     if (SCHED_POLICY == "FCFS") std::cout << "FCFS";
     else if (SCHED_POLICY == "SJN") std::cout << "SJN";
-    else if (SCHED_POLICY == "PRIORITY") std::cout << "Priority (Preemptivo)";
+    else if (SCHED_POLICY == "PRIORITY") std::cout << "Priority (Não-Preemptivo)";
     else std::cout << "Round Robin";
     std::cout << "\n";
     if (SCHED_POLICY == "RR") std::cout << "  - Quantum: " << DEFAULT_QUANTUM << " ciclos\n";
@@ -196,7 +196,7 @@ int main(int argc, char* argv[]) {
     } else if (SCHED_POLICY == "SJN") {
         sjn_sched = std::make_unique<SJNScheduler>(NUM_CORES, &memManager, &ioManager);
     } else if (SCHED_POLICY == "PRIORITY") {
-        priority_sched = std::make_unique<PriorityScheduler>(NUM_CORES, &memManager, &ioManager, DEFAULT_QUANTUM);
+        priority_sched = std::make_unique<PriorityScheduler>(NUM_CORES, &memManager, &ioManager);
     } else {
         rr_sched = std::make_unique<RoundRobinScheduler>(NUM_CORES, &memManager, &ioManager, DEFAULT_QUANTUM);
     }
@@ -262,7 +262,7 @@ int main(int argc, char* argv[]) {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     } else if (SCHED_POLICY == "PRIORITY") {
-        while (priority_sched->has_pending_processes()) {
+        while (!priority_sched->all_finished()) {
             priority_sched->schedule_cycle();
             record_mem();
             std::this_thread::sleep_for(std::chrono::milliseconds(10));

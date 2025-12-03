@@ -1,0 +1,3 @@
+timestamp_ms,used_main_memory,used_secondary_memory,cache_hits,cache_misses
+4005468,135,0,0,0
+4005479,135,0,9,210

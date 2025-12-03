@@ -15,7 +15,6 @@ TARGET_COMPARATIVE := $(BIN_DIR)/test_multicore_comparative
 TARGET_PREEMPT := $(BIN_DIR)/test_preemption
 TARGET_METRICS := $(BIN_DIR)/test_metrics_complete
 TARGET_CPU_METRICS := $(BIN_DIR)/test_cpu_metrics
-TARGET_PRIORITY_PREEMPT := $(BIN_DIR)/test_priority_preemptive
 TARGET_DEEP_INSPECT := $(BIN_DIR)/test_deep_inspection
 TARGET_RACE_DEBUG := $(BIN_DIR)/test_race_debug
 TARGET_VERIFY_EXEC := $(BIN_DIR)/test_verify_execution
@@ -33,23 +32,23 @@ SRC_BANK := src/test_register_bank.cpp src/cpu/REGISTER_BANK.cpp
 OBJ_BANK := $(SRC_BANK:.cpp=.o)
 
 SRC_SIM := src/main.cpp \
-		   src/cpu/Core.cpp \
-		   src/cpu/RoundRobinScheduler.cpp \
-		   src/cpu/CONTROL_UNIT.cpp \
-		   src/cpu/pcb_loader.cpp \
-		   src/cpu/REGISTER_BANK.cpp \
-		   src/cpu/ULA.cpp \
-		   src/cpu/FCFSScheduler.cpp \
-		   src/cpu/SJNScheduler.cpp \
-		   src/cpu/PriorityScheduler.cpp \
-		   src/IO/IOManager.cpp \
-		   src/memory/cache.cpp \
-		   src/memory/cachePolicy.cpp \
-		   src/memory/MAIN_MEMORY.cpp \
-		   src/memory/MemoryManager.cpp \
-		   src/memory/SECONDARY_MEMORY.cpp \
-		   src/parser_json/parser_json.cpp \
-		   src/memory/MemoryMetrics.cpp
+		src/cpu/Core.cpp \
+		src/cpu/RoundRobinScheduler.cpp \
+		src/cpu/CONTROL_UNIT.cpp \
+		src/cpu/pcb_loader.cpp \
+		src/cpu/REGISTER_BANK.cpp \
+		src/cpu/ULA.cpp \
+		src/cpu/FCFSScheduler.cpp \
+		src/cpu/SJNScheduler.cpp \
+		src/cpu/PriorityScheduler.cpp \
+		src/IO/IOManager.cpp \
+		src/memory/cache.cpp \
+		src/memory/cachePolicy.cpp \
+		src/memory/MAIN_MEMORY.cpp \
+		src/memory/MemoryManager.cpp \
+		src/memory/SECONDARY_MEMORY.cpp \
+		src/parser_json/parser_json.cpp \
+		src/memory/MemoryMetrics.cpp
 OBJ_SIM := $(SRC_SIM:.cpp=.o)
 
 # Fontes para teste de escalabilidade multicore
@@ -90,22 +89,22 @@ OBJ_THROUGHPUT := $(SRC_THROUGHPUT:.cpp=.o)
 
 # Fontes para teste comparativo de políticas multicore
 SRC_COMPARATIVE := test/test_multicore_comparative.cpp \
-                   src/cpu/Core.cpp \
-                   src/cpu/RoundRobinScheduler.cpp \
-                   src/cpu/CONTROL_UNIT.cpp \
-                   src/cpu/pcb_loader.cpp \
-                   src/cpu/REGISTER_BANK.cpp \
-                   src/cpu/ULA.cpp \
-                   src/cpu/FCFSScheduler.cpp \
-                   src/cpu/SJNScheduler.cpp \
-                   src/cpu/PriorityScheduler.cpp \
-                   src/IO/IOManager.cpp \
-                   src/memory/cache.cpp \
-                   src/memory/cachePolicy.cpp \
-                   src/memory/MAIN_MEMORY.cpp \
-                   src/memory/MemoryManager.cpp \
-                   src/memory/SECONDARY_MEMORY.cpp \
-                   src/parser_json/parser_json.cpp
+				   src/cpu/Core.cpp \
+				   src/cpu/RoundRobinScheduler.cpp \
+				   src/cpu/CONTROL_UNIT.cpp \
+				   src/cpu/pcb_loader.cpp \
+				   src/cpu/REGISTER_BANK.cpp \
+				   src/cpu/ULA.cpp \
+				   src/cpu/FCFSScheduler.cpp \
+				   src/cpu/SJNScheduler.cpp \
+				   src/cpu/PriorityScheduler.cpp \
+				   src/IO/IOManager.cpp \
+				   src/memory/cache.cpp \
+				   src/memory/cachePolicy.cpp \
+				   src/memory/MAIN_MEMORY.cpp \
+				   src/memory/MemoryManager.cpp \
+				   src/memory/SECONDARY_MEMORY.cpp \
+				   src/parser_json/parser_json.cpp
 OBJ_COMPARATIVE := $(SRC_COMPARATIVE:.cpp=.o)
 
 # Fontes para teste de preempção
@@ -128,47 +127,46 @@ OBJ_PREEMPT := $(SRC_PREEMPT:.cpp=.o)
 
 # Fontes para teste de métricas completas
 SRC_METRICS := test/test_metrics_complete.cpp \
-               src/cpu/Core.cpp \
-               src/cpu/RoundRobinScheduler.cpp \
-               src/cpu/CONTROL_UNIT.cpp \
-               src/cpu/pcb_loader.cpp \
-               src/cpu/REGISTER_BANK.cpp \
-               src/cpu/ULA.cpp \
-               src/cpu/FCFSScheduler.cpp \
-               src/cpu/SJNScheduler.cpp \
-               src/cpu/PriorityScheduler.cpp \
-               src/IO/IOManager.cpp \
-               src/memory/cache.cpp \
-               src/memory/cachePolicy.cpp \
-               src/memory/MAIN_MEMORY.cpp \
-               src/memory/MemoryManager.cpp \
-               src/memory/SECONDARY_MEMORY.cpp \
-               src/parser_json/parser_json.cpp
+			   src/cpu/Core.cpp \
+			   src/cpu/RoundRobinScheduler.cpp \
+			   src/cpu/CONTROL_UNIT.cpp \
+			   src/cpu/pcb_loader.cpp \
+			   src/cpu/REGISTER_BANK.cpp \
+			   src/cpu/ULA.cpp \
+			   src/cpu/FCFSScheduler.cpp \
+			   src/cpu/SJNScheduler.cpp \
+			   src/cpu/PriorityScheduler.cpp \
+			   src/IO/IOManager.cpp \
+			   src/memory/cache.cpp \
+			   src/memory/cachePolicy.cpp \
+			   src/memory/MAIN_MEMORY.cpp \
+			   src/memory/MemoryManager.cpp \
+			   src/memory/SECONDARY_MEMORY.cpp \
+			   src/parser_json/parser_json.cpp
 OBJ_METRICS := $(SRC_METRICS:.cpp=.o)
 
 # Fontes base para testes (reutilizáveis)
 BASE_TEST_SRC := src/cpu/Core.cpp \
-                 src/cpu/RoundRobinScheduler.cpp \
-                 src/cpu/CONTROL_UNIT.cpp \
-                 src/cpu/pcb_loader.cpp \
-                 src/cpu/REGISTER_BANK.cpp \
-                 src/cpu/ULA.cpp \
-                 src/cpu/FCFSScheduler.cpp \
-                 src/cpu/SJNScheduler.cpp \
-                 src/cpu/PriorityScheduler.cpp \
-                 src/IO/IOManager.cpp \
-                 src/memory/cache.cpp \
-                 src/memory/cachePolicy.cpp \
-                 src/memory/MAIN_MEMORY.cpp \
-                 src/memory/MemoryManager.cpp \
-                 src/memory/SECONDARY_MEMORY.cpp \
-                 src/parser_json/parser_json.cpp
+				 src/cpu/RoundRobinScheduler.cpp \
+				 src/cpu/CONTROL_UNIT.cpp \
+				 src/cpu/pcb_loader.cpp \
+				 src/cpu/REGISTER_BANK.cpp \
+				 src/cpu/ULA.cpp \
+				 src/cpu/FCFSScheduler.cpp \
+				 src/cpu/SJNScheduler.cpp \
+				 src/cpu/PriorityScheduler.cpp \
+				 src/IO/IOManager.cpp \
+				 src/memory/cache.cpp \
+				 src/memory/cachePolicy.cpp \
+				 src/memory/MAIN_MEMORY.cpp \
+				 src/memory/MemoryManager.cpp \
+				 src/memory/SECONDARY_MEMORY.cpp \
+				 src/parser_json/parser_json.cpp
 
 SRC_CPU_METRICS := test/test_cpu_metrics.cpp $(BASE_TEST_SRC)
 OBJ_CPU_METRICS := $(SRC_CPU_METRICS:.cpp=.o)
 
-SRC_PRIORITY_PREEMPT := test/test_priority_preemptive.cpp $(BASE_TEST_SRC)
-OBJ_PRIORITY_PREEMPT := $(SRC_PRIORITY_PREEMPT:.cpp=.o)
+# SRC_PRIORITY_PREEMPT removed (priority preemptive tests removed)
 
 SRC_DEEP_INSPECT := test/test_deep_inspection.cpp $(BASE_TEST_SRC)
 OBJ_DEEP_INSPECT := $(SRC_DEEP_INSPECT:.cpp=.o)
@@ -242,11 +240,7 @@ $(TARGET_CPU_METRICS): $(OBJ_CPU_METRICS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_CPU_METRICS) $(LDFLAGS)
 	@echo "✓ Teste de métricas de CPU compilado!"
 
-# Regra para teste de prioridade preemptiva
-$(TARGET_PRIORITY_PREEMPT): $(OBJ_PRIORITY_PREEMPT)
-	mkdir -p $(BIN_DIR)
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_PRIORITY_PREEMPT) $(LDFLAGS)
-	@echo "✓ Teste de prioridade preemptiva compilado!"
+# Teste de prioridade preemptiva removido
 
 # Regra para teste de inspeção profunda
 $(TARGET_DEEP_INSPECT): $(OBJ_DEEP_INSPECT)
@@ -271,7 +265,7 @@ $(TARGET_VERIFY_EXEC): $(OBJ_VERIFY_EXEC)
 
 clean:
 	@echo "🧹 Limpando arquivos antigos..."
-	@rm -f $(OBJ) $(OBJ_HASH) $(OBJ_SIM) $(OBJ_MULTICORE) $(OBJ_THROUGHPUT) $(OBJ_COMPARATIVE) $(OBJ_PREEMPT) $(OBJ_METRICS) $(OBJ_CPU_METRICS) $(OBJ_PRIORITY_PREEMPT) $(OBJ_DEEP_INSPECT) $(OBJ_RACE_DEBUG) $(OBJ_VERIFY_EXEC) test_multicore.o
+	@rm -f $(OBJ) $(OBJ_HASH) $(OBJ_SIM) $(OBJ_MULTICORE) $(OBJ_THROUGHPUT) $(OBJ_COMPARATIVE) $(OBJ_PREEMPT) $(OBJ_METRICS) $(OBJ_CPU_METRICS) $(OBJ_DEEP_INSPECT) $(OBJ_RACE_DEBUG) $(OBJ_VERIFY_EXEC) test_multicore.o
 	@rm -f $(BIN_DIR)/*
 
 run:
@@ -321,10 +315,7 @@ test-cpu-metrics: $(TARGET_CPU_METRICS)
 	@echo "🧪 Executando teste de métricas de CPU..."
 	@./$(TARGET_CPU_METRICS)
 
-# Teste de prioridade preemptiva
-test-priority-preemptive: $(TARGET_PRIORITY_PREEMPT)
-	@echo "🧪 Executando teste de prioridade preemptiva..."
-	@./$(TARGET_PRIORITY_PREEMPT)
+# Teste de prioridade preemptiva removido
 
 # Teste de inspeção profunda
 test-deep-inspection: $(TARGET_DEEP_INSPECT)
@@ -343,8 +334,8 @@ test-verify-execution: $(TARGET_VERIFY_EXEC)
 
 # Executa TODOS os testes disponíveis em sequência
 test-all: $(TARGET_HASH) $(TARGET_BANK) $(TARGET_MULTICORE) $(TARGET_THROUGHPUT) $(TARGET_COMPARATIVE) \
-          $(TARGET_PREEMPT) $(TARGET_METRICS) $(TARGET_CPU_METRICS) $(TARGET_PRIORITY_PREEMPT) \
-          $(TARGET_DEEP_INSPECT) $(TARGET_RACE_DEBUG) $(TARGET_VERIFY_EXEC)
+		  $(TARGET_PREEMPT) $(TARGET_METRICS) $(TARGET_CPU_METRICS) \
+		  $(TARGET_DEEP_INSPECT) $(TARGET_RACE_DEBUG) $(TARGET_VERIFY_EXEC)
 	@echo "╔════════════════════════════════════════════════════════════╗"
 	@echo "║  🧪 EXECUTANDO BATERIA COMPLETA DE TESTES                 ║"
 	@echo "╚════════════════════════════════════════════════════════════╝"
@@ -373,9 +364,7 @@ test-all: $(TARGET_HASH) $(TARGET_BANK) $(TARGET_MULTICORE) $(TARGET_THROUGHPUT)
 	@echo "┌─ [8/12] CPU Metrics Test ───────────────────────────────────┐"
 	@./$(TARGET_CPU_METRICS) || true
 	@echo ""
-	@echo "┌─ [9/12] Priority Preemptive Test ───────────────────────────┐"
-	@./$(TARGET_PRIORITY_PREEMPT) || true
-	@echo ""
+	# Priority Preemptive Test removed from test-all
 	@echo "┌─ [10/12] Deep Inspection Test ──────────────────────────────┐"
 	@./$(TARGET_DEEP_INSPECT) || true
 	@echo ""

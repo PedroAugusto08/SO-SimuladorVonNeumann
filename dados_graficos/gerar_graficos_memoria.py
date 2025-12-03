@@ -4,6 +4,9 @@ Gerador de Gráficos de Memória - Simulador Von Neumann
 Gera visualizações de Cache Hits, Cache Misses e Uso de Memória Temporal.
 """
 
+import matplotlib
+matplotlib.use('Agg')  # Backend sem GUI
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np

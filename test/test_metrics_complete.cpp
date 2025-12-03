@@ -2,8 +2,8 @@
  * @file test_metrics_complete.cpp
  * @brief Teste completo de métricas detalhadas para todos os escalonadores
  * 
- * Este teste demonstra a coleta de métricas em todos os 5 escalonadores:
- * - FCFS, SJN, RR, PRIORITY, PRIORITY_PREEMPT
+ * Este teste demonstra a coleta de métricas em todos os 4 escalonadores:
+ * - FCFS, SJN, RR, PRIORITY
  * 
  * Métricas coletadas:
  * - Tempo médio de espera
@@ -270,43 +270,24 @@ int main() {
         results.push_back(result);
     }
     
-    // ========== TESTE PRIORITY (Não-Preemptivo) ==========
+    // ========== TESTE PRIORITY ==========
     {
         MemoryManager memManager(4096, 8192);
         IOManager ioManager;
-        PriorityScheduler priority(NUM_CORES, &memManager, &ioManager, 999999); // Quantum infinito = não-preemptivo
+        PriorityScheduler priority(NUM_CORES, &memManager, &ioManager);
         
         std::vector<std::unique_ptr<PCB>> processes;
         for (int i = 0; i < NUM_PROCESSES; i++) {
             auto pcb = std::make_unique<PCB>();
             pcb->pid = i + 1;
             pcb->state = State::Ready;
-            pcb->priority = (NUM_PROCESSES - i); // Prioridade decrescente (maior = mais importante)
+            pcb->estimated_job_size = (i + 1) * 50;
+            pcb->priority = 10 - (i % 3) * 3;  // Prioridades: 10, 7, 4, 10
             loadJsonProgram("examples/programs/tasks.json", memManager, *pcb, i * 1024);
             processes.push_back(std::move(pcb));
         }
         
-        auto result = test_scheduler("PRIORITY (Não-Preemptivo)", priority, processes, memManager);
-        results.push_back(result);
-    }
-    
-    // ========== TESTE PRIORITY PREEMPTIVO ==========
-    {
-        MemoryManager memManager(4096, 8192);
-        IOManager ioManager;
-        PriorityScheduler priority_preempt(NUM_CORES, &memManager, &ioManager, QUANTUM);
-        
-        std::vector<std::unique_ptr<PCB>> processes;
-        for (int i = 0; i < NUM_PROCESSES; i++) {
-            auto pcb = std::make_unique<PCB>();
-            pcb->pid = i + 1;
-            pcb->state = State::Ready;
-            pcb->priority = (NUM_PROCESSES - i); // Prioridade decrescente (maior = mais importante)
-            loadJsonProgram("examples/programs/tasks.json", memManager, *pcb, i * 1024);
-            processes.push_back(std::move(pcb));
-        }
-        
-        auto result = test_scheduler("PRIORITY PREEMPTIVO (por Prioridade)", priority_preempt, processes, memManager);
+        auto result = test_scheduler("PRIORITY (Não Preemptivo)", priority, processes, memManager);
         results.push_back(result);
     }
     
@@ -341,7 +322,7 @@ int main() {
         std::cerr << "\n❌ ERRO: Não foi possível criar logs/metrics/detailed_metrics.csv\n\n";
     }
     
-    std::cout << "\n✅ TODOS OS 5 ESCALONADORES TESTADOS COM SUCESSO!\n\n";
+    std::cout << "\n✅ TODOS OS 4 ESCALONADORES TESTADOS COM SUCESSO!\n\n";
     
     // Gerar relatório consolidado em formato texto
     std::cout << "📄 Gerando relatório consolidado...\n";
@@ -355,7 +336,7 @@ int main() {
         report << "  • Núcleos: " << NUM_CORES << "\n";
         report << "  • Processos: " << NUM_PROCESSES << "\n";
         report << "  • Quantum (RR): " << QUANTUM << " ciclos\n";
-        report << "  • Políticas testadas: FCFS, SJN, RR, PRIORITY, PRIORITY_PREEMPT\n\n";
+        report << "  • Políticas testadas: FCFS, SJN, RR, PRIORITY\n\n";
         
         report << "═══════════════════════════════════════════════════════════════════\n\n";
         

@@ -1,5 +1,3 @@
 timestamp_ms,main_memory_bytes,secondary_memory_bytes,cache_hits,cache_misses,hit_rate
-1,135,0,18,1230,1.44231
-2,135,0,18,1425,1.2474
-2,135,0,22,1544,1.40485
-3,135,0,27,1845,1.44231
+4,135,0,18,1230,1.44231
+5,135,0,27,1845,1.44231

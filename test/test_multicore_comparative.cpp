@@ -1,12 +1,11 @@
 /**
  * Teste Comparativo de Eficiência Multicore - TODAS AS POLÍTICAS
  * 
- * Este teste compara o desempenho de 5 políticas de escalonamento:
+ * Este teste compara o desempenho de 4 políticas de escalonamento:
  *   - RR (Round Robin): Preemptivo com quantum
  *   - FCFS (First Come First Served): Não-preemptivo
  *   - SJN (Shortest Job Next): Não-preemptivo, ordenado por tamanho
  *   - PRIORITY: Não-preemptivo, ordenado por prioridade
- *   - PRIORITY_PREEMPT: Preemptivo por prioridade (sem quantum)
  * 
  * METODOLOGIA:
  *   - Workload idêntico para todas as políticas
@@ -17,7 +16,7 @@
  * 
  * @author Grupo Peripherals
  * @date 2024
- * @version 5.0 - Teste comparativo com 5 políticas incluindo PRIORITY_PREEMPT
+ * @version 7.0 - Teste comparativo com 4 políticas (FCFS, SJN, RR, PRIORITY)
  */
 
 #include <iostream>
@@ -42,7 +41,7 @@
 #include "IO/IOManager.hpp"
 
 struct TestResult {
-    std::string policy;            // RR, FCFS, SJN, PRIORITY, PRIORITY_PREEMPT
+    std::string policy;            // RR, FCFS, SJN, PRIORITY
     int num_cores;
     double execution_time_ms;
     double speedup;
@@ -143,8 +142,8 @@ TestResult run_test(const std::string& policy, int num_cores, int num_processes,
             }
             result.processes_finished = process_ptrs.size();
             
-        } else if (policy == "PRIORITY" || policy == "PRIORITY_PREEMPT") {
-            PriorityScheduler scheduler(num_cores, memManager, ioManager, quantum);
+        } else if (policy == "PRIORITY") {
+            PriorityScheduler scheduler(num_cores, memManager, ioManager);
             // Atribuir prioridades diferentes para teste (maior número = maior prioridade)
             for (size_t i = 0; i < process_ptrs.size(); i++) {
                 process_ptrs[i]->priority = 10 - (i % 3) * 3;  // Prioridades: 10, 7, 4
@@ -186,7 +185,7 @@ int main() {
     const int ITERATIONS = 3;
     const int WARMUP_ITERATIONS = 1;
     
-    std::vector<std::string> policies = {"RR", "FCFS", "SJN", "PRIORITY", "PRIORITY_PREEMPT"};
+    std::vector<std::string> policies = {"RR", "FCFS", "SJN", "PRIORITY"};
     std::vector<int> core_configs = {1, 2, 4, 6};
     std::map<std::string, std::vector<TestResult>> results_by_policy;
     
@@ -195,7 +194,7 @@ int main() {
     std::cout << "╚═══════════════════════════════════════════════════════════════════╝\n\n";
     
     std::cout << "Configuração:\n";
-    std::cout << "  • Políticas: RR, FCFS, SJN, PRIORITY, PRIORITY_PREEMPT\n";
+    std::cout << "  • Políticas: RR, FCFS, SJN, PRIORITY\n";
     std::cout << "  • Processos: " << NUM_PROCESSES << "\n";
     std::cout << "  • Quantum (RR): " << QUANTUM << " ciclos\n";
     std::cout << "  • Workload: " << TASKS_FILE << "\n";
@@ -209,8 +208,7 @@ int main() {
         if (policy == "RR") std::cout << " (Round Robin - Preemptivo)";
         else if (policy == "FCFS") std::cout << " (First Come First Served)";
         else if (policy == "SJN") std::cout << " (Shortest Job Next)";
-        else if (policy == "PRIORITY") std::cout << " (Priority - Por Prioridade)";
-        else if (policy == "PRIORITY_PREEMPT") std::cout << " (Priority Preemptivo)";
+        else if (policy == "PRIORITY") std::cout << " (Priority - Não Preemptivo)";
         std::cout << "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
         
         for (int num_cores : core_configs) {
@@ -425,7 +423,8 @@ int main() {
     std::cout << "📊 Características observadas:\n";
     std::cout << "  • RR (Round Robin): Preemptivo, justo, mais overhead de troca de contexto\n";
     std::cout << "  • FCFS: Simples, sem preempção, pode ter espera longa\n";
-    std::cout << "  • SJN: Otimiza tempo médio, mas pode causar starvation\n\n";
+    std::cout << "  • SJN: Otimiza tempo médio, mas pode causar starvation\n";
+    std::cout << "  • PRIORITY: Executa por prioridade, sem preempção\n\n";
     
     return 0;
 }

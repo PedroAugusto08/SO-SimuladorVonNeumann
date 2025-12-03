@@ -4,8 +4,8 @@
 #include <limits>
 #include "TimeUtils.hpp"
 
-PriorityScheduler::PriorityScheduler(int num_cores, MemoryManager* memManager, IOManager* ioManager, int quantum)
-    : num_cores(num_cores), quantum(quantum), memManager(memManager), ioManager(ioManager), 
+PriorityScheduler::PriorityScheduler(int num_cores, MemoryManager* memManager, IOManager* ioManager)
+    : num_cores(num_cores), memManager(memManager), ioManager(ioManager), 
       context_switches(0), total_execution_time(0), total_simulation_cycles(0) {
     finished_count.store(0);
     total_count.store(0);
@@ -15,7 +15,7 @@ PriorityScheduler::PriorityScheduler(int num_cores, MemoryManager* memManager, I
     }
     
     simulation_start_time = std::chrono::steady_clock::now();
-    std::cout << "[PRIORITY] Inicializado em modo PREEMPTIVO (quantum: " << quantum << " ciclos)\n";
+    std::cout << "[PRIORITY] Inicializado em modo NÃO-PREEMPTIVO (por prioridade)\n";
 }
 
 void PriorityScheduler::add_process(PCB* process) {
@@ -102,10 +102,9 @@ void PriorityScheduler::schedule_cycle() {
     }
     
     sort_by_priority();
-    // NOTA: check_preemption() desabilitado temporariamente para debugging
-    // check_preemption();
     
     // Atribui processos aos núcleos livres (maior prioridade primeiro)
+    // NÃO-PREEMPTIVO: processo roda até terminar, sem interrupção
     for (auto& core : cores) {
         if (core->is_available_for_new_process() && !ready_queue.empty()) {
             PCB* process = ready_queue.front();
@@ -116,8 +115,7 @@ void PriorityScheduler::schedule_cycle() {
                 process->start_time = cpu_time::now_ns();
             }
             process->assigned_core = core->get_id();
-            
-            process->quantum = quantum;
+            process->quantum = 999999;  // Não-preemptivo: quantum alto para rodar até terminar
             
             context_switches++;
             process->context_switches++;
@@ -214,65 +212,6 @@ int PriorityScheduler::get_finished_count() const {
 std::vector<std::unique_ptr<Core>>& PriorityScheduler::get_cores() { return cores; }
 std::deque<PCB*>& PriorityScheduler::get_ready_queue() { return ready_queue; }
 std::vector<PCB*>& PriorityScheduler::get_blocked_list() { return blocked_list; }
-
-// ====== FUNÇÕES DE PREEMPÇÃO ======
-
-void PriorityScheduler::check_preemption() {
-    if (ready_queue.empty()) return;
-    
-    // Pega o processo de maior prioridade na fila
-    PCB* highest_priority = ready_queue.front();
-    
-    // Verifica cada core para ver se deve preemptar
-    for (auto& core : cores) {
-        if (!core->is_idle() && core->is_thread_running()) {
-            PCB* running = core->get_current_process();
-            if (running && should_preempt(running, highest_priority)) {
-                std::cout << "[PRIORITY PREEMPT] P" << running->pid 
-                          << " (prioridade " << running->priority 
-                          << ") preemptado por P" << highest_priority->pid
-                          << " (prioridade " << highest_priority->priority << ")\n";
-                
-                preempt_process(core.get(), running);
-                
-                // Remove processo de alta prioridade da fila e coloca no core
-                ready_queue.pop_front();
-                highest_priority->leave_ready_queue();
-                core->execute_async(highest_priority);
-                
-                // Reordena já que removemos um processo
-                sort_by_priority();
-                if (ready_queue.empty()) break;
-                highest_priority = ready_queue.front();
-            }
-        }
-    }
-}
-
-bool PriorityScheduler::should_preempt(PCB* running, PCB* waiting) {
-    // Preempta se processo esperando tem prioridade ESTRITAMENTE MAIOR
-    return waiting->priority > running->priority;
-}
-
-void PriorityScheduler::preempt_process(Core* core, PCB* process) {
-    // Salva contexto do processo (registradores já salvos no PCB pelo Core)
-    process->state = State::Ready;  // Marca como pronto para executar novamente
-    
-    // Aguarda thread do core finalizar execução atual
-    core->wait_completion();
-    
-    // Limpa o processo atual do core antes de colocar na fila
-    core->clear_current_process();
-    
-    // Coloca processo de volta na fila (será reordenado por prioridade)
-    process->enter_ready_queue();
-    ready_queue.push_back(process);
-    sort_by_priority();
-    
-    // Incrementa contador de context switches
-    context_switches++;
-    process->context_switches++;
-}
 
 PriorityScheduler::Statistics PriorityScheduler::get_statistics() const {
     Statistics s;

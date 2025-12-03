@@ -1,17 +1,17 @@
 #pragma once
 /**
- * PriorityScheduler - Versão PREEMPTIVA (por prioridade)
+ * PriorityScheduler - Versão NÃO-PREEMPTIVA (por prioridade)
  * 
- * Escalonador baseado em prioridade estática com preempção
+ * Escalonador baseado em prioridade estática SEM preempção
  * - Processos com MAIOR prioridade são executados primeiro
- * - PREEMPTIVO: processo pode ser interrompido quando chega processo de maior prioridade
+ * - NÃO-PREEMPTIVO: processo roda até terminar ou bloquear, sem interrupção
  * - Prioridades: valores maiores = maior prioridade (0 = baixa, 10 = alta)
  * 
  * Características:
- * - Preempção por prioridade (se chegar processo mais importante)
- * - Não usa quantum de tempo (diferente do Round Robin)
- * - Salva contexto do processo preemptado
+ * - Sem preempção (processo completa antes de outro começar no mesmo core)
+ * - Não usa quantum de tempo
  * - Mantém fila ordenada por prioridade
+ * - Similar ao FCFS, mas ordenado por prioridade
  */
 
 #include <vector>
@@ -36,7 +36,7 @@ public:
         int total_processes{0};
     };
 
-    PriorityScheduler(int num_cores, MemoryManager* memManager, IOManager* ioManager, int quantum = 1000);
+    PriorityScheduler(int num_cores, MemoryManager* memManager, IOManager* ioManager);
     void add_process(PCB* process);
     void schedule_cycle();
     bool all_finished() const;
@@ -50,12 +50,8 @@ public:
     
 private:
     void sort_by_priority();
-    void check_preemption();  // Verifica se precisa preemptar processos
-    bool should_preempt(PCB* running, PCB* waiting);  // Decide se preempta
-    void preempt_process(Core* core, PCB* process);  // Preempta processo
     
     int num_cores;
-    int quantum;  // Quantum de tempo (ciclos) - usado apenas para compatibilidade
     MemoryManager* memManager;
     IOManager* ioManager;
     std::vector<std::unique_ptr<Core>> cores;

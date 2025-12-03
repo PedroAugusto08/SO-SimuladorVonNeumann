@@ -4,6 +4,9 @@ Gerador de Gráficos - Simulador Von Neumann
 Gera visualizações dos dados de escalonadores e métricas.
 """
 
+import matplotlib
+matplotlib.use('Agg')  # Backend sem GUI
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,15 +24,13 @@ CORES_POLITICAS = {
     'FCFS': '#3498db',         # Azul
     'SJN': '#e74c3c',          # Vermelho
     'PRIORITY': '#9b59b6',     # Roxo
-    'PRIORITY_PREEMPT': '#f39c12'  # Laranja
 }
 
 def carregar_dados():
-    """Carrega todos os CSVs"""
+    """Carrega todos os CSVs disponíveis"""
     multicore = pd.read_csv('escalonadores_multicore.csv')
     metricas = pd.read_csv('metricas_escalonadores.csv')
-    throughput = pd.read_csv('throughput_multicore.csv')
-    return multicore, metricas, throughput
+    return multicore, metricas
 
 def grafico1_tempo_execucao_multicore(df):
     """
@@ -56,7 +57,7 @@ def grafico1_tempo_execucao_multicore(df):
     
     ax.set_xlabel('Número de Cores', fontweight='bold', fontsize=12)
     ax.set_ylabel('Tempo de Execução (ms)', fontweight='bold', fontsize=12)
-    ax.set_title('Comparativo de Tempo de Execução: 5 Políticas × 4 Configurações de Cores\n(menor é melhor)', 
+    ax.set_title('Comparativo de Tempo de Execução: 4 Políticas × 4 Configurações de Cores\n(menor é melhor)', 
                  fontweight='bold', fontsize=14)
     ax.set_xticks(x)
     ax.set_xticklabels([f'{c} core(s)' for c in cores])
@@ -208,8 +209,23 @@ def grafico3_metricas_comparativas(df_metricas):
     fig, axes = plt.subplots(1, 3, figsize=(16, 5))
     
     # Limpar nomes das políticas
+    df_metricas = df_metricas.copy()
     df_metricas['Politica_Clean'] = df_metricas['Politica'].str.replace('_', ' ').str.replace('  ', ' ')
-    politicas = ['FCFS', 'SJN', 'RR', 'PRIORITY', 'PRIORITY_PREEMPT']
+    
+    # Extrair nome curto da política
+    politicas = []
+    for p in df_metricas['Politica'].values:
+        if 'FCFS' in p:
+            politicas.append('FCFS')
+        elif 'SJN' in p:
+            politicas.append('SJN')
+        elif 'Round' in p or 'RR' in p:
+            politicas.append('RR')
+        elif 'PRIORITY' in p:
+            politicas.append('PRIORITY')
+        else:
+            politicas.append(p[:10])
+    
     cores = [CORES_POLITICAS.get(p, '#95a5a6') for p in politicas]
     
     # Subplot 1: Throughput (proc/s)
@@ -326,8 +342,21 @@ def grafico5_radar_metricas(df_metricas):
     angles += angles[:1]  # Fechar o polígono
     
     # Cores para cada política
-    cores_radar = ['#3498db', '#e74c3c', '#2ecc71', '#9b59b6', '#f39c12']
-    politicas_simples = ['FCFS', 'SJN', 'RR', 'PRIORITY', 'PRIORITY_P']
+    cores_radar = ['#3498db', '#e74c3c', '#2ecc71', '#9b59b6']
+    
+    # Extrair nomes curtos
+    politicas_simples = []
+    for p in df_metricas['Politica'].values:
+        if 'FCFS' in p:
+            politicas_simples.append('FCFS')
+        elif 'SJN' in p:
+            politicas_simples.append('SJN')
+        elif 'Round' in p or 'RR' in p:
+            politicas_simples.append('RR')
+        elif 'PRIORITY' in p:
+            politicas_simples.append('PRIORITY')
+        else:
+            politicas_simples.append(p[:10])
     
     for idx, (_, row) in enumerate(df_metricas.iterrows()):
         valores = [
@@ -415,10 +444,9 @@ def main():
     
     # Carregar dados
     print('📂 Carregando dados...')
-    multicore, metricas, throughput = carregar_dados()
+    multicore, metricas = carregar_dados()
     print(f'   • escalonadores_multicore.csv: {len(multicore)} linhas')
     print(f'   • metricas_escalonadores.csv: {len(metricas)} linhas')
-    print(f'   • throughput_multicore.csv: {len(throughput)} linhas')
     print()
     
     # Gerar gráficos

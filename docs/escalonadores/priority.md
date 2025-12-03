@@ -1,30 +1,20 @@
-# Priority Scheduler
+# Priority Scheduler (Não-Preemptivo)
 
 ## Visão Geral
 
 O **Priority Scheduler** executa processos baseado em sua prioridade. Maior número de prioridade = maior importância.
 
-## Modos de Operação
-
-O sistema suporta dois modos:
-
-| Modo | Preempção | Quantum |
-|------|-----------|---------|
-| **Priority** | Não | Infinito |
-| **Priority Preemptivo** | Sim | Configurável |
-
 ## Características
 
-| Propriedade | Non-Preemptive | Preemptive |
-|-------------|----------------|------------|
-| **Tipo** | Não-preemptivo | Preemptivo |
-| **Starvation** | Pode ocorrer | Pode ocorrer |
-| **Responsividade** | Baixa | Alta |
-| **Overhead** | Mínimo | Médio |
+| Propriedade | Valor |
+|-------------|-------|
+| **Tipo** | Não-preemptivo |
+| **Preempção** | Não |
+| **Starvation** | Pode ocorrer |
+| **Responsividade** | Baixa |
+| **Overhead** | Mínimo |
 
 ## Como Funciona
-
-### Priority (Não-Preemptivo)
 
 ```
 Fila ordenada por prioridade:
@@ -33,22 +23,10 @@ Fila ordenada por prioridade:
     └────────┴────────┴────────┴────────┘
          ↓
     Maior prioridade executa primeiro
-    Processo NÃO é interrompido
+    Processo NÃO é interrompido até terminar
 ```
 
-### Priority Preemptivo
-
-```
-Se processo de maior prioridade chega:
-    ┌───────┐
-    │P1 (7) │ executando
-    └───────┘
-         ↓ P3 (10) chega
-    ┌────────┐  ┌───────┐
-    │P3 (10) │  │P1 (7) │ → volta para fila
-    └────────┘  └───────┘
-    Preempção!
-```
+O processo de maior prioridade sempre executa primeiro e **não é interrompido** por processos de maior prioridade que chegam posteriormente.
 
 ## Implementação
 
@@ -58,7 +36,6 @@ private:
     std::deque<PCB*> ready_queue;
     std::atomic<int> finished_count{0};
     std::atomic<int> total_count{0};
-    int quantum;  // 999999 = não-preemptivo
     
 public:
     void add_process(PCB* process) {
@@ -98,7 +75,6 @@ public:
             if (core->is_available_for_new_process() && !ready_queue.empty()) {
                 PCB* next = ready_queue.front();
                 ready_queue.pop_front();
-                next->quantum = quantum;
                 core->execute_async(next);
             }
         }
@@ -129,9 +105,6 @@ A implementação atual inclui:
 ```bash
 # Priority não-preemptivo
 ./simulador --policy PRIORITY --cores 2
-
-# Priority preemptivo com quantum
-./simulador --policy PRIORITY_PREEMPT --cores 2 --quantum 1000
 ```
 
 ## Definição de Prioridades
