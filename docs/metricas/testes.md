@@ -47,24 +47,46 @@ Testa execução multi-core básica:
 ### test_multicore_comparative.cpp
 
 Compara performance entre políticas de escalonamento:
-- FCFS vs SJN vs Round Robin vs Priority
-- Métricas: throughput, latência, fairness
-- Executa com múltiplas configurações de núcleos
+- FCFS vs SJN vs Round Robin vs Priority vs Priority Preemptivo
+- Métricas: tempo de execução, speedup, eficiência, CV
+- Executa com múltiplas configurações de núcleos (1, 2, 4, 6)
+- 3 iterações + 1 warm-up para estabilidade estatística
 
 ```bash
-./test_multicore_comparative
+./bin/test_multicore_comparative
 ```
 
-**Saída típica:**
+**Saída típica (v2.0):**
 ```
-=== Comparativo de Políticas (4 cores) ===
-Política         | Throughput | Avg Wait | Fairness
------------------+------------+----------+---------
-FCFS             | 1.23       | 450      | 0.85
-SJN              | 1.45       | 320      | 0.72
-Round Robin      | 1.18       | 380      | 0.95
-Priority         | 1.35       | 350      | 0.68
+╔═══════════════════════════════════════════════════════════════════╗
+║  TESTE COMPARATIVO DE POLÍTICAS DE ESCALONAMENTO MULTICORE      ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Testando política: RR (Round Robin - Preemptivo)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ► 1 core(s): ✓ 121.8 ms (CV: 0.1%)
+  ► 2 core(s): ✓ 113.4 ms (CV: 0.3%)
+  ► 4 core(s): ✓ 109.5 ms (CV: 0.6%)
+  ► 6 core(s): ✓ 110.7 ms (CV: 0.7%)
+
+  Testando política: FCFS (First Come First Served)
+  ► 1 core(s): ✓ 121.9 ms (CV: 0.3%)
+  ► 2 core(s): ✓ 114.1 ms (CV: 0.7%)
+  ...
 ```
+
+**Resultados Esperados (v2.0):**
+
+| Política | 1 Core | 2 Cores | 4 Cores | 6 Cores | CV |
+|----------|--------|---------|---------|---------|-----|
+| RR | ~122ms | ~113ms | ~110ms | ~110ms | <1% |
+| FCFS | ~121ms | ~113ms | ~110ms | ~109ms | <1% |
+| SJN | ~121ms | ~113ms | ~109ms | ~110ms | <1% |
+| PRIORITY | ~122ms | ~112ms | ~110ms | ~110ms | <3% |
+| PRIORITY_PREEMPT | ~122ms | ~112ms | ~110ms | ~110ms | <2% |
+
+> **Nota:** CV (Coefficient of Variation) < 15% indica alta estabilidade
 
 ### test_priority_preemptive.cpp
 

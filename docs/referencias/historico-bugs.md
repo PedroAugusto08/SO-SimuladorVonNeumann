@@ -6,7 +6,7 @@ Este documento registra todos os bugs críticos identificados e corrigidos duran
 
 | Total de Bugs | Resolvidos | Taxa de Sucesso |
 |---------------|------------|-----------------|
-| 10 | 10 | 100% |
+| 15 | 15 | 100% |
 
 ---
 
@@ -329,3 +329,261 @@ process->finish_time = std::chrono::steady_clock::now().time_since_epoch().count
 - Buscar todas ocorrências (grep)
 - Comparar implementações corretas vs incorretas
 - Validar correção com testes
+
+---
+
+## Bug #11: Spin-Wait em all_finished() nos Schedulers Não-RR
+
+**Data:** 03/12/2025  
+**Severidade:** Crítica  
+**Status:** ✅ Resolvido
+
+### Sintoma
+FCFS, SJN e Priority executavam em 3000-9000ms enquanto Round Robin executava em ~100ms.
+
+```
+Round Robin: ~100ms ✓
+FCFS:        ~3200ms (32x mais lento!)
+SJN:         ~3400ms
+Priority:    ~3500ms
+```
+
+### Causa Raiz
+Os métodos `all_finished()` de FCFS, SJN e Priority tinham verificações complexas que causavam busy-wait:
+
+```cpp
+// ANTES (bugado) - verificação complexa causava spin-loop
+bool all_finished() const {
+    return ready_queue.empty() && 
+           blocked_list.empty() && 
+           std::all_of(cores.begin(), cores.end(), [](auto& c) {
+               return c->get_current_process() == nullptr;
+           });
+}
+```
+
+Enquanto Round Robin usava verificação simples baseada em contadores:
+
+```cpp
+// Round Robin (eficiente)
+bool has_pending_processes() const {
+    return finished_count.load() < total_count.load();
+}
+```
+
+### Correção
+Simplificamos `all_finished()` para usar contadores atômicos:
+
+```cpp
+bool all_finished() const {
+    int finished = finished_count.load();
+    int total = total_count.load();
+    
+    if (finished >= total && total > 0) {
+        for (const auto& core : cores) {
+            if (core->get_current_process() != nullptr) return false;
+        }
+        for (const auto& core : cores) {
+            if (core->is_thread_running()) return false;
+        }
+        return true;
+    }
+    return false;
+}
+```
+
+### Arquivos Modificados
+- `src/cpu/FCFSScheduler.cpp`
+- `src/cpu/SJNScheduler.cpp`
+- `src/cpu/PriorityScheduler.cpp`
+
+---
+
+## Bug #12: Contadores Não-Atômicos em PriorityScheduler
+
+**Data:** 03/12/2025  
+**Severidade:** Alta  
+**Status:** ✅ Resolvido
+
+### Sintoma
+Race conditions intermitentes no PriorityScheduler causando CV >100%.
+
+### Causa Raiz
+`finished_count` e `total_count` eram `int` normal em PriorityScheduler.
+
+### Correção
+```cpp
+// ANTES
+int finished_count;
+int total_count;
+
+// DEPOIS
+std::atomic<int> finished_count;
+std::atomic<int> total_count;
+```
+
+### Arquivo
+`src/cpu/PriorityScheduler.hpp`
+
+---
+
+## Bug #13: Duplicação de total_count em add_process()
+
+**Data:** 03/12/2025  
+**Severidade:** Alta  
+**Status:** ✅ Resolvido
+
+### Sintoma
+Processos sendo contados múltiplas vezes, `total_count` crescendo indefinidamente.
+
+### Causa Raiz
+`add_process()` incrementava `total_count` toda vez que era chamado, mesmo para processos preemptados retornando à fila.
+
+### Correção
+```cpp
+void add_process(PCB* process) {
+    if (process->arrival_time == 0) {  // Só incrementa para processos NOVOS
+        process->arrival_time = cpu_time::now_ns();
+        total_count++;
+    }
+    process->enter_ready_queue();
+    ready_queue.push_back(process);
+}
+```
+
+### Arquivos Modificados
+- `src/cpu/FCFSScheduler.cpp`
+- `src/cpu/SJNScheduler.cpp`
+- `src/cpu/PriorityScheduler.cpp`
+
+---
+
+## Bug #14: Race Condition em get_current_process()
+
+**Data:** 03/12/2025  
+**Severidade:** Crítica  
+**Status:** ✅ Resolvido
+
+### Sintoma
+Falhas intermitentes (CV ~137%) em diferentes combinações de scheduler/cores.
+
+### Causa Raiz
+`get_current_process()` não usava lock enquanto `clear_current_process()` usava, criando race condition:
+
+```cpp
+// ANTES - leitura sem proteção
+PCB* get_current_process() const { 
+    return current_process;  // ← Race condition!
+}
+
+void clear_current_process() {
+    std::lock_guard<std::mutex> lock(core_mutex);
+    current_process = nullptr;
+}
+```
+
+### Correção
+```cpp
+// DEPOIS - leitura protegida
+PCB* get_current_process() const { 
+    std::lock_guard<std::mutex> lock(core_mutex);
+    return current_process; 
+}
+```
+
+### Arquivo
+`src/cpu/Core.hpp`
+
+---
+
+## Bug #15: Atribuição de Processo a Core com Processo Pendente
+
+**Data:** 03/12/2025  
+**Severidade:** Crítica  
+**Status:** ✅ Resolvido
+
+### Sintoma
+Dois processos tentando usar o mesmo core, causando timeout intermitente.
+
+### Causa Raiz
+Schedulers verificavam apenas `is_idle()` para atribuir novos processos:
+
+```cpp
+// ANTES - verificação incompleta
+if (core->is_idle() && !ready_queue.empty()) {
+    core->execute_async(process);  // Pode sobrescrever processo não coletado!
+}
+```
+
+O problema ocorria porque:
+1. Core termina execução e seta `state = IDLE`
+2. Scheduler vê `is_idle() == true`
+3. Scheduler atribui novo processo ANTES de coletar o anterior
+4. Dois processos tentam usar o mesmo core
+
+### Correção
+Criamos método `is_available_for_new_process()` que verifica atomicamente:
+
+```cpp
+// Novo método no Core.hpp
+bool is_available_for_new_process() const {
+    std::lock_guard<std::mutex> lock(core_mutex);
+    return state.load() == CoreState::IDLE && current_process == nullptr;
+}
+
+// Nos schedulers - usar novo método
+if (core->is_available_for_new_process() && !ready_queue.empty()) {
+    core->execute_async(process);  // Seguro!
+}
+```
+
+### Arquivos Modificados
+- `src/cpu/Core.hpp` (novo método)
+- `src/cpu/FCFSScheduler.cpp`
+- `src/cpu/SJNScheduler.cpp`
+- `src/cpu/PriorityScheduler.cpp`
+
+---
+
+## Impacto das Correções (Atualizado)
+
+### Antes (02/12/2025)
+| Métrica | Round Robin | FCFS/SJN/Priority |
+|---------|-------------|-------------------|
+| Tempo Execução | ~100ms | 3000-9000ms |
+| CV (Variabilidade) | <5% | 70-140% |
+| Taxa de Sucesso | 100% | ~33% (1 de 3 falhas) |
+
+### Depois (03/12/2025)
+| Métrica | Todas as Políticas |
+|---------|--------------------|
+| Tempo Execução | **~110-125ms** |
+| CV (Variabilidade) | **<6%** |
+| Taxa de Sucesso | **100%** |
+| Speedup | **1.07x-1.12x** |
+
+---
+
+## Resumo das Mudanças por Arquivo
+
+### `src/cpu/Core.hpp`
+- Adicionado lock em `get_current_process()`
+- Novo método `is_available_for_new_process()`
+
+### `src/cpu/FCFSScheduler.cpp`
+- Simplificado `all_finished()` para usar contadores
+- `add_process()` só incrementa `total_count` para processos novos
+- Adicionado yield/sleep para reduzir busy-wait
+- Segunda passagem de coleta após yield
+- Usa `is_available_for_new_process()` para atribuição
+
+### `src/cpu/SJNScheduler.cpp`
+- Mesmas correções do FCFS
+- Mantém ordenação por tamanho de job
+
+### `src/cpu/PriorityScheduler.cpp`
+- Mesmas correções do FCFS
+- Mantém ordenação por prioridade
+
+### `src/cpu/PriorityScheduler.hpp`
+- `finished_count` e `total_count` agora são `std::atomic<int>`

@@ -31,3 +31,4 @@
   * [FAQ](referencias/faq.md)
   * [Checklist](referencias/checklist.md)
   * [Histórico de Bugs](referencias/historico-bugs.md)
+  * [Changelog](referencias/CHANGELOG.md)

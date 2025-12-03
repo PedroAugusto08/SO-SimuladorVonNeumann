@@ -6,7 +6,9 @@
 
 PriorityScheduler::PriorityScheduler(int num_cores, MemoryManager* memManager, IOManager* ioManager, int quantum)
     : num_cores(num_cores), quantum(quantum), memManager(memManager), ioManager(ioManager), 
-      finished_count(0), total_count(0), context_switches(0), total_execution_time(0), total_simulation_cycles(0) {
+      context_switches(0), total_execution_time(0), total_simulation_cycles(0) {
+    finished_count.store(0);
+    total_count.store(0);
     for (int i = 0; i < num_cores; i++) {
         cores.push_back(std::make_unique<Core>(i, memManager));
         cores[i]->reset_metrics();
@@ -19,7 +21,7 @@ PriorityScheduler::PriorityScheduler(int num_cores, MemoryManager* memManager, I
 void PriorityScheduler::add_process(PCB* process) {
     if (process->arrival_time == 0) {
         process->arrival_time = cpu_time::now_ns();
-        total_count++;
+        total_count.fetch_add(1);
     }
     process->enter_ready_queue();
     ready_queue.push_back(process);
@@ -68,7 +70,7 @@ void PriorityScheduler::schedule_cycle() {
             case State::Finished:
                 process->finish_time = cpu_time::now_ns();
                 finished_list.push_back(process);
-                finished_count++;
+                finished_count.fetch_add(1);  // Incremento atômico seguro
                 std::cout << "[PRIORITY] P" << process->pid 
                           << " finalizado (prioridade: " << process->priority 
                           << ", context switches: " << context_switches << ")\n";
@@ -100,11 +102,12 @@ void PriorityScheduler::schedule_cycle() {
     }
     
     sort_by_priority();
-    check_preemption();
+    // NOTA: check_preemption() desabilitado temporariamente para debugging
+    // check_preemption();
     
     // Atribui processos aos núcleos livres (maior prioridade primeiro)
     for (auto& core : cores) {
-        if (core->is_idle() && !ready_queue.empty()) {
+        if (core->is_available_for_new_process() && !ready_queue.empty()) {
             PCB* process = ready_queue.front();
             ready_queue.pop_front();
             process->leave_ready_queue();
@@ -127,20 +130,77 @@ void PriorityScheduler::schedule_cycle() {
         }
     }
     
-}
-
-bool PriorityScheduler::all_finished() const {
-    if (total_count == 0) return false;
-    if (!ready_queue.empty() || !blocked_list.empty()) return false;
-    
-    // Verificar se todos cores estão ociosos e sem processos pendentes
-    for (const auto& core : cores) {
-        if (!core->is_idle() || core->get_current_process() != nullptr) {
-            return false;
+    // Se todos os cores estão ocupados, aguardar um pouco para evitar busy-wait
+    bool all_busy = true;
+    for (auto& core : cores) {
+        if (core->is_idle() || core->get_current_process() == nullptr) {
+            all_busy = false;
+            break;
         }
     }
     
-    return finished_count >= total_count;
+    if (all_busy && !ready_queue.empty()) {
+        // Cores ocupados mas ainda há processos na fila - aguardar threads
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
+    } else {
+        // Yield para reduzir busy-wait
+        std::this_thread::yield();
+    }
+    
+    // Segunda passagem de coleta após yield (para capturar processos que terminaram durante o yield)
+    for (auto& core : cores) {
+        PCB* process = core->get_current_process();
+        if (process == nullptr) continue;
+        
+        if (core->is_idle() || !core->is_thread_running()) {
+            if (core->is_thread_running()) {
+                core->wait_completion();
+            }
+            
+            switch (process->state) {
+                case State::Finished:
+                    process->finish_time = cpu_time::now_ns();
+                    finished_list.push_back(process);
+                    finished_count.fetch_add(1);
+                    core->clear_current_process();
+                    break;
+                case State::Blocked:
+                    ioManager->registerProcessWaitingForIO(process);
+                    blocked_list.push_back(process);
+                    core->clear_current_process();
+                    break;
+                default:
+                    // Ready ou outro estado - volta para a fila
+                    process->enter_ready_queue();
+                    ready_queue.push_back(process);
+                    sort_by_priority();
+                    core->clear_current_process();
+                    break;
+            }
+        }
+    }
+}
+
+bool PriorityScheduler::all_finished() const {
+    int finished = finished_count.load();
+    int total = total_count.load();
+    
+    if (finished >= total && total > 0) {
+        // Verificar se há processos ainda em execução nos cores
+        for (const auto& core : cores) {
+            if (core->get_current_process() != nullptr) {
+                return false;  // Ainda há processo no core, aguardar coleta
+            }
+        }
+        // Também verificar se há threads ainda rodando
+        for (const auto& core : cores) {
+            if (core->is_thread_running()) {
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
 }
 
 bool PriorityScheduler::has_pending_processes() const {
@@ -148,7 +208,7 @@ bool PriorityScheduler::has_pending_processes() const {
 }
 
 int PriorityScheduler::get_finished_count() const {
-    return finished_count;
+    return finished_count.load();
 }
 
 std::vector<std::unique_ptr<Core>>& PriorityScheduler::get_cores() { return cores; }
@@ -200,6 +260,9 @@ void PriorityScheduler::preempt_process(Core* core, PCB* process) {
     
     // Aguarda thread do core finalizar execução atual
     core->wait_completion();
+    
+    // Limpa o processo atual do core antes de colocar na fila
+    core->clear_current_process();
     
     // Coloca processo de volta na fila (será reordenado por prioridade)
     process->enter_ready_queue();

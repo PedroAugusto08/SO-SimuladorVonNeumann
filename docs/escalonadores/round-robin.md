@@ -43,6 +43,8 @@ Cada processo executa por no máximo 'quantum' ciclos
 class RoundRobinScheduler {
 private:
     std::deque<PCB*> ready_queue;
+    std::atomic<int> finished_count{0};
+    std::atomic<int> total_count{0};
     int quantum;
     
 public:
@@ -73,8 +75,25 @@ public:
             ready_queue.push_back(process);  // Volta para fila
         }
     }
+    
+    // Verificação eficiente baseada em contadores atômicos
+    bool has_pending_processes() const {
+        return finished_count.load() < total_count.load();
+    }
 };
 ```
+
+### Detalhes de Implementação (v2.0)
+
+O Round Robin serve como **implementação de referência** para os outros escalonadores:
+
+1. **Contadores Atômicos**: `finished_count` e `total_count` são `std::atomic<int>`
+
+2. **Urgent-Collect**: Verifica se há processo antigo antes de atribuir novo
+
+3. **Lock-Free has_pending_processes()**: Evita deadlocks em métodos const
+
+4. **Timestamps Padronizados**: Usa `std::chrono::steady_clock` para todas as métricas
 
 ## Uso via CLI
 

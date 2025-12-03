@@ -62,8 +62,8 @@ private:
     std::deque<PCB*> ready_queue;  // Ordenada por prioridade (maior primeiro)
     std::vector<PCB*> blocked_list;
     std::vector<PCB*> finished_list;
-    int finished_count;
-    int total_count;
+    std::atomic<int> finished_count{0};
+    std::atomic<int> total_count{0};
     int context_switches;  // Contador de trocas de contexto
     uint64_t total_execution_time;
     std::chrono::steady_clock::time_point simulation_start_time;  // 🆕 Tempo real

@@ -56,21 +56,46 @@ Se processo de maior prioridade chega:
 class PriorityScheduler {
 private:
     std::deque<PCB*> ready_queue;
+    std::atomic<int> finished_count{0};
+    std::atomic<int> total_count{0};
     int quantum;  // 999999 = não-preemptivo
     
 public:
     void add_process(PCB* process) {
-        // Inserção ordenada por prioridade (maior primeiro)
-        auto it = std::find_if(ready_queue.begin(), ready_queue.end(),
-            [&](PCB* p) { 
-                return process->priority > p->priority; 
+        // Só incrementa total_count para processos NOVOS
+        if (process->arrival_time == 0) {
+            process->arrival_time = cpu_time::now_ns();
+            total_count.fetch_add(1);
+        }
+        process->enter_ready_queue();
+        ready_queue.push_back(process);
+        sort_by_priority();  // Mantém ordenação
+    }
+    
+    void sort_by_priority() {
+        // Ordenação estável por prioridade DECRESCENTE
+        std::stable_sort(ready_queue.begin(), ready_queue.end(),
+            [](PCB* a, PCB* b) {
+                return a->priority > b->priority;
             });
-        ready_queue.insert(it, process);
     }
     
     void schedule_cycle() {
+        // 1. Coletar processos finalizados
         for (auto& core : cores) {
-            if (core->is_idle() && !ready_queue.empty()) {
+            PCB* process = core->get_current_process();
+            if (process && (core->is_idle() || !core->is_thread_running())) {
+                if (process->state == State::Finished) {
+                    finished_count.fetch_add(1);
+                }
+                core->clear_current_process();
+            }
+        }
+        
+        // 2. Atribuir processos a núcleos DISPONÍVEIS
+        for (auto& core : cores) {
+            // Verificação atômica: idle E sem processo pendente
+            if (core->is_available_for_new_process() && !ready_queue.empty()) {
                 PCB* next = ready_queue.front();
                 ready_queue.pop_front();
                 next->quantum = quantum;
@@ -78,8 +103,26 @@ public:
             }
         }
     }
+    
+    bool all_finished() const {
+        return finished_count.load() >= total_count.load() && total_count.load() > 0;
+    }
 };
 ```
+
+### Detalhes de Implementação (v2.0)
+
+A implementação atual inclui:
+
+1. **Contadores Atômicos**: `finished_count` e `total_count` são `std::atomic<int>` para thread-safety.
+
+2. **Ordenação Estável**: `std::stable_sort` mantém ordem FCFS para processos de mesma prioridade.
+
+3. **Verificação de Disponibilidade**: Usa `is_available_for_new_process()` para evitar conflitos de atribuição.
+
+4. **Coleta Antes de Atribuição**: Evita sobrescrita de processos não coletados.
+
+5. **Incremento Único**: `total_count` só é incrementado para processos novos (arrival_time == 0).
 
 ## Uso via CLI
 

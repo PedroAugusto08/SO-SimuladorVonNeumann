@@ -43,6 +43,15 @@ public:
     }
     
     /**
+     * Verifica se o core pode receber um novo processo
+     * @return true se está idle E não tem processo pendente de coleta
+     */
+    bool is_available_for_new_process() const {
+        std::lock_guard<std::mutex> lock(core_mutex);
+        return state.load() == CoreState::IDLE && current_process == nullptr;
+    }
+    
+    /**
      * Verifica se a thread de execução ainda está rodando
      * @return true se a thread está ativa
      */
@@ -60,6 +69,7 @@ public:
      * @return Ponteiro para o PCB ou nullptr se idle
      */
     PCB* get_current_process() const { 
+        std::lock_guard<std::mutex> lock(core_mutex);
         return current_process; 
     }
     

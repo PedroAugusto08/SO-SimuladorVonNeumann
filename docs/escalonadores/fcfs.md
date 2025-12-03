@@ -37,27 +37,60 @@ class FCFSScheduler {
 private:
     std::deque<PCB*> ready_queue;
     std::vector<std::unique_ptr<Core>> cores;
+    std::atomic<int> finished_count{0};
+    std::atomic<int> total_count{0};
     
 public:
     void add_process(PCB* process) {
-        ready_queue.push_back(process);  // Insere no final
+        // Só incrementa total_count para processos NOVOS
+        if (process->arrival_time == 0) {
+            process->arrival_time = cpu_time::now_ns();
+            total_count++;
+        }
+        ready_queue.push_back(process);
     }
     
     void schedule_cycle() {
-        // Atribuir processos a núcleos livres
+        // 1. Coletar processos finalizados
         for (auto& core : cores) {
-            if (core->is_idle() && !ready_queue.empty()) {
-                PCB* next = ready_queue.front();  // Pega do início
+            PCB* process = core->get_current_process();
+            if (process && (core->is_idle() || !core->is_thread_running())) {
+                if (process->state == State::Finished) {
+                    finished_count.fetch_add(1);
+                }
+                core->clear_current_process();
+            }
+        }
+        
+        // 2. Atribuir processos a núcleos DISPONÍVEIS
+        for (auto& core : cores) {
+            // Verificação atômica: idle E sem processo pendente
+            if (core->is_available_for_new_process() && !ready_queue.empty()) {
+                PCB* next = ready_queue.front();
                 ready_queue.pop_front();
                 core->execute_async(next);
             }
         }
-        
-        // Coletar processos terminados
-        collect_finished_processes();
+    }
+    
+    bool all_finished() const {
+        // Verificação eficiente baseada em contadores
+        return finished_count.load() >= total_count.load() && total_count.load() > 0;
     }
 };
 ```
+
+### Detalhes de Implementação (v2.0)
+
+A implementação atual inclui as seguintes otimizações:
+
+1. **Contadores Atômicos**: `finished_count` e `total_count` são `std::atomic<int>` para evitar race conditions.
+
+2. **Verificação de Disponibilidade**: Usa `is_available_for_new_process()` ao invés de apenas `is_idle()` para evitar sobrescrita de processos não coletados.
+
+3. **Coleta Antes de Atribuição**: Processos finalizados são coletados ANTES de atribuir novos, evitando conflitos.
+
+4. **Yield/Sleep**: Reduz busy-wait quando todos os cores estão ocupados.
 
 ## Uso via CLI
 
