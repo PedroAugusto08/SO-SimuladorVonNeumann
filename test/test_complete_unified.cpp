@@ -253,8 +253,8 @@ UnifiedResult run_unified_test(const std::string& policy, int num_cores, int num
         std::chrono::duration<double, std::milli> duration = end - start;
         result.execution_time_ms = duration.count();
         
-        // Sleep APÓS a medição para estabilidade entre iterações
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        // Sleep APÓS medição para estabilidade entre iterações
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         
         // Coletar métricas de cache
         result.cache_hits = memManager->getTotalCacheHits();
@@ -285,8 +285,8 @@ int main() {
     const int QUANTUM = 1000;
     const int MAX_CYCLES = 10000000;
     const std::string TASKS_FILE = "examples/programs/tasks.json";
-    const int ITERATIONS = 3;
-    const int WARMUP_ITERATIONS = 1;
+    const int ITERATIONS = 20;  // Mais iterações para melhor estabilidade estatística
+    const int WARMUP_ITERATIONS = 3;
     
     std::vector<std::string> policies = {"RR", "FCFS", "SJN", "PRIORITY"};
     std::vector<int> core_configs = {1, 2, 4, 6};
@@ -351,7 +351,34 @@ int main() {
                 continue;
             }
             
-            // Calcular médias
+            // Remover outliers usando IQR (Interquartile Range)
+            std::vector<double> times;
+            for (const auto& r : iteration_results) {
+                times.push_back(r.execution_time_ms);
+            }
+            std::sort(times.begin(), times.end());
+            
+            size_t n_orig = times.size();
+            double q1 = times[n_orig / 4];
+            double q3 = times[3 * n_orig / 4];
+            double iqr = q3 - q1;
+            double lower_bound = q1 - 1.5 * iqr;
+            double upper_bound = q3 + 1.5 * iqr;
+            
+            // Filtrar resultados removendo outliers
+            std::vector<UnifiedResult> filtered_results;
+            for (const auto& r : iteration_results) {
+                if (r.execution_time_ms >= lower_bound && r.execution_time_ms <= upper_bound) {
+                    filtered_results.push_back(r);
+                }
+            }
+            
+            // Usar resultados filtrados (ou originais se filtragem removeu demais)
+            if (filtered_results.size() < iteration_results.size() / 2) {
+                filtered_results = iteration_results; // Manter originais se muito filtrado
+            }
+            
+            // Calcular médias dos resultados filtrados
             UnifiedResult final_result;
             final_result.policy = policy;
             final_result.num_cores = num_cores;
@@ -360,7 +387,7 @@ int main() {
             double sum_time = 0, sum_wait = 0, sum_turn = 0, sum_cpu = 0, sum_thr = 0;
             long sum_hits = 0, sum_misses = 0;
             
-            for (const auto& r : iteration_results) {
+            for (const auto& r : filtered_results) {
                 sum_time += r.execution_time_ms;
                 sum_wait += r.avg_wait_time;
                 sum_turn += r.avg_turnaround_time;
@@ -370,7 +397,7 @@ int main() {
                 sum_misses += r.cache_misses;
             }
             
-            int n = iteration_results.size();
+            int n = filtered_results.size();
             final_result.execution_time_ms = sum_time / n;
             final_result.avg_wait_time = sum_wait / n;
             final_result.avg_turnaround_time = sum_turn / n;
@@ -383,9 +410,9 @@ int main() {
             final_result.hit_rate_pct = (total_access > 0) ? 
                 (final_result.cache_hits * 100.0 / total_access) : 0.0;
             
-            // Calcular CV
+            // Calcular CV dos resultados filtrados
             double variance = 0.0;
-            for (const auto& r : iteration_results) {
+            for (const auto& r : filtered_results) {
                 variance += (r.execution_time_ms - final_result.execution_time_ms) * 
                             (r.execution_time_ms - final_result.execution_time_ms);
             }

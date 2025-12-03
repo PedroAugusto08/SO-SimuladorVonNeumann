@@ -166,8 +166,8 @@ TestResult run_test(const std::string& policy, int num_cores, int num_processes,
         execution_time_ms = duration.count();
         result.execution_time_ms = execution_time_ms;
         
-        // Sleep APÓS a medição para estabilidade entre iterações
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        // Sleep APÓS medição para estabilidade entre iterações
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         
     } catch (const std::exception& e) {
         result.execution_time_ms = 0.0;
@@ -184,8 +184,8 @@ int main() {
     const int QUANTUM = 1000;
     const int MAX_CYCLES = 10000000;  // Restaurado para valor original
     const std::string TASKS_FILE = "examples/programs/tasks.json";
-    const int ITERATIONS = 3;
-    const int WARMUP_ITERATIONS = 1;
+    const int ITERATIONS = 20;  // Mais iterações para melhor estabilidade estatística
+    const int WARMUP_ITERATIONS = 3;
     
     std::vector<std::string> policies = {"RR", "FCFS", "SJN", "PRIORITY"};
     std::vector<int> core_configs = {1, 2, 4, 6};
