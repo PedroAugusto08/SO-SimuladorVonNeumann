@@ -4,7 +4,10 @@
 #include <atomic>
 #include <vector>
 #include <deque>
+#include <limits>
 #include "PCB.hpp"
+#include "Constants.hpp"
+#include "TimeUtils.hpp"
 
 /**
  * SchedulerBase - Interface comum para todos os escalonadores
@@ -68,37 +71,50 @@ protected:
         Statistics stats;
         if (finished_processes.empty()) return stats;
 
-        uint64_t total_wait = 0;
-        uint64_t total_turnaround = 0;
-        uint64_t total_response = 0;
+        uint64_t total_wait_ns = 0;
+        uint64_t total_turnaround_ns = 0;
+        uint64_t total_response_ns = 0;
+        uint64_t earliest_arrival = std::numeric_limits<uint64_t>::max();
+        uint64_t latest_finish = 0;
+        uint64_t total_pipeline_cycles = 0;
 
         for (const auto& pcb : finished_processes) {
-            total_wait += pcb->get_wait_time();
-            total_turnaround += pcb->get_turnaround_time();
+            total_wait_ns += pcb->get_wait_time();
+            total_turnaround_ns += pcb->get_turnaround_time();
             // Response time = tempo até primeira execução
-            if (pcb->start_time.load() > 0) {
-                total_response += (pcb->start_time.load() - pcb->arrival_time.load());
+            const uint64_t start_time = pcb->start_time.load();
+            const uint64_t arrival = pcb->arrival_time.load();
+            if (start_time > 0 && start_time >= arrival) {
+                total_response_ns += (start_time - arrival);
             }
+            earliest_arrival = std::min(earliest_arrival, arrival);
+            latest_finish = std::max(latest_finish, pcb->finish_time.load());
+            total_pipeline_cycles += pcb->pipeline_cycles.load();
         }
 
         stats.total_processes = finished_processes.size();
-        stats.avg_wait_time = static_cast<double>(total_wait) / stats.total_processes;
-        stats.avg_turnaround_time = static_cast<double>(total_turnaround) / stats.total_processes;
-        stats.avg_response_time = static_cast<double>(total_response) / stats.total_processes;
-        
-        // Throughput: processos por unidade de tempo
-        uint64_t elapsed_time = total_execution_time - simulation_start_time;
-        if (elapsed_time > 0) {
-            stats.throughput = static_cast<double>(stats.total_processes) / elapsed_time;
+        const double inv_count = 1.0 / stats.total_processes;
+        stats.avg_wait_time = cpu_time::ns_to_ms(static_cast<double>(total_wait_ns) * inv_count);
+        stats.avg_turnaround_time = cpu_time::ns_to_ms(static_cast<double>(total_turnaround_ns) * inv_count);
+        stats.avg_response_time = cpu_time::ns_to_ms(static_cast<double>(total_response_ns) * inv_count);
+        if (earliest_arrival == std::numeric_limits<uint64_t>::max()) {
+            earliest_arrival = simulation_start_time;
         }
         
-        // Utilização da CPU (estimativa)
-        if (elapsed_time > 0) {
-            uint64_t total_cpu_time = 0;
-            for (const auto& pcb : finished_processes) {
-                total_cpu_time += pcb->pipeline_cycles.load();
+        uint64_t span_ns = 0;
+        if (latest_finish > earliest_arrival) {
+            span_ns = latest_finish - earliest_arrival;
+        } else if (total_execution_time > simulation_start_time) {
+            span_ns = total_execution_time - simulation_start_time;
+        }
+        const double elapsed_seconds = cpu_time::ns_to_seconds(span_ns);
+        if (elapsed_seconds > 0.0) {
+            stats.throughput = stats.total_processes / elapsed_seconds;
+            const double busy_seconds = static_cast<double>(total_pipeline_cycles) / CLOCK_FREQ_HZ;
+            const double capacity_seconds = elapsed_seconds * 1.0; // Assumir 1 core se não informado
+            if (capacity_seconds > 0.0) {
+                stats.avg_cpu_utilization = (busy_seconds / capacity_seconds) * 100.0;
             }
-            stats.avg_cpu_utilization = static_cast<double>(total_cpu_time) / elapsed_time;
         }
         
         stats.total_context_switches = context_switches;

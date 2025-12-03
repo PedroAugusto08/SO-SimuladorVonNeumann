@@ -82,11 +82,11 @@ public:
         // Métricas de Escalonamento
         csv << "\n# SCHEDULING_METRICS\n";
         csv << "Avg_Wait_Time," << std::fixed << std::setprecision(2) 
-            << scheduler_stats_.avg_wait_time << ",cycles\n";
+            << scheduler_stats_.avg_wait_time << ",ms\n";
         csv << "Avg_Turnaround_Time," << std::fixed << std::setprecision(2) 
-            << scheduler_stats_.avg_turnaround_time << ",cycles\n";
+            << scheduler_stats_.avg_turnaround_time << ",ms\n";
         csv << "Avg_Response_Time," << std::fixed << std::setprecision(2) 
-            << scheduler_stats_.avg_response_time << ",cycles\n";
+            << scheduler_stats_.avg_response_time << ",ms\n";
         csv << "CPU_Utilization," << std::fixed << std::setprecision(2) 
             << scheduler_stats_.avg_cpu_utilization << ",%\n";
         csv << "Throughput," << std::fixed << std::setprecision(4) 
@@ -164,9 +164,9 @@ public:
         // Métricas de Escalonamento
         report << "═══ MÉTRICAS DE ESCALONAMENTO ═══\n";
         report << std::fixed << std::setprecision(2);
-        report << "  Tempo Médio de Espera:        " << scheduler_stats_.avg_wait_time << " ciclos\n";
-        report << "  Tempo Médio de Turnaround:    " << scheduler_stats_.avg_turnaround_time << " ciclos\n";
-        report << "  Tempo Médio de Resposta:      " << scheduler_stats_.avg_response_time << " ciclos\n";
+        report << "  Tempo Médio de Espera:        " << scheduler_stats_.avg_wait_time << " ms\n";
+        report << "  Tempo Médio de Turnaround:    " << scheduler_stats_.avg_turnaround_time << " ms\n";
+        report << "  Tempo Médio de Resposta:      " << scheduler_stats_.avg_response_time << " ms\n";
         report << "  Utilização da CPU:            " << scheduler_stats_.avg_cpu_utilization << " %\n";
         report << "  Throughput:                   " << std::setprecision(4) 
                << scheduler_stats_.throughput << " proc/ms\n";

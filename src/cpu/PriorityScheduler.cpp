@@ -1,6 +1,8 @@
 #include "PriorityScheduler.hpp"
 #include <iostream>
 #include <chrono>
+#include <limits>
+#include "TimeUtils.hpp"
 
 PriorityScheduler::PriorityScheduler(int num_cores, MemoryManager* memManager, IOManager* ioManager, int quantum)
     : num_cores(num_cores), quantum(quantum), memManager(memManager), ioManager(ioManager), 
@@ -16,9 +18,10 @@ PriorityScheduler::PriorityScheduler(int num_cores, MemoryManager* memManager, I
 
 void PriorityScheduler::add_process(PCB* process) {
     if (process->arrival_time == 0) {
-        process->arrival_time = std::chrono::steady_clock::now().time_since_epoch().count();
+        process->arrival_time = cpu_time::now_ns();
         total_count++;
     }
+    process->enter_ready_queue();
     ready_queue.push_back(process);
     sort_by_priority();
 }
@@ -63,7 +66,7 @@ void PriorityScheduler::schedule_cycle() {
         
         switch (process->state) {
             case State::Finished:
-                process->finish_time = std::chrono::steady_clock::now().time_since_epoch().count();
+                process->finish_time = cpu_time::now_ns();
                 finished_list.push_back(process);
                 finished_count++;
                 std::cout << "[PRIORITY] P" << process->pid 
@@ -77,6 +80,7 @@ void PriorityScheduler::schedule_cycle() {
                 core->clear_current_process();
                 break;
             default:
+                process->enter_ready_queue();
                 ready_queue.push_back(process);
                 sort_by_priority();
                 core->clear_current_process();
@@ -87,6 +91,7 @@ void PriorityScheduler::schedule_cycle() {
     // Desbloqueia processos que terminaram I/O
     for (auto it = blocked_list.begin(); it != blocked_list.end(); ) {
         if ((*it)->state == State::Ready) {
+            (*it)->enter_ready_queue();
             ready_queue.push_back(*it);
             it = blocked_list.erase(it);
         } else {
@@ -102,9 +107,10 @@ void PriorityScheduler::schedule_cycle() {
         if (core->is_idle() && !ready_queue.empty()) {
             PCB* process = ready_queue.front();
             ready_queue.pop_front();
+            process->leave_ready_queue();
             
             if (process->start_time == 0) {
-                process->start_time = std::chrono::steady_clock::now().time_since_epoch().count();
+                process->start_time = cpu_time::now_ns();
             }
             process->assigned_core = core->get_id();
             
@@ -121,13 +127,6 @@ void PriorityScheduler::schedule_cycle() {
         }
     }
     
-    // 🆕 Incrementa tempo de espera A CADA CICLO
-    for (auto* process : ready_queue) {
-        process->total_wait_time++;
-    }
-    for (auto* process : blocked_list) {
-        process->total_wait_time++;
-    }
 }
 
 bool PriorityScheduler::all_finished() const {
@@ -178,6 +177,7 @@ void PriorityScheduler::check_preemption() {
                 
                 // Remove processo de alta prioridade da fila e coloca no core
                 ready_queue.pop_front();
+                highest_priority->leave_ready_queue();
                 core->execute_async(highest_priority);
                 
                 // Reordena já que removemos um processo
@@ -202,6 +202,7 @@ void PriorityScheduler::preempt_process(Core* core, PCB* process) {
     core->wait_completion();
     
     // Coloca processo de volta na fila (será reordenado por prioridade)
+    process->enter_ready_queue();
     ready_queue.push_back(process);
     sort_by_priority();
     
@@ -215,51 +216,64 @@ PriorityScheduler::Statistics PriorityScheduler::get_statistics() const {
     
     if (finished_list.empty()) return s;
     
-    // Somar métricas de todos os processos finalizados
-    uint64_t total_wait = 0;
-    uint64_t total_turnaround = 0;
-    uint64_t total_response = 0;
+    uint64_t total_wait_ns = 0;
+    uint64_t total_turnaround_ns = 0;
+    uint64_t total_response_ns = 0;
+    uint64_t earliest_arrival = std::numeric_limits<uint64_t>::max();
+    uint64_t latest_finish = 0;
+    uint64_t total_pipeline_cycles = 0;
     int total_cs = 0;
-    
+
     for (const auto* pcb : finished_list) {
-        total_wait += pcb->total_wait_time.load();
-        total_turnaround += pcb->get_turnaround_time();
-        total_response += (pcb->start_time.load() - pcb->arrival_time.load());
+        total_wait_ns += pcb->total_wait_time.load();
+        const uint64_t tat = pcb->get_turnaround_time();
+        total_turnaround_ns += tat;
+        const uint64_t start_time = pcb->start_time.load();
+        const uint64_t arrival = pcb->arrival_time.load();
+        if (start_time > 0 && start_time >= arrival) {
+            total_response_ns += (start_time - arrival);
+        }
+        earliest_arrival = std::min(earliest_arrival, arrival);
+        latest_finish = std::max(latest_finish, pcb->finish_time.load());
+        total_pipeline_cycles += pcb->pipeline_cycles.load();
         total_cs += pcb->context_switches.load();
     }
-    
-    s.total_processes = finished_list.size();
-    s.avg_wait_time = total_wait / (double)s.total_processes;
-    s.avg_turnaround_time = total_turnaround / (double)s.total_processes;
-    s.avg_response_time = total_response / (double)s.total_processes;
-    
-    // Calcular utilização da CPU (busy cycles / capacidade total)
-    uint64_t total_busy = 0;
-    for (const auto& core : cores) {
-        total_busy += core->get_busy_cycles();
+
+    if (earliest_arrival == std::numeric_limits<uint64_t>::max()) {
+        earliest_arrival = latest_finish;
     }
-    
-    // Tempo real de simulação: máximo de (busy + idle) entre todos os cores
-    uint64_t sim_cycles = 0;
+
+    s.total_processes = finished_list.size();
+    const double inv_count = 1.0 / s.total_processes;
+    s.avg_wait_time = cpu_time::ns_to_ms(static_cast<double>(total_wait_ns) * inv_count);
+    s.avg_turnaround_time = cpu_time::ns_to_ms(static_cast<double>(total_turnaround_ns) * inv_count);
+    s.avg_response_time = cpu_time::ns_to_ms(static_cast<double>(total_response_ns) * inv_count);
+
+    const uint64_t span_ns = (latest_finish > earliest_arrival)
+        ? (latest_finish - earliest_arrival)
+        : 0;
+    const double elapsed_seconds = cpu_time::ns_to_seconds(span_ns);
+    if (elapsed_seconds > 0.0) {
+        s.throughput = s.total_processes / elapsed_seconds;
+    }
+
+    uint64_t total_busy_cycles = 0;
+    uint64_t total_idle_cycles = 0;
     for (const auto& core : cores) {
-        uint64_t core_cycles = core->get_busy_cycles() + core->get_idle_cycles();
-        if (core_cycles > sim_cycles) {
-            sim_cycles = core_cycles;
+        total_busy_cycles += core->get_busy_cycles();
+        total_idle_cycles += core->get_idle_cycles();
+    }
+    const uint64_t capacity_cycles = total_busy_cycles + total_idle_cycles;
+    if (capacity_cycles > 0) {
+        s.avg_cpu_utilization = (static_cast<double>(total_busy_cycles) / capacity_cycles) * 100.0;
+    } else if (elapsed_seconds > 0.0) {
+        const double busy_seconds = static_cast<double>(total_pipeline_cycles) / CLOCK_FREQ_HZ;
+        const double capacity_seconds = elapsed_seconds * num_cores;
+        if (capacity_seconds > 0.0) {
+            s.avg_cpu_utilization = (busy_seconds / capacity_seconds) * 100.0;
         }
     }
-    
-    if (sim_cycles > 0) {
-        uint64_t total_capacity = sim_cycles * num_cores;
-        s.avg_cpu_utilization = (total_busy * 100.0) / total_capacity;
-    } else {
-        s.avg_cpu_utilization = 0.0;
-    }
-    
-    // Throughput = processos/segundo = 1 / (tempo médio por processo)
-    double avg_turn_cycles = s.avg_turnaround_time;
-    double seconds_per_proc = avg_turn_cycles / CLOCK_FREQ_HZ;
-    double throughput_proc_per_s = (seconds_per_proc > 0.0) ? (1.0 / seconds_per_proc) : 0.0;
-    s.throughput = throughput_proc_per_s;
+
     s.total_context_switches = context_switches;
     
     return s;

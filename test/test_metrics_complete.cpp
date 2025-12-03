@@ -56,8 +56,8 @@ struct MetricsResult {
 MetricsResult print_statistics_rr(const std::string& policy, const RoundRobinScheduler::Statistics& stats) {
     std::cout << "📊 MÉTRICAS - " << policy << ":\n";
     std::cout << std::fixed << std::setprecision(2);
-    std::cout << "  • Tempo Médio de Espera:     " << stats.avg_wait_time << " ciclos\n";
-    std::cout << "  • Tempo Médio de Execução:   " << stats.avg_turnaround_time << " ciclos\n";
+    std::cout << "  • Tempo Médio de Espera:     " << stats.avg_wait_time << " ms\n";
+    std::cout << "  • Tempo Médio de Execução:   " << stats.avg_turnaround_time << " ms\n";
     std::cout << "  • Utilização da CPU:          " << stats.avg_cpu_utilization << " %\n";
     std::cout << "  • Throughput:                 " << stats.throughput << " proc/s\n";
     print_separator();
@@ -71,8 +71,8 @@ template<typename Stats>
 MetricsResult print_statistics(const std::string& policy, const Stats& stats) {
     std::cout << "📊 MÉTRICAS - " << policy << ":\n";
     std::cout << std::fixed << std::setprecision(2);
-    std::cout << "  • Tempo Médio de Espera:     " << stats.avg_wait_time << " ciclos\n";
-    std::cout << "  • Tempo Médio de Execução:   " << stats.avg_turnaround_time << " ciclos\n";
+    std::cout << "  • Tempo Médio de Espera:     " << stats.avg_wait_time << " ms\n";
+    std::cout << "  • Tempo Médio de Execução:   " << stats.avg_turnaround_time << " ms\n";
     std::cout << "  • Utilização da CPU:          " << stats.avg_cpu_utilization << " %\n";
     std::cout << "  • Throughput:                 " << stats.throughput << " proc/s\n";
     print_separator();
@@ -127,7 +127,6 @@ MetricsResult test_scheduler(const std::string& name, Scheduler& scheduler,
         // Ciclos extras para finalização completa
         for (int i = 0; i < 50; i++) {
             scheduler.schedule_cycle();
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
         
         // Registrar estado final
@@ -145,7 +144,6 @@ MetricsResult test_scheduler(const std::string& name, Scheduler& scheduler,
         while (!scheduler.all_finished() && cycles < max_cycles) {
             scheduler.schedule_cycle();
             cycles++;
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
             
             // Registrar uso de memória a cada 50 ciclos
             if (cycles % 50 == 0) {
@@ -161,7 +159,6 @@ MetricsResult test_scheduler(const std::string& name, Scheduler& scheduler,
         // Ciclos extras para garantir coleta completa de todos os processos
         for (int i = 0; i < 200; i++) {
             scheduler.schedule_cycle();
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
             
             // Registrar a cada 10 ciclos extras
             if (i % 10 == 0) {
@@ -174,11 +171,8 @@ MetricsResult test_scheduler(const std::string& name, Scheduler& scheduler,
             }
         }
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        
         for (int i = 0; i < 50; i++) {
             scheduler.schedule_cycle();
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
         
         // Registrar estado final
@@ -317,7 +311,7 @@ int main() {
     // Salvar resultados em CSV
     std::ofstream csv("logs/metrics/detailed_metrics.csv");
     if (csv.is_open()) {
-        csv << "Policy,Avg_Wait_Time,Avg_Execution_Time,CPU_Utilization,Throughput,Efficiency\n";
+        csv << "Policy,Avg_Wait_Time_ms,Avg_Execution_Time_ms,CPU_Utilization,Throughput_proc_per_s,Efficiency\n";
         for (const auto& r : results) {
             double efficiency = (r.avg_cpu_utilization / 100.0) * r.throughput;
             csv << r.policy << ","
@@ -357,8 +351,8 @@ int main() {
             report << "Política: " << r.policy << "\n";
             report << std::string(60, '-') << "\n";
             report << std::fixed << std::setprecision(2);
-            report << "  • Tempo Médio de Espera:      " << r.avg_wait_time << " ciclos\n";
-            report << "  • Tempo Médio de Execução:    " << r.avg_turnaround_time << " ciclos\n";
+            report << "  • Tempo Médio de Espera:      " << r.avg_wait_time << " ms\n";
+            report << "  • Tempo Médio de Execução:    " << r.avg_turnaround_time << " ms\n";
             report << "  • Utilização da CPU:          " << r.avg_cpu_utilization << " %\n";
             report << "  • Throughput:                 " << std::setprecision(2) << r.throughput << " proc/s\n";
             report << "  • Eficiência:                 " << (r.avg_cpu_utilization / 100.0) * r.throughput << " proc/s efetivos\n\n";
@@ -376,10 +370,10 @@ int main() {
         auto max_throughput = *std::max_element(results.begin(), results.end(),
             [](const auto& a, const auto& b) { return a.throughput < b.throughput; });
         
-        report << "  🏆 Melhor Tempo de Espera:     " << min_wait.policy 
-               << " (" << std::fixed << std::setprecision(2) << min_wait.avg_wait_time << " ciclos)\n";
-        report << "  🏆 Melhor Tempo de Execução:   " << min_exec.policy
-               << " (" << std::fixed << std::setprecision(2) << min_exec.avg_turnaround_time << " ciclos)\n";
+         report << "  🏆 Melhor Tempo de Espera:     " << min_wait.policy 
+             << " (" << std::fixed << std::setprecision(2) << min_wait.avg_wait_time << " ms)\n";
+         report << "  🏆 Melhor Tempo de Execução:   " << min_exec.policy
+             << " (" << std::fixed << std::setprecision(2) << min_exec.avg_turnaround_time << " ms)\n";
         report << "  🏆 Melhor Utilização de CPU:   " << max_cpu.policy
                << " (" << std::fixed << std::setprecision(2) << max_cpu.avg_cpu_utilization << " %)\n";
         report << "  🏆 Maior Throughput:            " << max_throughput.policy

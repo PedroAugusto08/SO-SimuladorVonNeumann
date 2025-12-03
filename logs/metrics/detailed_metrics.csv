@@ -1,6 +1,6 @@
-Policy,Avg_Wait_Time,Avg_Execution_Time,CPU_Utilization,Throughput,Efficiency
-FCFS (First Come First Served),1.00,4202389.75,70.02,237.96,166.61
-SJN (Shortest Job Next),1.50,5718160.50,70.02,174.88,122.45
-Round Robin (Preemptivo),70.00,8695534.25,69.94,115.00,80.43
-PRIORITY (Não-Preemptivo),1.00,4183708.50,70.02,239.02,167.36
-PRIORITY PREEMPTIVO (por Prioridade),1.50,5580312.25,70.02,179.20,125.47
+Policy,Avg_Wait_Time_ms,Avg_Execution_Time_ms,CPU_Utilization,Throughput_proc_per_s,Efficiency
+FCFS (First Come First Served),0.42,1.18,54.32,2514.22,1365.70
+SJN (Shortest Job Next),0.23,0.98,22.92,1735.99,397.80
+Round Robin (Preemptivo),0.85,2.34,35.18,1014.55,356.90
+PRIORITY (Não-Preemptivo),0.40,1.43,6.43,1490.61,95.86
+PRIORITY PREEMPTIVO (por Prioridade),0.75,2.06,52.50,1438.26,755.02

@@ -11,6 +11,7 @@
 #include <cstdint>
 #include "memory/cache.hpp"
 #include "REGISTER_BANK.hpp" // necessidade de objeto completo dentro do PCB
+#include "TimeUtils.hpp"
 
 
 // Estados possíveis do processo (simplificado)
@@ -59,10 +60,11 @@ struct PCB {
     std::atomic<uint64_t> arrival_time{0};      // Quando entrou no sistema
     std::atomic<uint64_t> start_time{0};        // Primeira execução
     std::atomic<uint64_t> finish_time{0};       // Quando terminou
-    std::atomic<uint64_t> total_wait_time{0};   // Tempo total em espera
+    std::atomic<uint64_t> total_wait_time{0};   // Tempo total em espera (ns)
     std::atomic<uint64_t> context_switches{0};  // Número de trocas de contexto
     std::atomic<int> assigned_core{-1};         // Núcleo atual (-1 = nenhum)
     std::atomic<int> last_core{-1};             // Último núcleo usado
+    std::atomic<uint64_t> ready_queue_enter_time{0}; // Timestamp de entrada na fila ready
 
     // Informações do programa carregado
     uint32_t program_start_addr = 0;             // Endereço de início do programa
@@ -80,6 +82,21 @@ struct PCB {
     
     uint64_t get_wait_time() const {
         return total_wait_time.load();
+    }
+
+    void enter_ready_queue() {
+        ready_queue_enter_time.store(cpu_time::now_ns(), std::memory_order_relaxed);
+    }
+
+    void leave_ready_queue() {
+        const uint64_t start = ready_queue_enter_time.exchange(0, std::memory_order_relaxed);
+        if (start == 0) {
+            return;
+        }
+        const uint64_t end = cpu_time::now_ns();
+        if (end > start) {
+            total_wait_time.fetch_add(end - start, std::memory_order_relaxed);
+        }
     }
     
     double get_cache_hit_rate() const {

@@ -13,10 +13,10 @@ struct ProcessMetrics {
     int pid;
     int priority;
     
-    // Tempos
-    uint64_t start_time;      // Ciclo de início
-    uint64_t end_time;        // Ciclo de término
-    uint64_t wait_time;       // Ciclos esperando na fila
+    // Tempos (nanosegundos desde epoch do steady_clock)
+    uint64_t start_time;      // Instante da primeira execução
+    uint64_t end_time;        // Instante de término
+    uint64_t wait_time;       // Tempo acumulado na fila ready
     
     // Instruções
     uint64_t instructions_executed;
@@ -45,11 +45,15 @@ struct ProcessMetrics {
 struct CoreMetrics {
     int core_id;
     uint64_t instructions_executed;
-    uint64_t cycles_busy;
-    uint64_t cycles_idle;
+    uint64_t cycles_busy;   // ciclos de pipeline contabilizados
+    uint64_t cycles_idle;   // ciclos equivalentes que o núcleo permaneceu ocioso
     
-    double utilization() {
-        return (double)cycles_busy / (cycles_busy + cycles_idle) * 100;
+    double utilization(double elapsed_seconds, int total_cores) {
+        const double busy_seconds = cycles_busy / CLOCK_FREQ_HZ;
+        const double capacity_seconds = elapsed_seconds * total_cores;
+        return (capacity_seconds > 0.0)
+            ? (busy_seconds / capacity_seconds) * 100.0
+            : 0.0;
     }
 };
 ```
@@ -90,15 +94,15 @@ Tempo que o processo ficou na fila de prontos.
 
 ### Throughput
 
-$$Throughput = \frac{Instruções}{Ciclos}$$
+$$Throughput = \frac{Processos\ Concluídos}{T_{fim\ geral} - T_{início\ geral}}$$
 
-Taxa de instruções por ciclo.
+Taxa de conclusão de processos por segundo (tempo real medido com `steady_clock`).
 
 ### Utilização de CPU
 
-$$U_{cpu} = \frac{Ciclos_{busy}}{Ciclos_{total}} \times 100\%$$
+$$U_{cpu} = \frac{Ciclos_{busy} / f_{clock}}{N_{cores} \times (T_{fim} - T_{início})} \times 100\%$$
 
-Percentual de tempo que o núcleo estava executando.
+Percentual do tempo disponível (considerando todos os núcleos) que foi efetivamente usado para executar instruções.
 
 ### Cache Hit Rate
 

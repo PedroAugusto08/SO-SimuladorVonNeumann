@@ -3,6 +3,7 @@
 #include "../memory/MemoryManager.hpp"
 #include "PCB.hpp"
 #include "../IO/IOManager.hpp"
+#include "TimeUtils.hpp"
 #include <iostream>
 #include <chrono>
 
@@ -45,8 +46,7 @@ void Core::execute_async(PCB* process) {
     
     // Registra tempo de início se for a primeira execução
     if (process->start_time == 0) {
-        process->start_time = std::chrono::steady_clock::now()
-                                 .time_since_epoch().count();
+        process->start_time = cpu_time::now_ns();
     }
     
     // Marca núcleo como ocupado
@@ -137,8 +137,7 @@ void Core::run_process(PCB* process) {
     // Determina o estado final do processo
     if (context.endProgram) {
         process->state = State::Finished;
-        process->finish_time = std::chrono::steady_clock::now()
-                                  .time_since_epoch().count();
+        process->finish_time = cpu_time::now_ns();
         
         std::cout << "[Core " << core_id << "] P" << process->pid 
                   << " FINALIZADO (total: " << process->pipeline_cycles.load() 

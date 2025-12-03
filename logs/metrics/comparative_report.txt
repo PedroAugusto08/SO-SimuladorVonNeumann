@@ -1,0 +1,65 @@
+╔════════════════════════════════════════════════════════════════════╗
+║    RELATÓRIO COMPARATIVO - POLÍTICAS DE ESCALONAMENTO            ║
+╚════════════════════════════════════════════════════════════════════╝
+
+Configuração do Teste:
+  • Núcleos: 2
+  • Processos: 4
+  • Quantum (RR): 1000 ciclos
+  • Políticas testadas: FCFS, SJN, RR, PRIORITY, PRIORITY_PREEMPT
+
+═══════════════════════════════════════════════════════════════════
+
+Política: FCFS (First Come First Served)
+------------------------------------------------------------
+  • Tempo Médio de Espera:      0.42 ms
+  • Tempo Médio de Execução:    1.18 ms
+  • Utilização da CPU:          54.32 %
+  • Throughput:                 2514.22 proc/s
+  • Eficiência:                 1365.70 proc/s efetivos
+
+Política: SJN (Shortest Job Next)
+------------------------------------------------------------
+  • Tempo Médio de Espera:      0.23 ms
+  • Tempo Médio de Execução:    0.98 ms
+  • Utilização da CPU:          22.92 %
+  • Throughput:                 1735.99 proc/s
+  • Eficiência:                 397.80 proc/s efetivos
+
+Política: Round Robin (Preemptivo)
+------------------------------------------------------------
+  • Tempo Médio de Espera:      0.85 ms
+  • Tempo Médio de Execução:    2.34 ms
+  • Utilização da CPU:          35.18 %
+  • Throughput:                 1014.55 proc/s
+  • Eficiência:                 356.90 proc/s efetivos
+
+Política: PRIORITY (Não-Preemptivo)
+------------------------------------------------------------
+  • Tempo Médio de Espera:      0.40 ms
+  • Tempo Médio de Execução:    1.43 ms
+  • Utilização da CPU:          6.43 %
+  • Throughput:                 1490.61 proc/s
+  • Eficiência:                 95.86 proc/s efetivos
+
+Política: PRIORITY PREEMPTIVO (por Prioridade)
+------------------------------------------------------------
+  • Tempo Médio de Espera:      0.75 ms
+  • Tempo Médio de Execução:    2.06 ms
+  • Utilização da CPU:          52.50 %
+  • Throughput:                 1438.26 proc/s
+  • Eficiência:                 755.02 proc/s efetivos
+
+═══════════════════════════════════════════════════════════════════
+
+RESUMO COMPARATIVO:
+
+  🏆 Melhor Tempo de Espera:     SJN (Shortest Job Next) (0.23 ms)
+  🏆 Melhor Tempo de Execução:   SJN (Shortest Job Next) (0.98 ms)
+  🏆 Melhor Utilização de CPU:   FCFS (First Come First Served) (54.32 %)
+  🏆 Maior Throughput:            FCFS (First Come First Served) (2514.22 proc/s)
+
+═══════════════════════════════════════════════════════════════════
+Relatório gerado: logs/metrics/comparative_report.txt
+Dados CSV: logs/metrics/detailed_metrics.csv
+═══════════════════════════════════════════════════════════════════

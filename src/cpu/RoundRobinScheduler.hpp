@@ -75,7 +75,7 @@ private:
     void assign_process_to_core(PCB* process, Core* core);
     void collect_finished_processes();
     void handle_blocked_processes();
-    void update_wait_times();
+    void enqueue_ready_process(PCB* process);
 };
 
 #endif // ROUND_ROBIN_SCHEDULER_HPP
