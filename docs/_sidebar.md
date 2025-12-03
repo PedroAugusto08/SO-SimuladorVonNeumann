@@ -31,4 +31,5 @@
   * [FAQ](referencias/faq.md)
   * [Checklist](referencias/checklist.md)
   * [Histórico de Bugs](referencias/historico-bugs.md)
+  * [Análise de Otimizações](referencias/analise-otimizacoes.md)
   * [Changelog](referencias/CHANGELOG.md)
