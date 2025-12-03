@@ -18,6 +18,7 @@ TARGET_CPU_METRICS := $(BIN_DIR)/test_cpu_metrics
 TARGET_DEEP_INSPECT := $(BIN_DIR)/test_deep_inspection
 TARGET_RACE_DEBUG := $(BIN_DIR)/test_race_debug
 TARGET_VERIFY_EXEC := $(BIN_DIR)/test_verify_execution
+TARGET_SINGLE_CORE := $(BIN_DIR)/test_single_core_no_threads
 
 # Fontes principais
 SRC := src/teste.cpp src/cpu/ULA.cpp
@@ -106,6 +107,21 @@ SRC_COMPARATIVE := test/test_multicore_comparative.cpp \
 				   src/memory/SECONDARY_MEMORY.cpp \
 				   src/parser_json/parser_json.cpp
 OBJ_COMPARATIVE := $(SRC_COMPARATIVE:.cpp=.o)
+
+	# Fontes para teste single-core sem threads
+	SRC_SINGLE_CORE := test/test_single_core_no_threads.cpp \
+				  src/cpu/CONTROL_UNIT.cpp \
+				  src/cpu/pcb_loader.cpp \
+				  src/cpu/REGISTER_BANK.cpp \
+				  src/cpu/ULA.cpp \
+				  src/memory/cache.cpp \
+				  src/memory/cachePolicy.cpp \
+				  src/memory/MAIN_MEMORY.cpp \
+				  src/memory/MemoryManager.cpp \
+				  src/memory/SECONDARY_MEMORY.cpp \
+				  src/parser_json/parser_json.cpp \
+				  src/IO/IOManager.cpp
+	OBJ_SINGLE_CORE := $(SRC_SINGLE_CORE:.cpp=.o)
 
 # Fontes para teste de preempção
 SRC_PREEMPT := test/test_preemption.cpp \
@@ -263,12 +279,18 @@ $(TARGET_VERIFY_EXEC): $(OBJ_VERIFY_EXEC)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_VERIFY_EXEC) $(LDFLAGS)
 	@echo "✓ Teste de verificação de execução compilado!"
 
+# Regra para teste single-core sem threads
+$(TARGET_SINGLE_CORE): $(OBJ_SINGLE_CORE)
+	mkdir -p $(BIN_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_SINGLE_CORE) $(LDFLAGS)
+	@echo "✓ Teste single-core (sem threads) compilado!"
+
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	@echo "🧹 Limpando arquivos antigos..."
-	@rm -f $(OBJ) $(OBJ_HASH) $(OBJ_SIM) $(OBJ_MULTICORE) $(OBJ_THROUGHPUT) $(OBJ_COMPARATIVE) $(OBJ_PREEMPT) $(OBJ_METRICS) $(OBJ_CPU_METRICS) $(OBJ_DEEP_INSPECT) $(OBJ_RACE_DEBUG) $(OBJ_VERIFY_EXEC) test_multicore.o
+	@rm -f $(OBJ) $(OBJ_HASH) $(OBJ_SIM) $(OBJ_MULTICORE) $(OBJ_THROUGHPUT) $(OBJ_COMPARATIVE) $(OBJ_PREEMPT) $(OBJ_METRICS) $(OBJ_CPU_METRICS) $(OBJ_DEEP_INSPECT) $(OBJ_RACE_DEBUG) $(OBJ_VERIFY_EXEC) $(OBJ_SINGLE_CORE) test_multicore.o
 	@rm -f $(BIN_DIR)/*
 
 run:
@@ -335,10 +357,15 @@ test-verify-execution: $(TARGET_VERIFY_EXEC)
 	@echo "🧪 Executando teste de verificação de execução..."
 	@./$(TARGET_VERIFY_EXEC)
 
+# Teste single-core sem threads
+test-single-core: $(TARGET_SINGLE_CORE)
+	@echo "🧪 Executando teste single-core (sem threads)..."
+	@./$(TARGET_SINGLE_CORE)
+
 # Executa TODOS os testes disponíveis em sequência
 test-all: $(TARGET_HASH) $(TARGET_BANK) $(TARGET_MULTICORE) $(TARGET_THROUGHPUT) $(TARGET_COMPARATIVE) \
-		  $(TARGET_PREEMPT) $(TARGET_METRICS) $(TARGET_CPU_METRICS) \
-		  $(TARGET_DEEP_INSPECT) $(TARGET_RACE_DEBUG) $(TARGET_VERIFY_EXEC)
+	  $(TARGET_PREEMPT) $(TARGET_METRICS) $(TARGET_CPU_METRICS) \
+	  $(TARGET_DEEP_INSPECT) $(TARGET_RACE_DEBUG) $(TARGET_VERIFY_EXEC) $(TARGET_SINGLE_CORE)
 	@echo "╔════════════════════════════════════════════════════════════╗"
 	@echo "║  🧪 EXECUTANDO BATERIA COMPLETA DE TESTES                 ║"
 	@echo "╚════════════════════════════════════════════════════════════╝"
@@ -376,6 +403,9 @@ test-all: $(TARGET_HASH) $(TARGET_BANK) $(TARGET_MULTICORE) $(TARGET_THROUGHPUT)
 	@echo ""
 	@echo "┌─ [12/12] Verify Execution Test ─────────────────────────────┐"
 	@./$(TARGET_VERIFY_EXEC) || true
+	@echo ""
+	@echo "┌─ [13/13] Single-Core Serial Test ───────────────────────────┐"
+	@./$(TARGET_SINGLE_CORE) || true
 	@echo ""
 	@echo "╔════════════════════════════════════════════════════════════╗"
 	@echo "║  ✅ BATERIA DE TESTES CONCLUÍDA                           ║"
