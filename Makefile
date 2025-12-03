@@ -19,6 +19,7 @@ TARGET_DEEP_INSPECT := $(BIN_DIR)/test_deep_inspection
 TARGET_RACE_DEBUG := $(BIN_DIR)/test_race_debug
 TARGET_VERIFY_EXEC := $(BIN_DIR)/test_verify_execution
 TARGET_SINGLE_CORE := $(BIN_DIR)/test_single_core_no_threads
+TARGET_UNIFIED := $(BIN_DIR)/test_complete_unified
 
 # Fontes principais
 SRC := src/teste.cpp src/cpu/ULA.cpp
@@ -193,6 +194,10 @@ OBJ_RACE_DEBUG := $(SRC_RACE_DEBUG:.cpp=.o)
 SRC_VERIFY_EXEC := test/test_verify_execution.cpp $(BASE_TEST_SRC)
 OBJ_VERIFY_EXEC := $(SRC_VERIFY_EXEC:.cpp=.o)
 
+# Fontes para teste unificado completo (multicore + métricas + cache)
+SRC_UNIFIED := test/test_complete_unified.cpp $(BASE_TEST_SRC)
+OBJ_UNIFIED := $(SRC_UNIFIED:.cpp=.o)
+
 # Make clean -> make -> make run
 all: clean $(TARGET_SIM)
 
@@ -285,6 +290,12 @@ $(TARGET_SINGLE_CORE): $(OBJ_SINGLE_CORE)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_SINGLE_CORE) $(LDFLAGS)
 	@echo "✓ Teste single-core (sem threads) compilado!"
 
+# Regra para teste unificado completo (multicore + métricas + cache)
+$(TARGET_UNIFIED): $(OBJ_UNIFIED)
+	mkdir -p $(BIN_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_UNIFIED) $(LDFLAGS)
+	@echo "✓ Teste unificado completo compilado!"
+
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
@@ -361,6 +372,14 @@ test-verify-execution: $(TARGET_VERIFY_EXEC)
 test-single-core: $(TARGET_SINGLE_CORE)
 	@echo "🧪 Executando teste single-core (sem threads)..."
 	@./$(TARGET_SINGLE_CORE)
+
+# Teste unificado completo (RECOMENDADO PARA GUI)
+test-unified: $(TARGET_UNIFIED)
+	@echo "🎯 Executando teste unificado completo (multicore + métricas + cache)..."
+	@./$(TARGET_UNIFIED)
+
+# Alias para teste completo
+test-complete: test-unified
 
 # Executa TODOS os testes disponíveis em sequência
 test-all: $(TARGET_HASH) $(TARGET_BANK) $(TARGET_MULTICORE) $(TARGET_THROUGHPUT) $(TARGET_COMPARATIVE) \
