@@ -7,6 +7,8 @@ Gera visualizações dos dados de escalonadores e métricas.
 import matplotlib
 matplotlib.use('Agg')  # Backend sem GUI
 
+from pathlib import Path
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,6 +20,12 @@ plt.rcParams['font.size'] = 11
 plt.rcParams['axes.titlesize'] = 14
 plt.rcParams['axes.labelsize'] = 12
 
+# Caminhos base
+BASE_DIR = Path(__file__).parent
+CSV_DIR = BASE_DIR / 'csv'
+PLOTS_DIR = BASE_DIR / 'plots'
+PLOTS_DIR.mkdir(parents=True, exist_ok=True)
+
 # Cores para cada política
 CORES_POLITICAS = {
     'RR': '#2ecc71',           # Verde
@@ -28,8 +36,8 @@ CORES_POLITICAS = {
 
 def carregar_dados():
     """Carrega todos os CSVs disponíveis"""
-    multicore = pd.read_csv('escalonadores_multicore.csv')
-    metricas = pd.read_csv('metricas_escalonadores.csv')
+    multicore = pd.read_csv(CSV_DIR / 'escalonadores_multicore.csv')
+    metricas = pd.read_csv(CSV_DIR / 'metricas_escalonadores.csv')
     return multicore, metricas
 
 def grafico1_tempo_execucao_multicore(df):
@@ -79,9 +87,9 @@ def grafico1_tempo_execucao_multicore(df):
                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
     
     plt.tight_layout()
-    plt.savefig('grafico1_tempo_multicore.png', dpi=150, bbox_inches='tight')
-    plt.savefig('grafico1_tempo_multicore.pdf', bbox_inches='tight')
-    print('✅ Gráfico 1 salvo: grafico1_tempo_multicore.png/pdf')
+    plt.savefig(PLOTS_DIR / 'grafico1_tempo_multicore.png', dpi=150, bbox_inches='tight')
+    plt.savefig(PLOTS_DIR / 'grafico1_tempo_multicore.pdf', bbox_inches='tight')
+    print('✅ Gráfico 1 salvo: plots/grafico1_tempo_multicore.png/pdf')
     plt.close()
 
 def grafico2_eficiencia_escalabilidade(df):
@@ -141,9 +149,9 @@ def grafico2_eficiencia_escalabilidade(df):
     ax2.set_xticks(cores)
     
     plt.tight_layout()
-    plt.savefig('grafico2_speedup_eficiencia.png', dpi=150, bbox_inches='tight')
-    plt.savefig('grafico2_speedup_eficiencia.pdf', bbox_inches='tight')
-    print('✅ Gráfico 2 salvo: grafico2_speedup_eficiencia.png/pdf')
+    plt.savefig(PLOTS_DIR / 'grafico2_speedup_eficiencia.png', dpi=150, bbox_inches='tight')
+    plt.savefig(PLOTS_DIR / 'grafico2_speedup_eficiencia.pdf', bbox_inches='tight')
+    print('✅ Gráfico 2 salvo: plots/grafico2_speedup_eficiencia.png/pdf')
     plt.close()
 
 
@@ -196,9 +204,9 @@ def grafico2b_eficiencia_por_cores(df):
                  fontweight='bold', fontsize=14, y=1.02)
     
     plt.tight_layout()
-    plt.savefig('grafico2b_eficiencia_por_cores.png', dpi=150, bbox_inches='tight')
-    plt.savefig('grafico2b_eficiencia_por_cores.pdf', bbox_inches='tight')
-    print('✅ Gráfico 2b salvo: grafico2b_eficiencia_por_cores.png/pdf')
+    plt.savefig(PLOTS_DIR / 'grafico2b_eficiencia_por_cores.png', dpi=150, bbox_inches='tight')
+    plt.savefig(PLOTS_DIR / 'grafico2b_eficiencia_por_cores.pdf', bbox_inches='tight')
+    print('✅ Gráfico 2b salvo: plots/grafico2b_eficiencia_por_cores.png/pdf')
     plt.close()
 
 def grafico3_metricas_comparativas(df_metricas):
@@ -271,9 +279,9 @@ def grafico3_metricas_comparativas(df_metricas):
     bars3[min_idx].set_linewidth(3)
     
     plt.tight_layout()
-    plt.savefig('grafico3_metricas_comparativas.png', dpi=150, bbox_inches='tight')
-    plt.savefig('grafico3_metricas_comparativas.pdf', bbox_inches='tight')
-    print('✅ Gráfico 3 salvo: grafico3_metricas_comparativas.png/pdf')
+    plt.savefig(PLOTS_DIR / 'grafico3_metricas_comparativas.png', dpi=150, bbox_inches='tight')
+    plt.savefig(PLOTS_DIR / 'grafico3_metricas_comparativas.pdf', bbox_inches='tight')
+    print('✅ Gráfico 3 salvo: plots/grafico3_metricas_comparativas.png/pdf')
     plt.close()
 
 
@@ -314,9 +322,9 @@ def grafico4_heatmap_tempo(df):
     ax.set_ylabel('Política de Escalonamento', fontweight='bold')
     
     plt.tight_layout()
-    plt.savefig('grafico4_heatmap_tempo.png', dpi=150, bbox_inches='tight')
-    plt.savefig('grafico4_heatmap_tempo.pdf', bbox_inches='tight')
-    print('✅ Gráfico 4 salvo: grafico4_heatmap_tempo.png/pdf')
+    plt.savefig(PLOTS_DIR / 'grafico4_heatmap_tempo.png', dpi=150, bbox_inches='tight')
+    plt.savefig(PLOTS_DIR / 'grafico4_heatmap_tempo.pdf', bbox_inches='tight')
+    print('✅ Gráfico 4 salvo: plots/grafico4_heatmap_tempo.png/pdf')
     plt.close()
 
 
@@ -379,9 +387,9 @@ def grafico5_radar_metricas(df_metricas):
     ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.0), fontsize=10)
     
     plt.tight_layout()
-    plt.savefig('grafico5_radar_metricas.png', dpi=150, bbox_inches='tight')
-    plt.savefig('grafico5_radar_metricas.pdf', bbox_inches='tight')
-    print('✅ Gráfico 5 salvo: grafico5_radar_metricas.png/pdf')
+    plt.savefig(PLOTS_DIR / 'grafico5_radar_metricas.png', dpi=150, bbox_inches='tight')
+    plt.savefig(PLOTS_DIR / 'grafico5_radar_metricas.pdf', bbox_inches='tight')
+    print('✅ Gráfico 5 salvo: plots/grafico5_radar_metricas.png/pdf')
     plt.close()
 
 
@@ -430,9 +438,9 @@ def grafico6_confiabilidade_cv(df):
     ax.grid(True, axis='y', linestyle='--', alpha=0.5)
     
     plt.tight_layout()
-    plt.savefig('grafico6_confiabilidade_cv.png', dpi=150, bbox_inches='tight')
-    plt.savefig('grafico6_confiabilidade_cv.pdf', bbox_inches='tight')
-    print('✅ Gráfico 6 salvo: grafico6_confiabilidade_cv.png/pdf')
+    plt.savefig(PLOTS_DIR / 'grafico6_confiabilidade_cv.png', dpi=150, bbox_inches='tight')
+    plt.savefig(PLOTS_DIR / 'grafico6_confiabilidade_cv.pdf', bbox_inches='tight')
+    print('✅ Gráfico 6 salvo: plots/grafico6_confiabilidade_cv.png/pdf')
     plt.close()
 
 
@@ -467,13 +475,13 @@ def main():
     print('=' * 60)
     print()
     print('📁 Arquivos gerados:')
-    print('   • grafico1_tempo_multicore.png/pdf')
-    print('   • grafico2_speedup_eficiencia.png/pdf (linhas)')
-    print('   • grafico2b_eficiencia_por_cores.png/pdf (barras)')
-    print('   • grafico3_metricas_comparativas.png/pdf')
-    print('   • grafico4_heatmap_tempo.png/pdf')
-    print('   • grafico5_radar_metricas.png/pdf')
-    print('   • grafico6_confiabilidade_cv.png/pdf')
+    print('   • plots/grafico1_tempo_multicore.png/pdf')
+    print('   • plots/grafico2_speedup_eficiencia.png/pdf (linhas)')
+    print('   • plots/grafico2b_eficiencia_por_cores.png/pdf (barras)')
+    print('   • plots/grafico3_metricas_comparativas.png/pdf')
+    print('   • plots/grafico4_heatmap_tempo.png/pdf')
+    print('   • plots/grafico5_radar_metricas.png/pdf')
+    print('   • plots/grafico6_confiabilidade_cv.png/pdf')
     print()
 
 if __name__ == '__main__':

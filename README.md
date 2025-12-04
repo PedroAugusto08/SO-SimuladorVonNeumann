@@ -969,14 +969,8 @@ if (processo_precisa_io) {
 
 ##### **Exemplos Práticos**
 ```bash
-# Teste de escalabilidade (1→8 núcleos)
-make test-multicore
-
-# Comparação de políticas
-make test-multicore-comparative
-
-# Teste de throughput confiável
-make test-throughput
+# Geração completa de métricas/cache para a GUI
+make test-unified
 
 # Simulação customizada
 ./bin/simulador --cores 4 --policy PRIORITY \
@@ -986,23 +980,19 @@ make test-throughput
 
 #### 7. **Sistema de Testes Automatizado**
 
-##### **12 Testes Implementados**
+##### **8 Testes Implementados**
 1. `test-hash` - Sistema de registradores MIPS
 2. `test-bank` - Banco de registradores
-3. `test-multicore` - Escalabilidade (1,2,4,8 cores)
-4. `test-throughput` - Medição confiável de throughput
-5. `test-multicore-comparative` - Comparação de políticas
-6. `test-preemption` - Preempção por quantum
-7. `test-metrics-complete` - Métricas completas
-8. `test-cpu-metrics` - Métricas de CPU
-9. `test-priority-preemptive` - Escalonamento por prioridade
-10. `test-deep-inspection` - Inspeção profunda
-11. `test-race-debug` - Debug de race conditions
-12. `test-verify-execution` - Verificação de execução
+3. `test-preemption` - Preempção por quantum
+4. `test-cpu-metrics` - Métricas de CPU
+5. `test-deep-inspection` - Inspeção profunda
+6. `test-race-debug` - Debug de race conditions
+7. `test-single-core` - Execução serial sem threads
+8. `test-unified` - Geração completa de métricas/cache/relatórios
 
 ##### **Bateria Completa**
 ```bash
-make test-all  # Executa todos os 12 testes em sequência
+make test-all  # Executa todos os 8 testes em sequência
 ```
 
 #### 8. **Otimizações e Organização**

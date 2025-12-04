@@ -188,97 +188,31 @@ Iniciando escalonador...
 
 ---
 
-## 🔬 Testando Escalabilidade Multicore
+## 🔬 Testando Escalabilidade + Métricas + Cache (Fluxo Único)
 
-### Teste de Escalabilidade (1→8 núcleos)
-
-```bash
-make test-multicore
-```
-
-**O que faz:**
-- Executa o mesmo workload com 1, 2, 4 e 8 núcleos
-- Mede tempo de execução em cada configuração
-- Calcula speedup e eficiência
-- Gera `logs/multicore/multicore_results.csv`
-
-**Saída esperada:**
-```
-🧪 Executando teste de escalabilidade multicore...
-
-=== Teste com 1 núcleo ===
-Tempo: 2500ms
-Processos finalizados: 4
-
-=== Teste com 2 núcleos ===
-Tempo: 1282ms
-Speedup: 1.95x
-Eficiência: 97.5%
-
-=== Teste com 4 núcleos ===
-Tempo: 661ms
-Speedup: 3.78x
-Eficiência: 94.5%
-
-=== Teste com 8 núcleos ===
-Tempo: 389ms
-Speedup: 6.42x
-Eficiência: 80.2%
-
-✅ Resultados salvos em: logs/multicore/multicore_results.csv
-```
-
----
-
-### Teste Comparativo de Políticas
+Todos os testes legados (`test-multicore`, `test-multicore-comparative`, `test-throughput`, `test-metrics-complete` e afins) foram consolidados em **um único comando**:
 
 ```bash
-make test-multicore-comparative
+make test-unified
 ```
 
-**O que faz:**
-- Executa as 4 políticas com mesma carga
-- Compara métricas entre políticas
-- Gera relatório comparativo
+**O que ele entrega:**
+- Executa RR, FCFS, SJN e PRIORITY com 1, 2, 4 e 6 cores
+- Calcula tempo, speedup, eficiência e coeficiente de variação (CV)
+- Coleta métricas completas (tempo de espera, turnaround, CPU %, throughput)
+- Captura contadores de cache/hit-rate por política e número de cores
+- Gera todos os CSVs que a GUI consome (agora em `dados_graficos/csv/`) + `dados_graficos/reports/relatorio_comparativo.txt`
 
-**Métricas comparadas:**
-- Tempo total de execução
-- Tempo médio de espera
-- Tempo médio de turnaround
-- Context switches
-- Throughput
+**Arquivos gerados em `dados_graficos/csv/`:**
+- `unified_complete.csv` – dataset completo (Politica, Cores, Tempo, Speedup, etc.)
+- `escalonadores_multicore.csv` – compatibilidade com o formato antigo
+- `metricas_escalonadores.csv` – métricas agregadas (referência em 2 cores)
+- `memoria_<POLITICA>.csv` – cache hits/misses por número de cores
 
----
+**Relatório textual:**
+- `dados_graficos/reports/relatorio_comparativo.txt` – pronto para apresentações
 
-### Teste de Throughput Confiável
-
-```bash
-make test-throughput
-```
-
-**O que faz:**
-- Executa 10 rodadas com mesma configuração
-- Calcula média e desvio padrão
-- Valida estabilidade (CV < 15%)
-- Gera `logs/multicore/throughput_results.csv`
-
-**Saída esperada:**
-```
-🎯 Executando teste de throughput (medição confiável)...
-
-Rodada  1/10: 1245ms
-Rodada  2/10: 1238ms
-Rodada  3/10: 1251ms
-...
-Rodada 10/10: 1242ms
-
-📊 Resultados:
-Média: 1244.3ms
-Desvio: 4.2ms
-CV: 0.34% ✅ (Estável)
-
-Throughput: 3.22 processos/segundo
-```
+> 💡 Execute `make test-unified` sempre que precisar atualizar os dados da GUI ou obter um relatório completo. Não é necessário rodar nenhum outro binário auxiliar.
 
 ---
 
@@ -290,22 +224,18 @@ Throughput: 3.22 processos/segundo
 make test-all
 ```
 
-**Executa todos os 12 testes:**
+**Executa todos os 8 testes ativos:**
 
 1. ✅ Hash Register Test
 2. ✅ Register Bank Test
-3. ✅ Multicore Scalability Test
-4. ✅ Throughput Test
-5. ✅ Multicore Comparative Test
-6. ✅ Preemption Test
-7. ✅ Metrics Complete Test
-8. ✅ CPU Metrics Test
-9. ✅ Priority Preemptive Test
-10. ✅ Deep Inspection Test
-11. ✅ Race Condition Debug Test
-12. ✅ Verify Execution Test
+3. ✅ Preemption Test
+4. ✅ CPU Metrics Test
+5. ✅ Deep Inspection Test
+6. ✅ Race Condition Debug Test
+7. ✅ Single-Core Serial Test
+8. ✅ Unified Complete Test (gera todos os CSVs/relatórios)
 
-**Tempo estimado:** 5-10 minutos
+**Tempo estimado:** 5 minutos
 
 ---
 
@@ -325,18 +255,6 @@ make test-bank
 - Mapeamento correto de 32 registradores MIPS
 - Leitura/escrita funcionando
 - Proteção do registrador $zero
-
----
-
-#### Teste de Métricas Completas
-
-```bash
-make test-metrics-complete
-```
-
-**Gera:**
-- `logs/metrics/detailed_metrics.csv` com todas as métricas por processo
-- Validação de contadores (pipeline_cycles, memory_cycles, cache hits/misses)
 
 ---
 
@@ -627,27 +545,25 @@ make: *** No rule to make target 'test-multicore'
 
 **Solução:**
 ```bash
-# Verificar targets disponíveis
-make help
+# Os testes legados foram removidos. Use o alvo unificado:
+make test-unified
 
-# Recompilar testes
-make clean
-make test-multicore
+# Dúvidas? Confira os comandos atuais
+make help
 ```
 
 ---
 
 ### Problema 4: Resultados Inconsistentes
 
-**Sintoma:** Speedup varia muito entre execuções
+**Sintoma:** Speedup/eficiência variam muito entre execuções
 
 **Solução:**
 ```bash
-# Usar teste de throughput para medição confiável
-make test-throughput
+# O teste unificado executa 20 iterações + filtro de outliers
+make test-unified
 
-# Verificar CV (Coeficiente de Variação)
-# Se CV > 15%, sistema está instável
+# Verifique a coluna CV_Pct nos CSVs/GUI para estabilidade (< 15%)
 ```
 
 ---

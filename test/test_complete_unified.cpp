@@ -12,15 +12,11 @@
  * - Tempo de Espera, Turnaround, CPU Utilization, Throughput por cores
  * 
  * Output:
- * - dados_graficos/unified_complete.csv (TODOS os dados em um único arquivo)
- * - dados_graficos/escalonadores_multicore.csv (compatibilidade)
- * - dados_graficos/metricas_escalonadores.csv (compatibilidade)
- * - dados_graficos/memoria_*.csv (por política e cores)
- * 
- * @author Grupo Peripherals
- * @date 2024
- * @version 1.0 - Teste unificado completo
- */
+ * - dados_graficos/csv/unified_complete.csv (TODOS os dados em um único arquivo)
+ * - dados_graficos/csv/escalonadores_multicore.csv (compatibilidade)
+ * - dados_graficos/csv/metricas_escalonadores.csv (compatibilidade)
+ * - dados_graficos/csv/memoria_*.csv (por política e cores)
+*/
 
 #include <iostream>
 #include <memory>
@@ -33,6 +29,7 @@
 #include <algorithm>
 #include <map>
 #include <sstream>
+#include <filesystem>
 #include "memory/MemoryManager.hpp"
 #include "memory/MemoryMonitor.hpp"
 #include "cpu/PCB.hpp"
@@ -44,6 +41,8 @@
 #include "cpu/PriorityScheduler.hpp"
 #include "parser_json/parser_json.hpp"
 #include "IO/IOManager.hpp"
+
+namespace fs = std::filesystem;
 
 // Estrutura completa de resultado
 struct UnifiedResult {
@@ -287,6 +286,20 @@ int main() {
     const std::string TASKS_FILE = "examples/programs/tasks.json";
     const int ITERATIONS = 20;  // Mais iterações para melhor estabilidade estatística
     const int WARMUP_ITERATIONS = 3;
+    const std::string DATA_DIR = "dados_graficos";
+    const std::string CSV_DIR = DATA_DIR + "/csv";
+    const std::string REPORTS_DIR = DATA_DIR + "/reports";
+    const std::string PLOTS_DIR = DATA_DIR + "/plots";
+
+    const std::vector<std::string> required_dirs = {DATA_DIR, CSV_DIR, REPORTS_DIR, PLOTS_DIR};
+    for (const auto& dir : required_dirs) {
+        try {
+            fs::create_directories(dir);
+        } catch (const std::exception& e) {
+            std::cerr << "❌ Não foi possível criar diretório '" << dir << "': " << e.what() << "\n";
+            return 1;
+        }
+    }
     
     std::vector<std::string> policies = {"RR", "FCFS", "SJN", "PRIORITY"};
     std::vector<int> core_configs = {1, 2, 4, 6};
@@ -480,15 +493,8 @@ int main() {
     }
     std::cout << "╚═════════╩══════╩══════════╩═════════╩═══════════╩═══════════╩═══════════╩════════════╩═══════════╩═══════════╩═══════╝\n";
     
-    // ========== CRIAR DIRETÓRIO ==========
-#ifdef _WIN32
-    system("if not exist dados_graficos mkdir dados_graficos");
-#else
-    system("mkdir -p dados_graficos");
-#endif
-    
     // ========== SALVAR CSV UNIFICADO COMPLETO ==========
-    std::ofstream csv_unified("dados_graficos/unified_complete.csv");
+    std::ofstream csv_unified(CSV_DIR + "/unified_complete.csv");
     csv_unified << "Politica,Cores,Tempo_ms,Speedup,Eficiencia_Pct,CV_Pct,"
                 << "Cache_Hits,Cache_Misses,Hit_Rate_Pct,"
                 << "Tempo_Espera_ms,Tempo_Turnaround_ms,CPU_Utilizacao_Pct,Throughput_proc_s\n";
@@ -516,7 +522,7 @@ int main() {
     csv_unified.close();
     
     // ========== SALVAR FORMATO COMPATÍVEL: escalonadores_multicore.csv ==========
-    std::ofstream csv_multicore("dados_graficos/escalonadores_multicore.csv");
+    std::ofstream csv_multicore(CSV_DIR + "/escalonadores_multicore.csv");
     csv_multicore << "Politica,Cores,Tempo_ms,Speedup,Eficiencia_Pct,CV_Pct\n";
     
     for (const auto& policy : policies) {
@@ -536,7 +542,7 @@ int main() {
     
     // ========== SALVAR FORMATO COMPATÍVEL: metricas_escalonadores.csv ==========
     // Usar dados de 2 cores para compatibilidade
-    std::ofstream csv_metricas("dados_graficos/metricas_escalonadores.csv");
+    std::ofstream csv_metricas(CSV_DIR + "/metricas_escalonadores.csv");
     csv_metricas << "Politica,Tempo_Espera_ms,Tempo_Execucao_ms,CPU_Utilizacao_Pct,Throughput_proc_s,Eficiencia\n";
     
     for (const auto& policy : policies) {
@@ -555,10 +561,100 @@ int main() {
         }
     }
     csv_metricas.close();
+
+    // ========== RELATÓRIO COMPARATIVO (baseado em 2 cores) ==========
+    struct ReportEntry {
+        std::string policy;
+        double wait_ms;
+        double turnaround_ms;
+        double cpu_util_pct;
+        double throughput;
+        double efficiency;
+    };
+
+    std::vector<ReportEntry> report_entries;
+    for (const auto& policy : policies) {
+        auto it = all_results[policy].find(2);
+        if (it == all_results[policy].end()) {
+            continue;
+        }
+        const auto& r = it->second;
+        double efficiency = (r.cpu_utilization_pct / 100.0) * r.throughput;
+        report_entries.push_back({policy, r.avg_wait_time, r.avg_turnaround_time,
+                                  r.cpu_utilization_pct, r.throughput, efficiency});
+    }
+
+    auto policy_label = [](const std::string& policy) {
+        if (policy == "RR") return std::string("RR (Round Robin)");
+        if (policy == "FCFS") return std::string("FCFS (First Come First Served)");
+        if (policy == "SJN") return std::string("SJN (Shortest Job Next)");
+        if (policy == "PRIORITY") return std::string("PRIORITY (Não Preemptivo)");
+        return policy;
+    };
+
+    if (!report_entries.empty()) {
+        std::ofstream report(REPORTS_DIR + "/relatorio_comparativo.txt");
+        if (report.is_open()) {
+            report << "╔════════════════════════════════════════════════════════════════════╗\n";
+            report << "║    RELATÓRIO COMPARATIVO - POLÍTICAS DE ESCALONAMENTO            ║\n";
+            report << "╚════════════════════════════════════════════════════════════════════╝\n\n";
+
+            report << "Configuração do Teste:\n";
+            report << "  • Workload: " << TASKS_FILE << "\n";
+            report << "  • Processos: " << NUM_PROCESSES << "\n";
+            report << "  • Quantum (RR): " << QUANTUM << " ciclos\n";
+            report << "  • Políticas testadas: RR, FCFS, SJN, PRIORITY\n";
+            report << "  • Núcleos avaliados neste relatório: 2\n\n";
+
+            report << "═══════════════════════════════════════════════════════════════════\n\n";
+
+            report << std::fixed;
+            for (const auto& entry : report_entries) {
+                report << "Política: " << policy_label(entry.policy) << "\n";
+                report << std::string(60, '-') << "\n";
+                report << std::setprecision(2);
+                report << "  • Tempo Médio de Espera:      " << entry.wait_ms << " ms\n";
+                report << "  • Tempo Médio de Execução:    " << entry.turnaround_ms << " ms\n";
+                report << "  • Utilização da CPU:          " << entry.cpu_util_pct << " %\n";
+                report << "  • Throughput:                 " << entry.throughput << " proc/s\n";
+                report << "  • Eficiência:                 " << entry.efficiency << " proc/s efetivos\n\n";
+            }
+
+            report << "═══════════════════════════════════════════════════════════════════\n\n";
+            report << "RESUMO COMPARATIVO:\n\n";
+
+            auto best_wait = std::min_element(report_entries.begin(), report_entries.end(),
+                [](const ReportEntry& a, const ReportEntry& b) { return a.wait_ms < b.wait_ms; });
+            auto best_turn = std::min_element(report_entries.begin(), report_entries.end(),
+                [](const ReportEntry& a, const ReportEntry& b) { return a.turnaround_ms < b.turnaround_ms; });
+            auto best_cpu = std::max_element(report_entries.begin(), report_entries.end(),
+                [](const ReportEntry& a, const ReportEntry& b) { return a.cpu_util_pct < b.cpu_util_pct; });
+            auto best_thr = std::max_element(report_entries.begin(), report_entries.end(),
+                [](const ReportEntry& a, const ReportEntry& b) { return a.throughput < b.throughput; });
+
+            report << "  🏆 Melhor Tempo de Espera:     " << policy_label(best_wait->policy)
+                   << " (" << std::setprecision(2) << best_wait->wait_ms << " ms)\n";
+            report << "  🏆 Melhor Tempo de Execução:   " << policy_label(best_turn->policy)
+                   << " (" << std::setprecision(2) << best_turn->turnaround_ms << " ms)\n";
+            report << "  🏆 Melhor Utilização de CPU:   " << policy_label(best_cpu->policy)
+                   << " (" << std::setprecision(2) << best_cpu->cpu_util_pct << " %)\n";
+            report << "  🏆 Maior Throughput:           " << policy_label(best_thr->policy)
+                   << " (" << std::setprecision(2) << best_thr->throughput << " proc/s)\n\n";
+
+            report << "═══════════════════════════════════════════════════════════════════\n";
+            report << "Relatório gerado: dados_graficos/reports/relatorio_comparativo.txt\n";
+            report << "Dados CSV: dados_graficos/csv/metricas_escalonadores.csv\n";
+            report << "═══════════════════════════════════════════════════════════════════\n";
+            report.close();
+            std::cout << "  ✅ dados_graficos/reports/relatorio_comparativo.txt (relatório textual)\n";
+        } else {
+            std::cerr << "❌ Não foi possível criar dados_graficos/reports/relatorio_comparativo.txt\n";
+        }
+    }
     
     // ========== SALVAR DADOS DE MEMÓRIA POR POLÍTICA E CORES ==========
     for (const auto& policy : policies) {
-        std::ofstream csv_mem("dados_graficos/memoria_" + policy + ".csv");
+        std::ofstream csv_mem(CSV_DIR + "/memoria_" + policy + ".csv");
         csv_mem << "cores,cache_hits,cache_misses,hit_rate\n";
         
         for (int cores : core_configs) {
@@ -577,13 +673,14 @@ int main() {
     std::cout << "╔═══════════════════════════════════════════════════════════════════════════╗\n";
     std::cout << "║                         ARQUIVOS GERADOS                                 ║\n";
     std::cout << "╚═══════════════════════════════════════════════════════════════════════════╝\n\n";
-    std::cout << "  ✅ dados_graficos/unified_complete.csv        (COMPLETO - todas métricas)\n";
-    std::cout << "  ✅ dados_graficos/escalonadores_multicore.csv (compatibilidade)\n";
-    std::cout << "  ✅ dados_graficos/metricas_escalonadores.csv  (compatibilidade)\n";
-    std::cout << "  ✅ dados_graficos/memoria_RR.csv              (cache por cores)\n";
-    std::cout << "  ✅ dados_graficos/memoria_FCFS.csv            (cache por cores)\n";
-    std::cout << "  ✅ dados_graficos/memoria_SJN.csv             (cache por cores)\n";
-    std::cout << "  ✅ dados_graficos/memoria_PRIORITY.csv        (cache por cores)\n\n";
+    std::cout << "  ✅ dados_graficos/csv/unified_complete.csv        (COMPLETO - todas métricas)\n";
+    std::cout << "  ✅ dados_graficos/csv/escalonadores_multicore.csv (compatibilidade)\n";
+    std::cout << "  ✅ dados_graficos/csv/metricas_escalonadores.csv  (compatibilidade)\n";
+    std::cout << "  ✅ dados_graficos/csv/memoria_RR.csv              (cache por cores)\n";
+    std::cout << "  ✅ dados_graficos/csv/memoria_FCFS.csv            (cache por cores)\n";
+    std::cout << "  ✅ dados_graficos/csv/memoria_SJN.csv             (cache por cores)\n";
+    std::cout << "  ✅ dados_graficos/csv/memoria_PRIORITY.csv        (cache por cores)\n";
+    std::cout << "  ✅ dados_graficos/reports/relatorio_comparativo.txt (relatório textual)\n\n";
     
     std::cout << "🎉 Agora você pode usar a GUI para comparar:\n";
     std::cout << "   • Número de Cores (X) vs Cache Hits (Y)\n";

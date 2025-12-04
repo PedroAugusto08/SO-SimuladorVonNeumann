@@ -7,10 +7,17 @@ Gera visualizações de Cache Hits, Cache Misses e Uso de Memória Temporal.
 import matplotlib
 matplotlib.use('Agg')  # Backend sem GUI
 
+from pathlib import Path
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-import glob
+
+# Caminhos base
+BASE_DIR = Path(__file__).parent
+CSV_DIR = BASE_DIR / 'csv'
+PLOTS_DIR = BASE_DIR / 'plots'
+PLOTS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Configuração de estilo
 plt.style.use('seaborn-v0_8-whitegrid')
@@ -48,7 +55,7 @@ def carregar_dados_memoria():
     """
     Carrega todos os CSVs de memória e extrai métricas finais e temporais.
     """
-    arquivos = glob.glob('memoria_*.csv')
+    arquivos = sorted(CSV_DIR.glob('memoria_*.csv'))
     
     if not arquivos:
         print('❌ Nenhum arquivo memoria_*.csv encontrado!')
@@ -58,7 +65,7 @@ def carregar_dados_memoria():
     dados_temporais = {}
     
     for arquivo in arquivos:
-        politica = mapear_nome_politica(arquivo)
+        politica = mapear_nome_politica(arquivo.name)
         
         try:
             df = pd.read_csv(arquivo)
@@ -81,7 +88,7 @@ def carregar_dados_memoria():
                 'Total_Acessos': cache_hits + cache_misses
             })
             
-            print(f'   ✓ {arquivo}: {cache_hits} hits, {cache_misses} misses, {len(df)} timestamps')
+            print(f'   ✓ {arquivo.name}: {cache_hits} hits, {cache_misses} misses, {len(df)} timestamps')
             
         except Exception as e:
             print(f'   ⚠️  Erro ao processar {arquivo}: {e}')
@@ -142,9 +149,9 @@ def grafico1_cache_hits(df):
                bbox=dict(boxstyle='round', facecolor='lightgreen', alpha=0.9))
     
     plt.tight_layout()
-    plt.savefig('grafico_memoria1_cache_hits.png', dpi=150, bbox_inches='tight')
-    plt.savefig('grafico_memoria1_cache_hits.pdf', bbox_inches='tight')
-    print('✅ Gráfico 1 salvo: grafico_memoria1_cache_hits.png/pdf')
+    plt.savefig(PLOTS_DIR / 'grafico_memoria1_cache_hits.png', dpi=150, bbox_inches='tight')
+    plt.savefig(PLOTS_DIR / 'grafico_memoria1_cache_hits.pdf', bbox_inches='tight')
+    print('✅ Gráfico 1 salvo: plots/grafico_memoria1_cache_hits.png/pdf')
     plt.close()
 
 def grafico2_cache_misses(df):
@@ -201,9 +208,9 @@ def grafico2_cache_misses(df):
                bbox=dict(boxstyle='round', facecolor='lightcoral', alpha=0.9))
     
     plt.tight_layout()
-    plt.savefig('grafico_memoria2_cache_misses.png', dpi=150, bbox_inches='tight')
-    plt.savefig('grafico_memoria2_cache_misses.pdf', bbox_inches='tight')
-    print('✅ Gráfico 2 salvo: grafico_memoria2_cache_misses.png/pdf')
+    plt.savefig(PLOTS_DIR / 'grafico_memoria2_cache_misses.png', dpi=150, bbox_inches='tight')
+    plt.savefig(PLOTS_DIR / 'grafico_memoria2_cache_misses.pdf', bbox_inches='tight')
+    print('✅ Gráfico 2 salvo: plots/grafico_memoria2_cache_misses.png/pdf')
     plt.close()
 
 def grafico3_uso_memoria_temporal(dados_temporais):
@@ -251,9 +258,9 @@ def grafico3_uso_memoria_temporal(dados_temporais):
                bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.9))
     
     plt.tight_layout()
-    plt.savefig('grafico_memoria3_uso_temporal.png', dpi=150, bbox_inches='tight')
-    plt.savefig('grafico_memoria3_uso_temporal.pdf', bbox_inches='tight')
-    print('✅ Gráfico 3 salvo: grafico_memoria3_uso_temporal.png/pdf')
+    plt.savefig(PLOTS_DIR / 'grafico_memoria3_uso_temporal.png', dpi=150, bbox_inches='tight')
+    plt.savefig(PLOTS_DIR / 'grafico_memoria3_uso_temporal.pdf', bbox_inches='tight')
+    print('✅ Gráfico 3 salvo: plots/grafico_memoria3_uso_temporal.png/pdf')
     plt.close()
 
 def main():
@@ -287,9 +294,9 @@ def main():
     print('=' * 70)
     print()
     print('📁 Arquivos gerados:')
-    print('   • grafico_memoria1_cache_hits.png/pdf - Cache Hits por escalonador')
-    print('   • grafico_memoria2_cache_misses.png/pdf - Cache Misses por escalonador')
-    print('   • grafico_memoria3_uso_temporal.png/pdf - Uso de memória ao longo do tempo')
+    print('   • plots/grafico_memoria1_cache_hits.png/pdf - Cache Hits por escalonador')
+    print('   • plots/grafico_memoria2_cache_misses.png/pdf - Cache Misses por escalonador')
+    print('   • plots/grafico_memoria3_uso_temporal.png/pdf - Uso de memória ao longo do tempo')
     print()
     
     # Exibir resumo estatístico

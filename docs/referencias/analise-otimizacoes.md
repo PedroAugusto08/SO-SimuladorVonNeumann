@@ -246,7 +246,7 @@ Foram adicionados em FCFS, SJN e Priority:
 
 - `docs_back/OTIMIZACOES_MULTICORE.md` - Relatório original das otimizações
 - `src/cpu/RoundRobinScheduler.cpp` - Implementação de referência
-- `dados_graficos/escalonadores_multicore.csv` - Dados de benchmark atualizados
+- `dados_graficos/csv/escalonadores_multicore.csv` - Dados de benchmark atualizados
 
 ---
 

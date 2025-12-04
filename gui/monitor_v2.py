@@ -56,6 +56,7 @@ class DataManager:
     
     def __init__(self, dados_dir):
         self.dados_dir = dados_dir
+        self.csv_dir = os.path.join(dados_dir, 'csv')
         self.df_multicore = None      # Dados de múltiplos cores
         self.df_metricas = None       # Métricas gerais
         self.df_unified = None        # CSV unificado completo
@@ -70,11 +71,19 @@ class DataManager:
         self._carregar_memoria()
         self._criar_dataset_unificado()
         return self
+
+    def _resolve_csv_path(self, filename):
+        """Tenta localizar um arquivo de dados considerando a nova pasta csv"""
+        for base in (self.csv_dir, self.dados_dir):
+            candidate = os.path.join(base, filename)
+            if os.path.isfile(candidate):
+                return candidate
+        return None
     
     def _carregar_unified(self):
         """Carrega unified_complete.csv (novo formato completo)"""
-        path = os.path.join(self.dados_dir, 'unified_complete.csv')
-        if os.path.isfile(path):
+        path = self._resolve_csv_path('unified_complete.csv')
+        if path and os.path.isfile(path):
             try:
                 self.df_unified = pd.read_csv(path)
                 print(f"✅ Carregado unified_complete.csv com {len(self.df_unified)} registros")
@@ -83,8 +92,8 @@ class DataManager:
         
     def _carregar_multicore(self):
         """Carrega escalonadores_multicore.csv"""
-        path = os.path.join(self.dados_dir, 'escalonadores_multicore.csv')
-        if os.path.isfile(path):
+        path = self._resolve_csv_path('escalonadores_multicore.csv')
+        if path and os.path.isfile(path):
             try:
                 self.df_multicore = pd.read_csv(path)
             except Exception as e:
@@ -92,8 +101,8 @@ class DataManager:
                 
     def _carregar_metricas(self):
         """Carrega metricas_escalonadores.csv"""
-        path = os.path.join(self.dados_dir, 'metricas_escalonadores.csv')
-        if os.path.isfile(path):
+        path = self._resolve_csv_path('metricas_escalonadores.csv')
+        if path and os.path.isfile(path):
             try:
                 df = pd.read_csv(path)
                 # Normalizar nomes das políticas
@@ -104,7 +113,9 @@ class DataManager:
                 
     def _carregar_memoria(self):
         """Carrega arquivos memoria_*.csv"""
-        arquivos = glob.glob(os.path.join(self.dados_dir, 'memoria_*.csv'))
+        arquivos = glob.glob(os.path.join(self.csv_dir, 'memoria_*.csv'))
+        if not arquivos:
+            arquivos = glob.glob(os.path.join(self.dados_dir, 'memoria_*.csv'))
         for f in arquivos:
             nome = os.path.basename(f)
             politica = self._extrair_politica(nome)
@@ -466,16 +477,8 @@ class MonitorGUI(QWidget):
         self.btn_gerar_unificado.setStyleSheet('background-color: #27ae60; color: white; font-weight: bold;')
         self.btn_gerar_unificado.setToolTip('Executa teste unificado que gera TODOS os dados\n(Cores vs Cache, Cores vs Throughput, etc.)')
         
-        self.btn_gerar_metricas = QPushButton('📊 Métricas Simples')
-        self.btn_gerar_metricas.clicked.connect(lambda: self.executar_teste('test_metrics_complete'))
-        
-        self.btn_gerar_comparativo = QPushButton('⚖️ Comparativo')
-        self.btn_gerar_comparativo.clicked.connect(lambda: self.executar_teste('test_multicore_comparative'))
-        
         layout.addWidget(self.btn_atualizar)
         layout.addWidget(self.btn_gerar_unificado)
-        layout.addWidget(self.btn_gerar_metricas)
-        layout.addWidget(self.btn_gerar_comparativo)
         layout.addStretch()
         
         # Status
