@@ -197,7 +197,7 @@ UnifiedResult run_unified_test(const std::string& policy, int num_cores,
                 }
                 pcb->quantum = quantum;
                 pcb->arrival_time = 0;
-                pcb->state = State::Ready;
+                pcb->set_state(State::Ready);
                 const uint32_t segment_base = static_cast<uint32_t>(i * SEGMENT_SIZE_BYTES);
                 pcb->segment_base_addr = segment_base;
                 pcb->segment_limit = SEGMENT_SIZE_BYTES;

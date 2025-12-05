@@ -25,7 +25,7 @@
 void print_metrics(const PCB& pcb) {
     std::cout << "\n--- METRICAS FINAIS DO PROCESSO " << pcb.pid << " ---\n";
     std::cout << "Nome do Processo:       " << pcb.name << "\n";
-    std::cout << "Estado Final:           " << (pcb.state == State::Finished ? "Finished" : "Incomplete") << "\n";
+    std::cout << "Estado Final:           " << (pcb.get_state() == State::Finished ? "Finished" : "Incomplete") << "\n";
     std::cout << "Ciclos de Pipeline:     " << pcb.pipeline_cycles.load() << "\n";
     std::cout << "Total de Acessos a Mem: " << pcb.mem_accesses_total.load() << "\n";
     std::cout << "  - Leituras:             " << pcb.mem_reads.load() << "\n";
@@ -287,7 +287,7 @@ int main(int argc, char* argv[]) {
     std::cout << "===========================================\n\n";
     // Exibir métricas individuais
     for (const auto& process : process_list) {
-        if (process->state == State::Finished) {
+        if (process->get_state() == State::Finished) {
             print_metrics(*process);
         }
     }

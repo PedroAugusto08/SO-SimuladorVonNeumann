@@ -40,6 +40,15 @@ void IOManager::registerProcessWaitingForIO(PCB* process) {
     waiting_processes.push_back(process);
 }
 
+bool IOManager::is_idle() const {
+    std::scoped_lock<std::mutex, std::mutex, std::mutex> lock(
+        queueLock, waiting_processes_lock, device_state_lock);
+    const bool no_waiting = waiting_processes.empty();
+    const bool no_requests = requests.empty();
+    const bool no_devices_requesting = !printer_requesting && !disk_requesting && !network_requesting;
+    return no_waiting && no_requests && no_devices_requesting;
+}
+
 // Adiciona uma requisição criada à fila de processamento
 void IOManager::addRequest(std::unique_ptr<IORequest> request) {
     std::lock_guard<std::mutex> lock(queueLock);
@@ -65,32 +74,32 @@ void IOManager::managerLoop() {
             }
         }
 
-        // ETAPA 2: Verifica se há dispositivos solicitando E processos esperando
+        // ETAPA 2: Verifica e atende incondicionalmente um processo da fila de espera
         std::unique_ptr<IORequest> new_request = nullptr;
         {
             std::lock_guard<std::mutex> wplock(waiting_processes_lock);
             if (!waiting_processes.empty()) {
-                std::lock_guard<std::mutex> dslock(device_state_lock);
                 PCB* process_to_service = waiting_processes.front();
 
-                if (printer_requesting) {
-                    new_request = std::make_unique<IORequest>();
-                    new_request->operation = "print_job";
-                    new_request->msg = "Imprimindo documento...";
-                    printer_requesting = false;
-                } else if (disk_requesting) {
-                    new_request = std::make_unique<IORequest>();
+                new_request = std::make_unique<IORequest>();
+                if (!last_request_was_disk) {
                     new_request->operation = "read_from_disk";
                     new_request->msg = "Lendo dados do disco...";
-                    disk_requesting = false;
+                    last_request_was_disk = true;
+                } else {
+                    new_request->operation = "print_job";
+                    new_request->msg = "Imprimindo documento...";
+                    last_request_was_disk = false;
                 }
-                
-                if (new_request) {
-                    new_request->process = process_to_service;
-                    waiting_processes.erase(waiting_processes.begin());
-                    const int multiplier = cost_multiplier_dist(rng);
-                    new_request->cost_cycles = std::chrono::milliseconds(multiplier * 100);
-                }
+
+                new_request->process = process_to_service;
+                waiting_processes.erase(waiting_processes.begin());
+                const int multiplier = cost_multiplier_dist(rng);
+                new_request->cost_cycles = std::chrono::milliseconds(multiplier * 100);
+
+                std::lock_guard<std::mutex> dslock(device_state_lock);
+                printer_requesting = false;
+                disk_requesting = false;
             }
         }
         
@@ -125,7 +134,7 @@ void IOManager::managerLoop() {
             outputFile << req_to_process->process->pid << "," 
                     << req_to_process->operation << "," << duration << "ms\n";
 
-            req_to_process->process->state = State::Ready;
+            req_to_process->process->set_state(State::Ready);
         } else {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }

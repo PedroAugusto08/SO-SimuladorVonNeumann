@@ -89,7 +89,8 @@ int main() {
 
     // Métricas
     std::cout << "=== METRICAS PCB ===\n";
-    std::cout << "pid: " << pcb.pid << " name: " << pcb.name << " state: " << (pcb.state == State::Finished ? "Finished" : "NotFinished") << "\n";
+    std::cout << "pid: " << pcb.pid << " name: " << pcb.name << " state: "
+              << (pcb.get_state() == State::Finished ? "Finished" : "NotFinished") << "\n";
     std::cout << "pipeline_cycles:      " << pcb.pipeline_cycles.load() << "\n";
     std::cout << "stage_invocations:    " << pcb.stage_invocations.load() << "\n";
     std::cout << "mem_reads:            " << pcb.mem_reads.load() << "\n";

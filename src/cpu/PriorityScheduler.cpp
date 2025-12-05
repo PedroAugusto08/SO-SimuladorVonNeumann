@@ -4,15 +4,25 @@
 #include <limits>
 #include "TimeUtils.hpp"
 
+namespace {
+
+const char* to_string_state(State state) {
+    switch (state) {
+        case State::Ready: return "Ready";
+        case State::Running: return "Running";
+        case State::Blocked: return "Blocked";
+        case State::Finished: return "Finished";
+    }
+    return "Unknown";
+}
+
+}
+
 PriorityScheduler::PriorityScheduler(int num_cores, MemoryManager* memManager, IOManager* ioManager)
     : num_cores(num_cores), memManager(memManager), ioManager(ioManager) {
     
     std::cout << "[PRIORITY] Inicializando com " << num_cores << " núcleos (modo NÃO-PREEMPTIVO)\n";
-    
-    for (int i = 0; i < num_cores; i++) {
-        cores.push_back(std::make_unique<Core>(i, memManager));
-        cores[i]->reset_metrics();
-    }
+    initialize_cores();
     
     // Inicializar contadores atômicos
     total_simulation_cycles.store(0);
@@ -28,16 +38,10 @@ PriorityScheduler::PriorityScheduler(int num_cores, MemoryManager* memManager, I
 
 PriorityScheduler::~PriorityScheduler() {
     std::cout << "[PRIORITY] Encerrando...\n";
-    
-    // Aguardar conclusão de todos os cores
-    for (auto& core : cores) {
-        if (!core->is_idle()) {
-            core->wait_completion();
-        }
-    }
+    shutdown_cores();
     
     // Limpar filas
-    std::lock_guard<std::mutex> lock(scheduler_mutex);
+    std::scoped_lock<std::mutex, std::mutex> lock(scheduler_mutex, ready_queue_mutex);
     ready_queue.clear();
     blocked_list.clear();
     finished_list.clear();
@@ -52,25 +56,42 @@ void PriorityScheduler::add_process(PCB* process) {
     
     enqueue_ready_process(process);
     total_count.fetch_add(1);
-    process->state = State::Ready;
+    process->set_state(State::Ready);
 }
 
 void PriorityScheduler::enqueue_ready_process(PCB* process) {
     if (!process->enter_ready_queue()) {
         return;
     }
+    std::lock_guard<std::mutex> queue_lock(ready_queue_mutex);
     ready_queue.push_back(process);
     ready_count.fetch_add(1);
-    sort_by_priority();
-}
-
-void PriorityScheduler::sort_by_priority() {
-    // Ordena por prioridade DECRESCENTE (maior prioridade primeiro)
-    // Em caso de empate, mantém ordem de chegada (FCFS como tiebreaker)
     std::stable_sort(ready_queue.begin(), ready_queue.end(),
         [](PCB* a, PCB* b) {
             return a->priority > b->priority;
         });
+}
+
+PCB* PriorityScheduler::dequeue_ready_process() {
+    std::lock_guard<std::mutex> queue_lock(ready_queue_mutex);
+    if (ready_queue.empty()) {
+        return nullptr;
+    }
+    PCB* process = ready_queue.front();
+    ready_queue.pop_front();
+    ready_count.fetch_sub(1);
+    process->leave_ready_queue();
+    return process;
+}
+
+size_t PriorityScheduler::ready_queue_size() const {
+    std::lock_guard<std::mutex> queue_lock(ready_queue_mutex);
+    return ready_queue.size();
+}
+
+bool PriorityScheduler::ready_queue_empty() const {
+    std::lock_guard<std::mutex> queue_lock(ready_queue_mutex);
+    return ready_queue.empty();
 }
 
 void PriorityScheduler::collect_finished_processes() {
@@ -81,39 +102,64 @@ void PriorityScheduler::collect_finished_processes() {
             continue;
         }
         
-        // Coletar se core está idle ou thread terminou
-        bool is_idle = core->is_idle();
-        bool thread_done = !core->is_thread_running();
+        const bool is_idle = core->is_idle();
+        const bool thread_running = core->is_thread_running();
+        std::cout << "[PRIORITY][collect] core#" << core->get_id()
+                  << " P" << process->pid
+                  << " state=" << to_string_state(process->get_state())
+                  << " thread_running=" << (thread_running ? "yes" : "no")
+                  << " idle_flag=" << (is_idle ? "yes" : "no")
+                  << " finished=" << finished_count.load() << "/" << total_count.load()
+                  << " ready=" << ready_count.load()
+                  << " blocked=" << blocked_list.size() << "\n";
         
-        if (!is_idle && !thread_done) {
+        if (!is_idle && thread_running) {
+            std::cout << "[PRIORITY][collect] core#" << core->get_id()
+                      << " ainda executando P" << process->pid << " - adiando coleta\n";
             continue;
         }
         
-        if (core->is_thread_running()) {
+        if (thread_running) {
             core->wait_completion();
         }
         
-        switch (process->state) {
-            case State::Finished:
-                process->finish_time = cpu_time::now_ns();
-                finished_list.push_back(process);
-                finished_count.fetch_add(1);
-                std::cout << "[PRIORITY] P" << process->pid 
-                          << " FINALIZADO (prioridade: " << process->priority << ")\n";
-                break;
-            case State::Blocked:
-                ioManager->registerProcessWaitingForIO(process);
-                blocked_list.push_back(process);
-                std::cout << "[PRIORITY] P" << process->pid << " BLOQUEADO (I/O)\n";
-                break;
-            default:
-                enqueue_ready_process(process);
-                std::cout << "[PRIORITY] P" << process->pid << " RE-AGENDADO\n";
-                break;
-        }
-        
-        core->clear_current_process();
-        idle_cores_count.fetch_add(1);
+        core->with_process_lock([&](PCB*& guarded_process) {
+            if (guarded_process == nullptr || guarded_process != process) {
+                return;
+            }
+
+            const State proc_state = process->get_state();
+            switch (process->get_state()) {
+                case State::Finished:
+                    process->finish_time = cpu_time::now_ns();
+                    finished_list.push_back(process);
+                    {
+                        const int new_finished = finished_count.fetch_add(1) + 1;
+                        std::cout << "[PRIORITY][collect] P" << process->pid
+                                  << " FINALIZADO! contador=" << new_finished
+                                  << "/" << total_count.load() << "\n";
+                    }
+                    break;
+                case State::Blocked:
+                    ioManager->registerProcessWaitingForIO(process);
+                    blocked_list.push_back(process);
+                    std::cout << "[PRIORITY][collect] P" << process->pid
+                              << " BLOQUEADO (I/O) - blocked_list agora="
+                              << blocked_list.size() << "\n";
+                    break;
+                default:
+                    enqueue_ready_process(process);
+                    std::cout << "[PRIORITY][collect] P" << process->pid
+                              << " RE-AGENDADO - ready_count="
+                              << ready_count.load() << "\n";
+                    break;
+            }
+
+            guarded_process = nullptr;
+            idle_cores_count.fetch_add(1);
+            std::cout << "[PRIORITY][collect] core#" << core->get_id()
+                      << " liberado; idle_cores=" << idle_cores_count.load() << "\n";
+        });
     }
 }
 
@@ -137,7 +183,7 @@ void PriorityScheduler::schedule_cycle() {
         
         // Desbloqueia processos que terminaram I/O
         for (auto it = blocked_list.begin(); it != blocked_list.end(); ) {
-            if ((*it)->state == State::Ready) {
+            if ((*it)->get_state() == State::Ready) {
                 enqueue_ready_process(*it);
                 it = blocked_list.erase(it);
             } else {
@@ -146,15 +192,21 @@ void PriorityScheduler::schedule_cycle() {
         }
         
         // Atribui processos aos núcleos livres (maior prioridade primeiro)
-        size_t max_attempts = ready_queue.size() * 2;
+        const size_t max_attempts = ready_queue_size() * 2;
         size_t attempts = 0;
         
-        while (!ready_queue.empty() && attempts < max_attempts) {
+        while (attempts < max_attempts) {
             bool assigned = false;
             attempts++;
             
             for (auto& core : cores) {
-                if (core->is_idle() && !ready_queue.empty()) {
+                if (!core->is_idle()) {
+                    continue;
+                }
+                PCB* process = dequeue_ready_process();
+                if (process == nullptr) {
+                    break;
+                }
                     // Urgent collect: verificar se há processo antigo não coletado
                     PCB* old_process = core->get_current_process();
                     if (old_process != nullptr) {
@@ -162,23 +214,17 @@ void PriorityScheduler::schedule_cycle() {
                             core->wait_completion();
                         }
                         
-                        if (old_process->state == State::Finished) {
+                        if (old_process->get_state() == State::Finished) {
                             old_process->finish_time = cpu_time::now_ns();
                             finished_list.push_back(old_process);
                             finished_count.fetch_add(1);
-                        } else if (old_process->state == State::Ready) {
+                        } else if (old_process->get_state() == State::Ready) {
                             enqueue_ready_process(old_process);
                         }
                         
                         core->clear_current_process();
                         idle_cores_count.fetch_add(1);
                     }
-                    
-                    // Atribuir novo processo (maior prioridade primeiro - já ordenado)
-                    PCB* process = ready_queue.front();
-                    ready_queue.pop_front();
-                    ready_count.fetch_sub(1);
-                    process->leave_ready_queue();
                     
                     if (process->start_time == 0) {
                         process->start_time = cpu_time::now_ns();
@@ -198,7 +244,6 @@ void PriorityScheduler::schedule_cycle() {
                     idle_cores_count.fetch_sub(1);
                     core->execute_async(process);
                     assigned = true;
-                }
             }
             
             if (!assigned) {
@@ -210,6 +255,10 @@ void PriorityScheduler::schedule_cycle() {
                     }
                 }
                 if (all_busy) break;
+            }
+
+            if (ready_queue_empty()) {
+                break;
             }
         }
     }
@@ -240,49 +289,110 @@ void PriorityScheduler::schedule_cycle() {
 }
 
 bool PriorityScheduler::all_finished() const {
-    int finished = finished_count.load(std::memory_order_acquire);
-    int total = total_count.load(std::memory_order_acquire);
-    
-    if (finished >= total && total > 0) {
-        // Verificar se há processos ainda em execução nos cores
-        for (const auto& core : cores) {
-            if (core->get_current_process() != nullptr) {
-                return false;
-            }
-        }
-        for (const auto& core : cores) {
-            if (core->is_thread_running()) {
-                return false;
-            }
-        }
+    const int total = total_count.load(std::memory_order_acquire);
+    if (total == 0) {
         return true;
     }
-    return false;
-}
 
-bool PriorityScheduler::has_pending_processes() const {
-    int finished = finished_count.load(std::memory_order_acquire);
-    int total = total_count.load(std::memory_order_acquire);
-    
-    if (finished >= total && total > 0) {
+    const int finished = finished_count.load(std::memory_order_acquire);
+    if (finished < total) {
         return false;
     }
-    
-    int idle = idle_cores_count.load(std::memory_order_acquire);
-    if (idle >= num_cores && finished < total) {
-        std::this_thread::yield();
-        finished = finished_count.load(std::memory_order_acquire);
-        if (finished >= total) {
+
+    if (!ready_queue_empty()) {
+        return false;
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(scheduler_mutex);
+        if (!blocked_list.empty()) {
             return false;
         }
     }
-    
-    return finished < total;
+
+    for (const auto& core : cores) {
+        if (core->get_current_process() != nullptr || core->is_thread_running()) {
+            return false;
+        }
+    }
+
+    if (ioManager && !ioManager->is_idle()) {
+        return false;
+    }
+
+    return true;
+}
+
+bool PriorityScheduler::has_pending_processes() const {
+    const int total = total_count.load(std::memory_order_acquire);
+    if (total == 0) {
+        return false;
+    }
+
+    const int finished = finished_count.load(std::memory_order_acquire);
+    if (finished >= total) {
+        return false;
+    }
+
+    for (const auto& core : cores) {
+        if (core->get_current_process() != nullptr || core->is_thread_running()) {
+            return true;
+        }
+    }
+
+    if (ioManager && !ioManager->is_idle()) {
+        return true;
+    }
+
+    return true;
 }
 
 std::vector<std::unique_ptr<Core>>& PriorityScheduler::get_cores() { return cores; }
-std::deque<PCB*>& PriorityScheduler::get_ready_queue() { return ready_queue; }
-std::vector<PCB*>& PriorityScheduler::get_blocked_list() { return blocked_list; }
+
+void PriorityScheduler::initialize_cores() {
+    cores.clear();
+    for (int i = 0; i < num_cores; ++i) {
+        cores.push_back(std::make_unique<Core>(i, memManager));
+        cores.back()->reset_metrics();
+    }
+    idle_cores_count.store(num_cores);
+}
+
+void PriorityScheduler::shutdown_cores() {
+    for (auto& core : cores) {
+        core->request_stop();
+    }
+    for (auto& core : cores) {
+        core->join_thread();
+    }
+}
+
+void PriorityScheduler::drain_cores() {
+    shutdown_cores();
+    std::lock_guard<std::mutex> lock(scheduler_mutex);
+    int pending = 0;
+    for (const auto& core : cores) {
+        const bool thread_running = core->is_thread_running();
+        core->with_process_lock([&](PCB*& guarded_process) {
+            if (guarded_process != nullptr) {
+                pending++;
+                std::cout << "[PRIORITY][drain] core#" << core->get_id()
+                          << " segurando P" << guarded_process->pid
+                          << " state=" << to_string_state(guarded_process->get_state())
+                          << " thread_running=" << (thread_running ? "yes" : "no")
+                          << "\n";
+            }
+        });
+    }
+    const int finished_before = finished_count.load(std::memory_order_relaxed);
+    collect_finished_processes();
+    const int finished_after = finished_count.load(std::memory_order_relaxed);
+    std::cout << "[PRIORITY][drain] pending cores=" << pending
+              << " newly_collected=" << (finished_after - finished_before)
+              << " finished=" << finished_after << "/" << total_count.load()
+              << " ready=" << ready_count.load()
+              << " blocked=" << blocked_list.size() << "\n";
+}
 
 PriorityScheduler::Statistics PriorityScheduler::get_statistics() const {
     Statistics s;

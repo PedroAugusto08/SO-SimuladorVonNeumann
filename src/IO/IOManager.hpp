@@ -25,6 +25,7 @@ public:
 
     // Método para um processo se registrar como "esperando por I/O"
     void registerProcessWaitingForIO(PCB* process);
+    bool is_idle() const;
 
 private:
     void managerLoop();
@@ -32,17 +33,19 @@ private:
 
     // Fila de requisições prontas para serem executadas
     std::vector<std::unique_ptr<IORequest>> requests;
-    std::mutex queueLock;
+    mutable std::mutex queueLock;
 
     // Fila de processos que estão no estado BLOCKED esperando por um dispositivo
     std::vector<PCB*> waiting_processes;
-    std::mutex waiting_processes_lock;
+    mutable std::mutex waiting_processes_lock;
 
     // Variáveis booleanas representando o estado de cada dispositivo (0/1)
     bool printer_requesting;
     bool disk_requesting;
     bool network_requesting;
-    std::mutex device_state_lock;
+    // Alterna entre disco e impressora para evitar starvation.
+    bool last_request_was_disk = false;
+    mutable std::mutex device_state_lock;
 
     bool shutdown_flag;
     std::thread managerThread;

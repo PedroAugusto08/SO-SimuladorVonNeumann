@@ -314,7 +314,7 @@ void Control_Unit::Execute_Operation(Instruction_Data &data, ControlContext &con
                       << " (pid=" << context.process.pid << ")\n";
 
             if (context.printLock) {
-                context.process.state = State::Blocked;
+                context.process.set_state(State::Blocked);
                 context.endExecution = true;
             }
         }
@@ -396,7 +396,7 @@ void Control_Unit::Memory_Acess(Instruction_Data &data, ControlContext &context)
                   << " (pid=" << context.process.pid << ")\n";
 
         if (context.printLock) {
-            context.process.state = State::Blocked;
+            context.process.set_state(State::Blocked);
             context.endExecution = true;
         }
     }
@@ -459,7 +459,7 @@ void* CoreExecutionLoop(MemoryManager &memoryManager, PCB &process, vector<uniqu
     }
 
     if (context.endProgram) {
-        process.state = State::Finished;
+        process.set_state(State::Finished);
     }
 
     // === DUMP FINAL DOS REGISTRADORES ===

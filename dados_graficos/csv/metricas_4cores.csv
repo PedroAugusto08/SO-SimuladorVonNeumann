@@ -1,3 +1,3 @@
 Politica,TempoMedioEspera_ms,TempoMedioExecucao_ms,CPUUtilizacao_pct,Eficiencia_pct,Throughput_proc_s,CacheHits,CacheMisses,TaxaHit_pct
-RR,2.45,5.12,100.00,100.00,964.7054,3,46,6.12
-SJN,0.48,350.82,84.93,84.93,9.6836,3,48,5.88
+RR,2.89,5.88,100.00,100.00,840.4734,3,46,6.12
+SJN,0.60,389.78,77.69,77.69,7.9727,3,48,5.88

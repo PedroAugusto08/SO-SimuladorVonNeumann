@@ -7,6 +7,20 @@
 #include <iostream>
 #include <chrono>
 
+namespace {
+
+const char* to_string_state(State state) {
+    switch (state) {
+        case State::Ready: return "Ready";
+        case State::Running: return "Running";
+        case State::Blocked: return "Blocked";
+        case State::Finished: return "Finished";
+    }
+    return "Unknown";
+}
+
+}
+
 Core::Core(int id, MemoryManager* mem_manager) 
     : core_id(id), memory_manager(mem_manager) 
 {
@@ -42,7 +56,7 @@ void Core::execute_async(PCB* process) {
     // Atribui processo ao núcleo
     current_process = process;
     process->assigned_core = core_id;
-    process->state = State::Running;
+    process->set_state(State::Running);
     
     // Registra tempo de início se for a primeira execução
     if (process->start_time == 0) {
@@ -51,6 +65,7 @@ void Core::execute_async(PCB* process) {
     
     // Marca núcleo como ocupado
     state.store(CoreState::BUSY);
+    stop_requested.store(false, std::memory_order_release);
     
     std::cout << "[Core " << core_id << "] Iniciando execução do processo P" 
               << process->pid << " (quantum=" << process->quantum << ")\n";
@@ -65,9 +80,7 @@ void Core::execute_async(PCB* process) {
 }
 
 void Core::wait_completion() {
-    if (execution_thread.joinable()) {
-        execution_thread.join();
-    }
+    join_thread();
 }
 
 void Core::run_process(PCB* process) {
@@ -109,8 +122,8 @@ void Core::run_process(PCB* process) {
     // Loop de execução respeitando o quantum
     int cycles_in_quantum = 0;
     
-    while (!context.endProgram && !context.endExecution && 
-           cycles_in_quantum < process->quantum) {
+        while (!context.endProgram && !context.endExecution && 
+            cycles_in_quantum < process->quantum && !stop_requested.load(std::memory_order_acquire)) {
         
         Instruction_Data data;
         
@@ -142,7 +155,7 @@ void Core::run_process(PCB* process) {
     
     // Determina o estado final do processo
     if (context.endProgram) {
-        process->state = State::Finished;
+        process->set_state(State::Finished);
         process->finish_time = cpu_time::now_ns();
         
         std::cout << "[Core " << core_id << "] P" << process->pid 
@@ -150,14 +163,14 @@ void Core::run_process(PCB* process) {
                   << " ciclos)\n";
         
     } else if (!ioRequests.empty()) {
-        process->state = State::Blocked;
+        process->set_state(State::Blocked);
         
         std::cout << "[Core " << core_id << "] P" << process->pid 
                   << " BLOQUEADO (aguardando I/O)\n";
         
     } else {
         // Quantum expirou
-        process->state = State::Ready;
+        process->set_state(State::Ready);
         // 🆕 NÃO incrementar aqui - será feito no scheduler!
         // process->context_switches++;  // ❌ REMOVIDO
         
@@ -171,4 +184,24 @@ void Core::run_process(PCB* process) {
     state.store(CoreState::IDLE);
     
     std::cout << "[Core " << core_id << "] Finalizado (agora IDLE)\n";
+}
+
+void Core::request_stop() {
+    {
+        std::lock_guard<std::mutex> lock(core_mutex);
+        if (current_process != nullptr) {
+            std::cout << "[Core " << core_id << "] request_stop() while segurando P"
+                      << current_process->pid << " (state="
+                      << to_string_state(current_process->get_state())
+                      << ", thread_running=" << (execution_thread.joinable() ? "yes" : "no")
+                      << ")\n";
+        }
+    }
+    stop_requested.store(true, std::memory_order_release);
+}
+
+void Core::join_thread() {
+    if (execution_thread.joinable()) {
+        execution_thread.join();
+    }
 }

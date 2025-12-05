@@ -27,11 +27,7 @@ SJNScheduler::SJNScheduler(int num_cores, MemoryManager* memManager, IOManager* 
     : num_cores(num_cores), memManager(memManager), ioManager(ioManager) {
     
     std::cout << "[SJN] Inicializando com " << num_cores << " núcleos\n";
-    
-    for (int i = 0; i < num_cores; i++) {
-        cores.push_back(std::make_unique<Core>(i, memManager));
-        cores[i]->reset_metrics();
-    }
+    initialize_cores();
     
     // Inicializar contadores atômicos
     total_simulation_cycles.store(0);
@@ -47,16 +43,10 @@ SJNScheduler::SJNScheduler(int num_cores, MemoryManager* memManager, IOManager* 
 
 SJNScheduler::~SJNScheduler() {
     std::cout << "[SJN] Encerrando...\n";
-    
-    // Aguardar conclusão de todos os cores
-    for (auto& core : cores) {
-        if (!core->is_idle()) {
-            core->wait_completion();
-        }
-    }
+    shutdown_cores();
     
     // Limpar filas
-    std::lock_guard<std::mutex> lock(scheduler_mutex);
+    std::scoped_lock<std::mutex, std::mutex> lock(scheduler_mutex, ready_queue_mutex);
     ready_queue.clear();
     blocked_list.clear();
     finished_list.clear();
@@ -71,7 +61,7 @@ void SJNScheduler::add_process(PCB* process) {
     
     enqueue_ready_process(process);
     total_count.fetch_add(1);
-    process->state = State::Ready;
+    process->set_state(State::Ready);
 }
 
 void SJNScheduler::enqueue_ready_process(PCB* process) {
@@ -79,10 +69,33 @@ void SJNScheduler::enqueue_ready_process(PCB* process) {
         return;
     }
     // Insere na fila ordenada por estimated_job_size (menor primeiro)
+    std::lock_guard<std::mutex> queue_lock(ready_queue_mutex);
     auto it = std::find_if(ready_queue.begin(), ready_queue.end(),
         [&](PCB* p) { return process->estimated_job_size < p->estimated_job_size; });
     ready_queue.insert(it, process);
     ready_count.fetch_add(1);
+}
+
+PCB* SJNScheduler::dequeue_ready_process() {
+    std::lock_guard<std::mutex> queue_lock(ready_queue_mutex);
+    if (ready_queue.empty()) {
+        return nullptr;
+    }
+    PCB* process = ready_queue.front();
+    ready_queue.pop_front();
+    ready_count.fetch_sub(1);
+    process->leave_ready_queue();
+    return process;
+}
+
+size_t SJNScheduler::ready_queue_size() const {
+    std::lock_guard<std::mutex> queue_lock(ready_queue_mutex);
+    return ready_queue.size();
+}
+
+bool SJNScheduler::ready_queue_empty() const {
+    std::lock_guard<std::mutex> queue_lock(ready_queue_mutex);
+    return ready_queue.empty();
 }
 
 void SJNScheduler::collect_finished_processes() {
@@ -93,38 +106,43 @@ void SJNScheduler::collect_finished_processes() {
             continue;
         }
         
-        // Coletar se core está idle ou thread terminou
-        bool is_idle = core->is_idle();
-        bool thread_done = !core->is_thread_running();
-        
-        if (!is_idle && !thread_done) {
+        const bool is_idle = core->is_idle();
+        const bool thread_running = core->is_thread_running();
+
+        if (!is_idle && thread_running) {
             continue;
         }
-        
-        if (core->is_thread_running()) {
+
+        if (thread_running) {
             core->wait_completion();
         }
-        
-        switch (process->state) {
-            case State::Finished:
-                process->finish_time = cpu_time::now_ns();
-                finished_list.push_back(process);
-                finished_count.fetch_add(1);
-                std::cout << "[SJN] P" << process->pid << " FINALIZADO!\n";
-                break;
-            case State::Blocked:
-                ioManager->registerProcessWaitingForIO(process);
-                blocked_list.push_back(process);
-                std::cout << "[SJN] P" << process->pid << " BLOQUEADO (I/O)\n";
-                break;
-            default:
-                enqueue_ready_process(process);
-                std::cout << "[SJN] P" << process->pid << " RE-AGENDADO\n";
-                break;
-        }
-        
-        core->clear_current_process();
-        idle_cores_count.fetch_add(1);
+
+        core->with_process_lock([&](PCB*& guarded_process) {
+            if (guarded_process == nullptr || guarded_process != process) {
+                return;
+            }
+
+            switch (process->get_state()) {
+                case State::Finished:
+                    process->finish_time = cpu_time::now_ns();
+                    finished_list.push_back(process);
+                    finished_count.fetch_add(1);
+                    std::cout << "[SJN] P" << process->pid << " FINALIZADO!\n";
+                    break;
+                case State::Blocked:
+                    ioManager->registerProcessWaitingForIO(process);
+                    blocked_list.push_back(process);
+                    std::cout << "[SJN] P" << process->pid << " BLOQUEADO (I/O)\n";
+                    break;
+                default:
+                    enqueue_ready_process(process);
+                    std::cout << "[SJN] P" << process->pid << " RE-AGENDADO\n";
+                    break;
+            }
+
+            guarded_process = nullptr;
+            idle_cores_count.fetch_add(1);
+        });
     }
 }
 
@@ -148,7 +166,7 @@ void SJNScheduler::schedule_cycle() {
         
         // Desbloqueia processos do IO
         for (auto it = blocked_list.begin(); it != blocked_list.end(); ) {
-            if ((*it)->state == State::Ready) {
+            if ((*it)->get_state() == State::Ready) {
                 enqueue_ready_process(*it);
                 it = blocked_list.erase(it);
             } else {
@@ -157,15 +175,21 @@ void SJNScheduler::schedule_cycle() {
         }
         
         // Atribui processos aos núcleos livres (menor job primeiro)
-        size_t max_attempts = ready_queue.size() * 2;
+        const size_t max_attempts = ready_queue_size() * 2;
         size_t attempts = 0;
         
-        while (!ready_queue.empty() && attempts < max_attempts) {
+        while (attempts < max_attempts) {
             bool assigned = false;
             attempts++;
             
             for (auto& core : cores) {
-                if (core->is_idle() && !ready_queue.empty()) {
+                if (!core->is_idle()) {
+                    continue;
+                }
+                PCB* process = dequeue_ready_process();
+                if (process == nullptr) {
+                    break;
+                }
                     // Urgent collect: verificar se há processo antigo não coletado
                     PCB* old_process = core->get_current_process();
                     if (old_process != nullptr) {
@@ -173,23 +197,17 @@ void SJNScheduler::schedule_cycle() {
                             core->wait_completion();
                         }
                         
-                        if (old_process->state == State::Finished) {
+                        if (old_process->get_state() == State::Finished) {
                             old_process->finish_time = cpu_time::now_ns();
                             finished_list.push_back(old_process);
                             finished_count.fetch_add(1);
-                        } else if (old_process->state == State::Ready) {
+                        } else if (old_process->get_state() == State::Ready) {
                             enqueue_ready_process(old_process);
                         }
                         
                         core->clear_current_process();
                         idle_cores_count.fetch_add(1);
                     }
-                    
-                    // Atribuir novo processo (menor job primeiro - já ordenado)
-                    PCB* process = ready_queue.front();
-                    ready_queue.pop_front();
-                    ready_count.fetch_sub(1);
-                    process->leave_ready_queue();
                     
                     if (process->start_time == 0) {
                         process->start_time = cpu_time::now_ns();
@@ -205,7 +223,6 @@ void SJNScheduler::schedule_cycle() {
                     idle_cores_count.fetch_sub(1);
                     core->execute_async(process);
                     assigned = true;
-                }
             }
             
             if (!assigned) {
@@ -217,6 +234,10 @@ void SJNScheduler::schedule_cycle() {
                     }
                 }
                 if (all_busy) break;
+            }
+
+            if (ready_queue_empty()) {
+                break;
             }
         }
     }
@@ -247,56 +268,111 @@ void SJNScheduler::schedule_cycle() {
 }
 
 bool SJNScheduler::all_finished() const {
-    int finished = finished_count.load(std::memory_order_acquire);
-    int total = total_count.load(std::memory_order_acquire);
-    
-    if (finished >= total && total > 0) {
-        // Verificar se há processos ainda em execução nos cores
-        for (const auto& core : cores) {
-            if (core->get_current_process() != nullptr) {
-                return false;
-            }
-        }
-        for (const auto& core : cores) {
-            if (core->is_thread_running()) {
-                return false;
-            }
-        }
+    const int total = total_count.load(std::memory_order_acquire);
+    if (total == 0) {
         return true;
     }
-    return false;
-}
 
-bool SJNScheduler::has_pending_processes() const {
-    int finished = finished_count.load(std::memory_order_acquire);
-    int total = total_count.load(std::memory_order_acquire);
-    
-    if (finished >= total && total > 0) {
+    const int finished = finished_count.load(std::memory_order_acquire);
+    if (finished < total) {
         return false;
     }
-    
-    int idle = idle_cores_count.load(std::memory_order_acquire);
-    if (idle >= num_cores && finished < total) {
-        std::this_thread::yield();
-        finished = finished_count.load(std::memory_order_acquire);
-        if (finished >= total) {
+
+    if (!ready_queue_empty()) {
+        return false;
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(scheduler_mutex);
+        if (!blocked_list.empty()) {
             return false;
         }
     }
-    
-    return finished < total;
+
+    for (const auto& core : cores) {
+        if (core->get_current_process() != nullptr || core->is_thread_running()) {
+            return false;
+        }
+    }
+
+    if (ioManager && !ioManager->is_idle()) {
+        return false;
+    }
+
+    return true;
+}
+
+bool SJNScheduler::has_pending_processes() const {
+    const int total = total_count.load(std::memory_order_acquire);
+    if (total == 0) {
+        return false;
+    }
+
+    const int finished = finished_count.load(std::memory_order_acquire);
+    if (finished >= total) {
+        return false;
+    }
+
+    for (const auto& core : cores) {
+        if (core->get_current_process() != nullptr || core->is_thread_running()) {
+            return true;
+        }
+    }
+
+    if (ioManager && !ioManager->is_idle()) {
+        return true;
+    }
+
+    return true;
 }
 
 std::vector<std::unique_ptr<Core>>& SJNScheduler::get_cores() {
     return cores;
 }
 
-std::deque<PCB*>& SJNScheduler::get_ready_queue() {
-    return ready_queue;
+void SJNScheduler::initialize_cores() {
+    cores.clear();
+    for (int i = 0; i < num_cores; ++i) {
+        cores.push_back(std::make_unique<Core>(i, memManager));
+        cores.back()->reset_metrics();
+    }
+    idle_cores_count.store(num_cores);
 }
 
-std::vector<PCB*>& SJNScheduler::get_blocked_list() {
-    return blocked_list;
+void SJNScheduler::shutdown_cores() {
+    for (auto& core : cores) {
+        core->request_stop();
+    }
+    for (auto& core : cores) {
+        core->join_thread();
+    }
+}
+
+void SJNScheduler::drain_cores() {
+    shutdown_cores();
+    std::lock_guard<std::mutex> lock(scheduler_mutex);
+    int pending = 0;
+    for (const auto& core : cores) {
+        const bool thread_running = core->is_thread_running();
+        core->with_process_lock([&](PCB*& guarded_process) {
+            if (guarded_process != nullptr) {
+                pending++;
+                std::cout << "[SJN][drain] core#" << core->get_id()
+                          << " segurando P" << guarded_process->pid
+                          << " state=" << to_string_state(guarded_process->get_state())
+                          << " thread_running=" << (thread_running ? "yes" : "no")
+                          << "\n";
+            }
+        });
+    }
+    const int finished_before = finished_count.load(std::memory_order_relaxed);
+    collect_finished_processes();
+    const int finished_after = finished_count.load(std::memory_order_relaxed);
+    std::cout << "[SJN][drain] pending cores=" << pending
+              << " newly_collected=" << (finished_after - finished_before)
+              << " finished=" << finished_after << "/" << total_count.load()
+              << " ready=" << ready_count.load()
+              << " blocked=" << blocked_list.size() << "\n";
 }
 
 SJNScheduler::Statistics SJNScheduler::get_statistics() const {
@@ -367,7 +443,7 @@ SJNScheduler::Statistics SJNScheduler::get_statistics() const {
 
 void SJNScheduler::dump_state(const std::string& reason, uint64_t cycles, uint64_t max_cycles) const {
     namespace fs = std::filesystem;
-    std::lock_guard<std::mutex> lock(scheduler_mutex);
+    std::scoped_lock<std::mutex, std::mutex> lock(scheduler_mutex, ready_queue_mutex);
     fs::create_directories("logs");
     std::ofstream out("logs/scheduler_dumps.log", std::ios::app);
     auto now = std::chrono::system_clock::now();
@@ -387,7 +463,7 @@ void SJNScheduler::dump_state(const std::string& reason, uint64_t cycles, uint64
         out << " <empty>";
     } else {
         for (const auto* pcb : ready_queue) {
-            out << ' ' << pcb->pid << '(' << to_string_state(pcb->state) << ')';
+            out << ' ' << pcb->pid << '(' << to_string_state(pcb->get_state()) << ')';
         }
     }
     out << "\n";
@@ -397,7 +473,7 @@ void SJNScheduler::dump_state(const std::string& reason, uint64_t cycles, uint64
         out << " <empty>";
     } else {
         for (const auto* pcb : blocked_list) {
-            out << ' ' << pcb->pid << '(' << to_string_state(pcb->state) << ')';
+            out << ' ' << pcb->pid << '(' << to_string_state(pcb->get_state()) << ')';
         }
     }
     out << "\n";
@@ -410,7 +486,7 @@ void SJNScheduler::dump_state(const std::string& reason, uint64_t cycles, uint64
             << " busy_cycles=" << core->get_busy_cycles()
             << " idle_cycles=" << core->get_idle_cycles();
         if (proc) {
-            out << " pid=" << proc->pid << '(' << to_string_state(proc->state) << ')';
+            out << " pid=" << proc->pid << '(' << to_string_state(proc->get_state()) << ')';
         } else {
             out << " pid=<none>";
         }

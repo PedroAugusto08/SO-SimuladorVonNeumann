@@ -15,11 +15,11 @@ Workloads utilizados (8):
 Política: RR
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     2.45 ms
-  • Tempo médio de execução:   5.12 ms
+  • Tempo médio de espera:     2.89 ms
+  • Tempo médio de execução:   5.88 ms
   • Utilização média da CPU:   100.00 %
   • Eficiência estimada:       100.00 %
-  • Throughput global:         964.71 proc/s
+  • Throughput global:         840.47 proc/s
 [Métricas de Memória]
   • Cache hits:                3
   • Cache misses:              46
@@ -28,11 +28,11 @@ Política: RR
 Política: SJN
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     0.48 ms
-  • Tempo médio de execução:   350.82 ms
-  • Utilização média da CPU:   84.93 %
-  • Eficiência estimada:       84.93 %
-  • Throughput global:         9.68 proc/s
+  • Tempo médio de espera:     0.60 ms
+  • Tempo médio de execução:   389.78 ms
+  • Utilização média da CPU:   77.69 %
+  • Eficiência estimada:       77.69 %
+  • Throughput global:         7.97 proc/s
 [Métricas de Memória]
   • Cache hits:                3
   • Cache misses:              48

@@ -27,14 +27,15 @@ public:
     ~SJNScheduler();
     void add_process(PCB* process);
     void schedule_cycle();
+    void initialize_cores();
+    void shutdown_cores();
+    void drain_cores();
     bool all_finished() const;
     bool has_pending_processes() const;
     int get_finished_count() const { return finished_count.load(); }
     int get_total_count() const { return total_count.load(); }
     Statistics get_statistics() const;
     std::vector<std::unique_ptr<Core>>& get_cores();
-    std::deque<PCB*>& get_ready_queue();
-    std::vector<PCB*>& get_blocked_list();
     void dump_state(const std::string& reason, uint64_t cycles, uint64_t max_cycles) const;
     
 private:
@@ -45,6 +46,7 @@ private:
     std::deque<PCB*> ready_queue;
     std::vector<PCB*> blocked_list;
     std::vector<PCB*> finished_list;
+    mutable std::mutex ready_queue_mutex;
     
     // CRITICAL: Atomics para evitar race conditions (igual ao RoundRobin)
     std::atomic<int> finished_count{0};
@@ -64,4 +66,7 @@ private:
     // Helpers
     void collect_finished_processes();
     void enqueue_ready_process(PCB* process);
+    PCB* dequeue_ready_process();
+    size_t ready_queue_size() const;
+    bool ready_queue_empty() const;
 };

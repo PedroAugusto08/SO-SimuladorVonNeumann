@@ -22,7 +22,7 @@ namespace fs = std::filesystem;
 namespace {
 constexpr int DEFAULT_NUM_CORES = 4;
 constexpr int QUANTUM = 10;
-constexpr int MAX_CYCLES = 2'000'000;
+constexpr int MAX_CYCLES = 10'000'000;
 constexpr const char* PROCESS_DIR = "processes";
 constexpr const char* TASKS_DIR = "tasks";
 constexpr const char* DATA_ROOT = "dados_graficos";
@@ -154,7 +154,7 @@ PolicyMetrics run_policy(const std::string& policy,
                 : workload.key;
             pcb->quantum = QUANTUM;
             pcb->arrival_time = 0;
-            pcb->state = State::Ready;
+            pcb->set_state(State::Ready);
             const uint32_t segment_base = static_cast<uint32_t>(i * SEGMENT_SIZE_BYTES);
             pcb->segment_base_addr = segment_base;
             pcb->segment_limit = SEGMENT_SIZE_BYTES;
@@ -222,13 +222,7 @@ PolicyMetrics run_policy(const std::string& policy,
                 ++cycles;
             }
 
-            // pequena folga pra deixar I/O terminar, se tiver algo na boca
-            for (int i = 0; i < 50; ++i)
-            {
-                if (!scheduler.has_pending_processes())
-                    break;
-                scheduler.schedule_cycle();
-            }
+            scheduler.drain_cores();
 
             metrics.processes_finished = scheduler.get_finished_count();
             const int total_processes = static_cast<int>(process_ptrs.size());
@@ -265,13 +259,7 @@ PolicyMetrics run_policy(const std::string& policy,
                 ++cycles;
             }
 
-            // folga pro I/O terminar
-            for (int i = 0; i < 50; ++i)
-            {
-                if (!scheduler.has_pending_processes())
-                    break;
-                scheduler.schedule_cycle();
-            }
+            scheduler.drain_cores();
 
             metrics.processes_finished = scheduler.get_finished_count();
             const int total_processes = static_cast<int>(process_ptrs.size());
@@ -308,13 +296,7 @@ PolicyMetrics run_policy(const std::string& policy,
                 ++cycles;
             }
 
-            // folga pro I/O terminar
-            for (int i = 0; i < 50; ++i)
-            {
-                if (!scheduler.has_pending_processes())
-                    break;
-                scheduler.schedule_cycle();
-            }
+            scheduler.drain_cores();
 
             metrics.processes_finished = scheduler.get_finished_count();
             const int total_processes = static_cast<int>(process_ptrs.size());

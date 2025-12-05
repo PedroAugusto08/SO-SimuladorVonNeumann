@@ -120,7 +120,7 @@ ExecutionStats run_process_single_core(PCB &process,
         .endExecution = end_execution
     };
 
-    process.state = State::Running;
+    process.set_state(State::Running);
     process.assigned_core = 0;
     process.start_time = cpu_time::now_ns();
 
@@ -148,15 +148,15 @@ ExecutionStats run_process_single_core(PCB &process,
     }
 
     if (context.endProgram) {
-        process.state = State::Finished;
+        process.set_state(State::Finished);
         process.finish_time = cpu_time::now_ns();
         stats.finished = true;
     } else if (stats.cycles >= max_cycles) {
-        process.state = State::Ready;
+        process.set_state(State::Ready);
         std::cerr << "[SingleCore] P" << process.pid
                   << " atingiu o limite de ciclos sem finalizar." << std::endl;
     } else {
-        process.state = State::Blocked;
+        process.set_state(State::Blocked);
     }
 
     return stats;
@@ -210,7 +210,7 @@ int main() {
             pcb->segment_limit = std::max<uint32_t>(pcb->segment_limit, pcb->program_size);
         }
         pcb->regBank.pc.write(segment_base);
-        pcb->state = State::Ready;
+        pcb->set_state(State::Ready);
 
         std::cout << "  • " << pcb->name << " (P" << pcb->pid << ") carregado: start=" << start_addr
                   << " size=" << pcb->program_size << " bytes" << std::endl;

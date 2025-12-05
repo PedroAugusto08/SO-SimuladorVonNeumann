@@ -56,6 +56,7 @@ public:
      * @return true se a thread está ativa
      */
     bool is_thread_running() const {
+        std::lock_guard<std::mutex> lock(core_mutex);
         return execution_thread.joinable();
     }
     
@@ -79,6 +80,19 @@ public:
     void clear_current_process() {
         std::lock_guard<std::mutex> lock(core_mutex);
         current_process = nullptr;
+    }
+
+    void request_stop();
+    void join_thread();
+
+    /**
+     * Executa uma função protegida pelo mutex interno manipulando o ponteiro atual.
+     * Útil para sincronizar coleta de processos com atualizações de métricas.
+     */
+    template <typename Func>
+    void with_process_lock(Func&& func) {
+        std::lock_guard<std::mutex> lock(core_mutex);
+        func(current_process);
     }
     
     /**
@@ -126,6 +140,7 @@ private:
     // Thread de execução
     std::thread execution_thread;
     mutable std::mutex core_mutex;  // mutable para permitir lock em métodos const
+    std::atomic<bool> stop_requested{false};
     
     // 🆕 CONTADORES DE CICLOS
     std::atomic<uint64_t> busy_cycles{0};

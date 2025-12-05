@@ -15,11 +15,11 @@ Workloads utilizados (8):
 Política: RR
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     0.57 ms
-  • Tempo médio de execução:   2.94 ms
-  • Utilização média da CPU:   80.71 %
-  • Eficiência estimada:       80.71 %
-  • Throughput global:         1645.19 proc/s
+  • Tempo médio de espera:     1.12 ms
+  • Tempo médio de execução:   6.38 ms
+  • Utilização média da CPU:   84.98 %
+  • Eficiência estimada:       84.98 %
+  • Throughput global:         799.47 proc/s
 [Métricas de Memória]
   • Cache hits:                3
   • Cache misses:              47
@@ -28,11 +28,11 @@ Política: RR
 Política: FCFS
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     0.37 ms
-  • Tempo médio de execução:   414.99 ms
-  • Utilização média da CPU:   44.81 %
-  • Eficiência estimada:       44.81 %
-  • Throughput global:         6.48 proc/s
+  • Tempo médio de espera:     0.47 ms
+  • Tempo médio de execução:   364.82 ms
+  • Utilização média da CPU:   48.48 %
+  • Eficiência estimada:       48.48 %
+  • Throughput global:         7.97 proc/s
 [Métricas de Memória]
   • Cache hits:                3
   • Cache misses:              48
@@ -41,11 +41,11 @@ Política: FCFS
 Política: SJN
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     0.26 ms
-  • Tempo médio de execução:   523.80 ms
-  • Utilização média da CPU:   57.79 %
-  • Eficiência estimada:       57.79 %
-  • Throughput global:         6.62 proc/s
+  • Tempo médio de espera:     0.65 ms
+  • Tempo médio de execução:   552.81 ms
+  • Utilização média da CPU:   52.49 %
+  • Eficiência estimada:       52.49 %
+  • Throughput global:         5.70 proc/s
 [Métricas de Memória]
   • Cache hits:                3
   • Cache misses:              48
@@ -54,11 +54,11 @@ Política: SJN
 Política: PRIORITY
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     1.01 ms
-  • Tempo médio de execução:   303.56 ms
-  • Utilização média da CPU:   41.57 %
-  • Eficiência estimada:       41.57 %
-  • Throughput global:         8.22 proc/s
+  • Tempo médio de espera:     0.42 ms
+  • Tempo médio de execução:   352.30 ms
+  • Utilização média da CPU:   46.82 %
+  • Eficiência estimada:       46.82 %
+  • Throughput global:         7.97 proc/s
 [Métricas de Memória]
   • Cache hits:                3
   • Cache misses:              48

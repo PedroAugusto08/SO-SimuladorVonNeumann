@@ -34,7 +34,7 @@ struct PCB {
     int quantum = 0;
     int priority = 0;
 
-    State state = State::Ready;
+    std::atomic<State> state{State::Ready};
     hw::REGISTER_BANK regBank;
 
     // Contadores de acesso à memória
@@ -86,6 +86,14 @@ struct PCB {
     
     uint64_t get_wait_time() const {
         return total_wait_time.load();
+    }
+
+    State get_state(std::memory_order order = std::memory_order_acquire) const {
+        return state.load(order);
+    }
+
+    void set_state(State new_state, std::memory_order order = std::memory_order_release) {
+        state.store(new_state, order);
     }
 
     bool enter_ready_queue() {
