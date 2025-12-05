@@ -15,40 +15,27 @@ Workloads utilizados (8):
 Política: RR
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     3.20 ms
-  • Tempo médio de execução:   6.89 ms
+  • Tempo médio de espera:     2.45 ms
+  • Tempo médio de execução:   5.12 ms
   • Utilização média da CPU:   100.00 %
   • Eficiência estimada:       100.00 %
-  • Throughput global:         781.96 proc/s
+  • Throughput global:         964.71 proc/s
 [Métricas de Memória]
-  • Cache hits:                24
-  • Cache misses:              110
-  • Taxa de hit:               17.91 %
-
-Política: FCFS
-------------------------------------------------------------
-[Métricas de Escalonamento]
-  • Tempo médio de espera:     0.96 ms
-  • Tempo médio de execução:   1247.27 ms
-  • Utilização média da CPU:   79.66 %
-  • Eficiência estimada:       79.66 %
-  • Throughput global:         2.55 proc/s
-[Métricas de Memória]
-  • Cache hits:                24
-  • Cache misses:              111
-  • Taxa de hit:               17.78 %
+  • Cache hits:                3
+  • Cache misses:              46
+  • Taxa de hit:               6.12 %
 
 Política: SJN
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     0.80 ms
-  • Tempo médio de execução:   1890.69 ms
-  • Utilização média da CPU:   77.47 %
-  • Eficiência estimada:       77.47 %
-  • Throughput global:         1.64 proc/s
+  • Tempo médio de espera:     0.48 ms
+  • Tempo médio de execução:   350.82 ms
+  • Utilização média da CPU:   84.93 %
+  • Eficiência estimada:       84.93 %
+  • Throughput global:         9.68 proc/s
 [Métricas de Memória]
-  • Cache hits:                24
-  • Cache misses:              111
-  • Taxa de hit:               17.78 %
+  • Cache hits:                3
+  • Cache misses:              48
+  • Taxa de hit:               5.88 %
 
 Relatório gerado automaticamente por test_metrics.cpp

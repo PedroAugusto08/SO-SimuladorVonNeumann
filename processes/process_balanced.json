@@ -1,6 +1,6 @@
 {
-  "pid": 8,
-  "name": "Balanced Process",
-  "quantum": 5,
+  "pid": 1,
+  "name": "balanced",
+  "quantum": 8,
   "priority": 2
 }

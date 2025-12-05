@@ -69,7 +69,8 @@ public:
     
     // Estatísticas globais
     static MemoryStats& getStats() { return global_stats; }
-    static void resetStats() { global_stats.reset(); }
+    static void reset_stats();
+    static void resetStats() { reset_stats(); }
 
 private:
     std::unique_ptr<MAIN_MEMORY> mainMemory;

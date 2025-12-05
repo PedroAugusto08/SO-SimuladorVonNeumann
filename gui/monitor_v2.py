@@ -285,6 +285,32 @@ class DataManager:
                 dados_por_politica[pol]['Cache_Hits'] = ultimo.get('cache_hits', np.nan)
                 dados_por_politica[pol]['Cache_Misses'] = ultimo.get('cache_misses', np.nan)
                 dados_por_politica[pol]['Hit_Rate'] = ultimo.get('hit_rate', np.nan)
+
+        # Caso não existam CSVs de memória, use os snapshots metricas_<N>cores.csv
+        if self.df_metricas_por_core is not None:
+            colunas_aggregaveis = [
+                'Tempo_Espera_ms',
+                'Tempo_Execucao_ms',
+                'CPU_Utilizacao_Pct',
+                'Eficiencia_Pct',
+                'Throughput_proc_s',
+                'Cache_Hits',
+                'Cache_Misses',
+                'Hit_Rate',
+            ]
+
+            for pol in dados_por_politica.keys():
+                df_pol = self.df_metricas_por_core[
+                    self.df_metricas_por_core['Politica_Key'] == pol
+                ]
+                if df_pol.empty:
+                    continue
+
+                for coluna in colunas_aggregaveis:
+                    if coluna in df_pol.columns:
+                        valor = df_pol[coluna].mean()
+                        if not np.isnan(valor):
+                            dados_por_politica[pol][coluna] = valor
         
         # Criar DataFrame unificado
         self.df_unificado = pd.DataFrame(list(dados_por_politica.values()))
@@ -296,6 +322,8 @@ class DataManager:
             politicas.update(self.df_multicore['Politica'].unique())
         if self.df_metricas is not None:
             politicas.update(self.df_metricas['Politica_Key'].unique())
+        if self.df_metricas_por_core is not None:
+            politicas.update(self.df_metricas_por_core['Politica_Key'].unique())
         politicas.update(self.dados_memoria.keys())
         return sorted(list(politicas))
     

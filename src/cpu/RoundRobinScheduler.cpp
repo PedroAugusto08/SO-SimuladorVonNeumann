@@ -285,7 +285,9 @@ void RoundRobinScheduler::handle_blocked_processes() {
 }
 
 void RoundRobinScheduler::enqueue_ready_process(PCB* process) {
-    process->enter_ready_queue();
+    if (!process->enter_ready_queue()) {
+        return;
+    }
     ready_queue.push_back(process);
     ready_count.fetch_add(1);
 }

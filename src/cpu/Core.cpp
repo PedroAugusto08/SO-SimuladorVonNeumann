@@ -72,7 +72,12 @@ void Core::wait_completion() {
 
 void Core::run_process(PCB* process) {
     // 🔥 CRÍTICO: Registrar cache L1 privada desta thread
-    MemoryManager::setThreadCache(L1_cache.get());
+    if (L1_cache) {
+        L1_cache->flush();
+        MemoryManager::setThreadCache(L1_cache.get());
+    } else {
+        MemoryManager::setThreadCache(nullptr);
+    }
     
     // Estruturas de controle
     Control_Unit control_unit;

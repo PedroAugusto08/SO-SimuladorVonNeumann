@@ -15,6 +15,7 @@ TARGET_DEEP_INSPECT := $(BIN_DIR)/test_deep_inspection
 TARGET_RACE_DEBUG := $(BIN_DIR)/test_race_debug
 TARGET_SINGLE_CORE := $(BIN_DIR)/test_single_core_no_threads
 TARGET_METRICS := $(BIN_DIR)/test_metrics
+TARGET_ANALYZER := $(BIN_DIR)/scheduler_analyzer
 
 # Fontes principais
 SRC := src/teste.cpp src/cpu/ULA.cpp
@@ -183,6 +184,11 @@ $(TARGET_METRICS): $(OBJ_METRICS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_METRICS) $(LDFLAGS)
 	@echo "✓ Teste de métricas multicore (núcleos fixos) compilado!"
 
+$(TARGET_ANALYZER): tools/scheduler_analyzer.cpp
+	mkdir -p $(BIN_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ $<
+	@echo "✓ Analyzer compilado!"
+
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
@@ -278,6 +284,7 @@ help:
 	@echo "  make test-hash    - Compila e testa sistema de registradores"
 	@echo "  make test-bank    - Compila e testa o banco de registradores"
 	@echo "  make test-all     - Executa todos os testes disponíveis"
+	@echo "  make analyzer     - Compila o analisador de dumps"
 	@echo "  make check        - Verificação rápida de todos os componentes"
 	@echo "  make debug        - Build com símbolos de debug (-g -O0)"
 	@echo "  make help         - Mostra esta mensagem de ajuda"
@@ -291,6 +298,8 @@ help:
 run-sim: $(TARGET_SIM)
 	@echo "🚀 Executando simulador multicore Round-Robin..."
 	@./$(TARGET_SIM)
+
+analyzer: $(TARGET_ANALYZER)
 
 # Verificação rápida de todos os componentes
 check: $(TARGET) $(TARGET_HASH) $(TARGET_BANK)
@@ -313,4 +322,4 @@ list-files:
 	@echo "  Fontes de teste: $(SRC_HASH)"
 	@echo "  Headers: $(shell find src -name '*.hpp' 2>/dev/null)"
 
-.PHONY: all clean run test-hash test-all help check debug list-files
+.PHONY: all clean run test-hash test-all help check debug list-files analyzer

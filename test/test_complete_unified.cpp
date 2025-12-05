@@ -30,6 +30,8 @@
 #include <map>
 #include <sstream>
 #include <filesystem>
+#include <cstdlib>
+#include <cctype>
 #include "memory/MemoryManager.hpp"
 #include "memory/MemoryMonitor.hpp"
 #include "cpu/PCB.hpp"
@@ -182,6 +184,7 @@ UnifiedResult run_unified_test(const std::string& policy, int num_cores,
         IOManager* ioManager = new IOManager();
         
         // Carregar processos
+        constexpr uint32_t SEGMENT_SIZE_BYTES = 2048;
         for (int i = 0; i < num_processes; i++) {
             const auto& workload = workloads[i];
             PCB* pcb = new PCB();
@@ -195,7 +198,10 @@ UnifiedResult run_unified_test(const std::string& policy, int num_cores,
                 pcb->quantum = quantum;
                 pcb->arrival_time = 0;
                 pcb->state = State::Ready;
-                loadJsonProgram(workload.tasks_file, *memManager, *pcb, i * 2048);
+                const uint32_t segment_base = static_cast<uint32_t>(i * SEGMENT_SIZE_BYTES);
+                pcb->segment_base_addr = segment_base;
+                pcb->segment_limit = SEGMENT_SIZE_BYTES;
+                loadJsonProgram(workload.tasks_file, *memManager, *pcb, static_cast<int>(segment_base));
                 pcb->estimated_job_size = pcb->program_size;
                 
                 // Prioridades variadas para PRIORITY
@@ -248,12 +254,18 @@ UnifiedResult run_unified_test(const std::string& policy, int num_cores,
                 scheduler.schedule_cycle();
                 cycles++;
             }
+
+            if (!scheduler.all_finished()) {
+                scheduler.dump_state("max_cycles_fcfs", cycles, max_cycles);
+                std::cerr << "[WARN] FCFS atingiu MAX_CYCLES (" << max_cycles
+                          << ") - veja logs/scheduler_dumps.log\n";
+            }
             
             for (int i = 0; i < 200; i++) {
                 scheduler.schedule_cycle();
             }
             
-            result.processes_finished = process_ptrs.size();
+            result.processes_finished = scheduler.get_finished_count();
             
             if (collect_detailed_metrics) {
                 auto stats = scheduler.get_statistics();
@@ -274,12 +286,18 @@ UnifiedResult run_unified_test(const std::string& policy, int num_cores,
                 scheduler.schedule_cycle();
                 cycles++;
             }
+
+            if (!scheduler.all_finished()) {
+                scheduler.dump_state("max_cycles_sjn", cycles, max_cycles);
+                std::cerr << "[WARN] SJN atingiu MAX_CYCLES (" << max_cycles
+                          << ") - veja logs/scheduler_dumps.log\n";
+            }
             
             for (int i = 0; i < 200; i++) {
                 scheduler.schedule_cycle();
             }
             
-            result.processes_finished = process_ptrs.size();
+            result.processes_finished = scheduler.get_finished_count();
             
             if (collect_detailed_metrics) {
                 auto stats = scheduler.get_statistics();
@@ -379,7 +397,39 @@ int main() {
     }
     
     std::vector<std::string> policies = {"RR", "FCFS", "SJN", "PRIORITY"};
+    if (const char* env = std::getenv("POLICY_FILTER")) {
+        std::vector<std::string> filtered;
+        std::stringstream ss(env);
+        std::string token;
+        while (std::getline(ss, token, ',')) {
+            token.erase(std::remove_if(token.begin(), token.end(), ::isspace), token.end());
+            if (!token.empty()) {
+                filtered.push_back(token);
+            }
+        }
+        if (!filtered.empty()) {
+            policies = filtered;
+        }
+    }
+
     std::vector<int> core_configs = {1, 2, 4, 6};
+    if (const char* env = std::getenv("CORE_FILTER")) {
+        std::vector<int> filtered;
+        std::stringstream ss(env);
+        std::string token;
+        while (std::getline(ss, token, ',')) {
+            token.erase(std::remove_if(token.begin(), token.end(), ::isspace), token.end());
+            if (token.empty()) continue;
+            try {
+                filtered.push_back(std::stoi(token));
+            } catch (...) {
+                std::cerr << "⚠️  CORE_FILTER ignorou valor inválido: " << token << "\n";
+            }
+        }
+        if (!filtered.empty()) {
+            core_configs = filtered;
+        }
+    }
     
     // Mapa: policy -> cores -> resultado
     std::map<std::string, std::map<int, UnifiedResult>> all_results;

@@ -1,6 +1,6 @@
 {
-  "pid": 6,
-  "name": "IO-Bound Process",
-  "quantum": 5,
-  "priority": 1
+  "pid": 3,
+  "name": "io_bound",
+  "quantum": 8,
+  "priority": 2
 }

@@ -15,27 +15,27 @@ Workloads utilizados (8):
 Política: RR
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     4.47 ms
-  • Tempo médio de execução:   6.28 ms
+  • Tempo médio de espera:     2.95 ms
+  • Tempo médio de execução:   4.23 ms
   • Utilização média da CPU:   100.00 %
   • Eficiência estimada:       100.00 %
-  • Throughput global:         1066.26 proc/s
+  • Throughput global:         1348.42 proc/s
 [Métricas de Memória]
-  • Cache hits:                24
-  • Cache misses:              111
-  • Taxa de hit:               17.78 %
+  • Cache hits:                3
+  • Cache misses:              47
+  • Taxa de hit:               6.00 %
 
 Política: PRIORITY
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     1.65 ms
-  • Tempo médio de execução:   2180.95 ms
+  • Tempo médio de espera:     1.11 ms
+  • Tempo médio de execução:   455.73 ms
   • Utilização média da CPU:   100.00 %
   • Eficiência estimada:       100.00 %
-  • Throughput global:         1.38 proc/s
+  • Throughput global:         6.05 proc/s
 [Métricas de Memória]
-  • Cache hits:                24
-  • Cache misses:              111
-  • Taxa de hit:               17.78 %
+  • Cache hits:                3
+  • Cache misses:              48
+  • Taxa de hit:               5.88 %
 
 Relatório gerado automaticamente por test_metrics.cpp

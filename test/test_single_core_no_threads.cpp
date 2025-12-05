@@ -1,6 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <algorithm>
 #include <iomanip>
 #include <chrono>
 #include <algorithm>
@@ -199,11 +200,16 @@ int main() {
         pcb->pid = i + 1;
         pcb->name = workload_display_name(workload);
 
-        int start_addr = i * 4096;
-        int end_addr = loadJsonProgram(workload.tasks_file, memory_manager, *pcb, start_addr);
-        pcb->program_start_addr = start_addr;
-        pcb->program_size = end_addr - start_addr;
-        pcb->regBank.pc.write(start_addr);
+        const uint32_t segment_base = static_cast<uint32_t>(i * 4096);
+        pcb->segment_base_addr = segment_base;
+        pcb->segment_limit = 4096;
+        int end_addr = loadJsonProgram(workload.tasks_file, memory_manager, *pcb, static_cast<int>(segment_base));
+        pcb->program_start_addr = segment_base;
+        pcb->program_size = end_addr - static_cast<int>(segment_base);
+        if (pcb->segment_limit < pcb->program_size) {
+            pcb->segment_limit = std::max<uint32_t>(pcb->segment_limit, pcb->program_size);
+        }
+        pcb->regBank.pc.write(segment_base);
         pcb->state = State::Ready;
 
         std::cout << "  • " << pcb->name << " (P" << pcb->pid << ") carregado: start=" << start_addr

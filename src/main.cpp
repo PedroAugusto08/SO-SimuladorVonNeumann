@@ -6,6 +6,7 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <algorithm>
 
 #include "memory/MemoryManager.hpp"
 #include "cpu/PCB.hpp"
@@ -217,6 +218,7 @@ int main(int argc, char* argv[]) {
     if (process_files.empty()) {
         process_files.push_back({"examples/programs/tasks.json", "examples/processes/process1.json"});
     }
+    constexpr uint32_t SEGMENT_SIZE_BYTES = 2048;
     uint32_t next_base_address = 0;
     for (size_t i = 0; i < process_files.size(); i++) {
         const auto& [program_file, pcb_file] = process_files[i];
@@ -225,11 +227,16 @@ int main(int argc, char* argv[]) {
             std::cerr << "Erro ao carregar '" << pcb_file << "'.\n";
             return 1;
         }
+        pcb->segment_base_addr = next_base_address;
+        pcb->segment_limit = SEGMENT_SIZE_BYTES;
         loadJsonProgram(program_file, memManager, *pcb, next_base_address);
         pcb->arrival_time = 0;
             // Estimativa: usar tamanho do programa como proxy de job size
             pcb->estimated_job_size = pcb->program_size;
-        next_base_address += 1024;
+        if (pcb->segment_limit < pcb->program_size) {
+            pcb->segment_limit = std::max<uint32_t>(pcb->segment_limit, pcb->program_size);
+        }
+        next_base_address += SEGMENT_SIZE_BYTES;
         if (SCHED_POLICY == "FCFS") fcfs_sched->add_process(pcb.get());
         else if (SCHED_POLICY == "SJN") sjn_sched->add_process(pcb.get());
         else if (SCHED_POLICY == "PRIORITY") priority_sched->add_process(pcb.get());

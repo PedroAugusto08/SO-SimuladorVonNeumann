@@ -2,7 +2,25 @@
 #include <iostream>
 #include <chrono>
 #include <limits>
+#include <filesystem>
+#include <fstream>
+#include <iomanip>
+#include <ctime>
 #include "TimeUtils.hpp"
+
+namespace {
+
+const char* to_string_state(State state) {
+    switch (state) {
+        case State::Ready: return "Ready";
+        case State::Running: return "Running";
+        case State::Blocked: return "Blocked";
+        case State::Finished: return "Finished";
+    }
+    return "Unknown";
+}
+
+}
 
 FCFSScheduler::FCFSScheduler(int num_cores, MemoryManager* memManager, IOManager* ioManager)
     : num_cores(num_cores), memManager(memManager), ioManager(ioManager) {
@@ -56,7 +74,9 @@ void FCFSScheduler::add_process(PCB* process) {
 }
 
 void FCFSScheduler::enqueue_ready_process(PCB* process) {
-    process->enter_ready_queue();
+    if (!process->enter_ready_queue()) {
+        return;
+    }
     ready_queue.push_back(process);
     ready_count.fetch_add(1);
 }
@@ -331,4 +351,59 @@ FCFSScheduler::Statistics FCFSScheduler::get_statistics() const {
     s.total_context_switches = context_switches;
     
     return s;
+}
+
+void FCFSScheduler::dump_state(const std::string& reason, uint64_t cycles, uint64_t max_cycles) const {
+    namespace fs = std::filesystem;
+    std::lock_guard<std::mutex> lock(scheduler_mutex);
+    fs::create_directories("logs");
+    std::ofstream out("logs/scheduler_dumps.log", std::ios::app);
+    auto now = std::chrono::system_clock::now();
+    auto now_c = std::chrono::system_clock::to_time_t(now);
+    out << "\n[FCFS] reason=" << reason
+        << " cycles=" << cycles << "/" << max_cycles
+        << " timestamp=" << std::put_time(std::localtime(&now_c), "%F %T") << "\n";
+    out << "  finished=" << finished_count.load() << "/" << total_count.load()
+        << " ready_queue=" << ready_queue.size()
+        << " blocked=" << blocked_list.size()
+        << " ready_count=" << ready_count.load()
+        << " idle_cores=" << idle_cores_count.load()
+        << " context_switches=" << context_switches << "\n";
+
+    out << "  Ready queue:";
+    if (ready_queue.empty()) {
+        out << " <empty>";
+    } else {
+        for (const auto* pcb : ready_queue) {
+            out << ' ' << pcb->pid << '(' << to_string_state(pcb->state) << ')';
+        }
+    }
+    out << "\n";
+
+    out << "  Blocked list:";
+    if (blocked_list.empty()) {
+        out << " <empty>";
+    } else {
+        for (const auto* pcb : blocked_list) {
+            out << ' ' << pcb->pid << '(' << to_string_state(pcb->state) << ')';
+        }
+    }
+    out << "\n";
+
+    for (const auto& core : cores) {
+        PCB* proc = core->get_current_process();
+        out << "    core#" << core->get_id()
+            << " idle=" << core->is_idle()
+            << " thread_running=" << core->is_thread_running()
+            << " busy_cycles=" << core->get_busy_cycles()
+            << " idle_cycles=" << core->get_idle_cycles();
+        if (proc) {
+            out << " pid=" << proc->pid << '(' << to_string_state(proc->state) << ')';
+        } else {
+            out << " pid=<none>";
+        }
+        out << "\n";
+    }
+
+    out.flush();
 }

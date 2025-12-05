@@ -15,53 +15,53 @@ Workloads utilizados (8):
 Política: RR
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     0.37 ms
-  • Tempo médio de execução:   5.36 ms
-  • Utilização média da CPU:   84.03 %
-  • Eficiência estimada:       84.03 %
-  • Throughput global:         940.47 proc/s
+  • Tempo médio de espera:     0.57 ms
+  • Tempo médio de execução:   2.94 ms
+  • Utilização média da CPU:   80.71 %
+  • Eficiência estimada:       80.71 %
+  • Throughput global:         1645.19 proc/s
 [Métricas de Memória]
-  • Cache hits:                24
-  • Cache misses:              111
-  • Taxa de hit:               17.78 %
+  • Cache hits:                3
+  • Cache misses:              47
+  • Taxa de hit:               6.00 %
 
 Política: FCFS
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     0.39 ms
-  • Tempo médio de execução:   1489.13 ms
-  • Utilização média da CPU:   53.44 %
-  • Eficiência estimada:       53.44 %
-  • Throughput global:         2.15 proc/s
+  • Tempo médio de espera:     0.37 ms
+  • Tempo médio de execução:   414.99 ms
+  • Utilização média da CPU:   44.81 %
+  • Eficiência estimada:       44.81 %
+  • Throughput global:         6.48 proc/s
 [Métricas de Memória]
-  • Cache hits:                24
-  • Cache misses:              111
-  • Taxa de hit:               17.78 %
+  • Cache hits:                3
+  • Cache misses:              48
+  • Taxa de hit:               5.88 %
 
 Política: SJN
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     0.32 ms
-  • Tempo médio de execução:   973.43 ms
-  • Utilização média da CPU:   35.51 %
-  • Eficiência estimada:       35.51 %
-  • Throughput global:         2.19 proc/s
+  • Tempo médio de espera:     0.26 ms
+  • Tempo médio de execução:   523.80 ms
+  • Utilização média da CPU:   57.79 %
+  • Eficiência estimada:       57.79 %
+  • Throughput global:         6.62 proc/s
 [Métricas de Memória]
-  • Cache hits:                24
-  • Cache misses:              111
-  • Taxa de hit:               17.78 %
+  • Cache hits:                3
+  • Cache misses:              48
+  • Taxa de hit:               5.88 %
 
 Política: PRIORITY
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     0.30 ms
-  • Tempo médio de execução:   1335.00 ms
-  • Utilização média da CPU:   53.43 %
-  • Eficiência estimada:       53.43 %
-  • Throughput global:         2.40 proc/s
+  • Tempo médio de espera:     1.01 ms
+  • Tempo médio de execução:   303.56 ms
+  • Utilização média da CPU:   41.57 %
+  • Eficiência estimada:       41.57 %
+  • Throughput global:         8.22 proc/s
 [Métricas de Memória]
-  • Cache hits:                24
-  • Cache misses:              111
-  • Taxa de hit:               17.78 %
+  • Cache hits:                3
+  • Cache misses:              48
+  • Taxa de hit:               5.88 %
 
 Relatório gerado automaticamente por test_metrics.cpp

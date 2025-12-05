@@ -4,6 +4,7 @@
 #include <memory>
 #include <atomic>
 #include <mutex>
+#include <string>
 #include "PCB.hpp"
 #include "Core.hpp"
 #include "../IO/IOManager.hpp"
@@ -34,6 +35,7 @@ public:
     std::vector<std::unique_ptr<Core>>& get_cores();
     std::deque<PCB*>& get_ready_queue();
     std::vector<PCB*>& get_blocked_list();
+    void dump_state(const std::string& reason, uint64_t cycles, uint64_t max_cycles) const;
     
 private:
     int num_cores;

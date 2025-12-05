@@ -66,10 +66,13 @@ struct PCB {
     std::atomic<int> assigned_core{-1};         // Núcleo atual (-1 = nenhum)
     std::atomic<int> last_core{-1};             // Último núcleo usado
     std::atomic<uint64_t> ready_queue_enter_time{0}; // Timestamp de entrada na fila ready
+    std::atomic<bool> in_ready_queue{false};         // Evita re-enfileirar duplicado
 
     // Informações do programa carregado
     uint32_t program_start_addr = 0;             // Endereço de início do programa
     uint32_t program_size = 0;                   // Tamanho do programa em bytes
+    uint32_t segment_base_addr = 0;              // Base física do segmento do processo
+    uint32_t segment_limit = 0;                  // Limite (tamanho) do segmento
 
     uint64_t estimated_job_size = 0; // Estimativa de ciclos para SJN
 
@@ -85,13 +88,18 @@ struct PCB {
         return total_wait_time.load();
     }
 
-    void enter_ready_queue() {
+    bool enter_ready_queue() {
+        bool expected = false;
+        if (!in_ready_queue.compare_exchange_strong(expected, true, std::memory_order_acq_rel)) {
+            return false;
+        }
         ready_queue_enter_time.store(cpu_time::now_ns(), std::memory_order_relaxed);
+        return true;
     }
 
     void leave_ready_queue() {
         const uint64_t start = ready_queue_enter_time.exchange(0, std::memory_order_relaxed);
-        if (start == 0) {
+        if (!in_ready_queue.exchange(false, std::memory_order_acq_rel) || start == 0) {
             return;
         }
         const uint64_t end = cpu_time::now_ns();

@@ -333,6 +333,10 @@ int loadJsonProgram(const string &filename, MemoryManager &memManager, PCB& pcb,
     
     // Calcular tamanho do programa carregado
     pcb.program_size = addr - startAddr;
+    pcb.segment_base_addr = pcb.program_start_addr;
+    if (pcb.segment_limit == 0 || pcb.segment_limit < pcb.program_size) {
+        pcb.segment_limit = pcb.program_size;
+    }
 
     // Garantir que o PC inicial aponta para o início do programa recem carregado
     pcb.regBank.pc.write(pcb.program_start_addr);

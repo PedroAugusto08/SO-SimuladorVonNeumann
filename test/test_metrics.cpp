@@ -20,12 +20,14 @@
 namespace fs = std::filesystem;
 
 namespace {
-constexpr int DEFAULT_NUM_CORES = 1;
-constexpr int QUANTUM = 1000;
-constexpr int MAX_CYCLES = 10000000;
+constexpr int DEFAULT_NUM_CORES = 4;
+constexpr int QUANTUM = 10;
+constexpr int MAX_CYCLES = 2'000'000;
 constexpr const char* PROCESS_DIR = "processes";
 constexpr const char* TASKS_DIR = "tasks";
 constexpr const char* DATA_ROOT = "dados_graficos";
+constexpr const char* NORMALIZED_TASK_DIR = "output/normalized_tasks";
+constexpr uint32_t SEGMENT_SIZE_BYTES = 2048;
 std::string build_csv_path(int num_cores) {
     return std::string(DATA_ROOT) + "/csv/metricas_" +
            std::to_string(std::max(1, num_cores)) + "cores.csv";
@@ -38,10 +40,10 @@ std::string build_report_path(int num_cores) {
 
 int compute_cycle_budget(int num_cores, size_t workload_count) {
     const int safe_cores = std::max(1, num_cores);
-    const double core_scale = std::max(1.0, 8.0 / static_cast<double>(safe_cores));
     const double workload_scale = std::max(1.0, static_cast<double>(workload_count) / 8.0);
-    const double budget = static_cast<double>(MAX_CYCLES) * core_scale * workload_scale;
-    const double capped = std::min(120'000'000.0, budget);
+    // 2M ciclos base, ajustados pelo número de workloads (mas sem exagerar)
+    const double budget = static_cast<double>(MAX_CYCLES) * workload_scale;
+    const double capped = std::min(5'000'000.0, budget); // nunca passa de 5M
     return static_cast<int>(capped);
 }
 
@@ -153,7 +155,10 @@ PolicyMetrics run_policy(const std::string& policy,
             pcb->quantum = QUANTUM;
             pcb->arrival_time = 0;
             pcb->state = State::Ready;
-            loadJsonProgram(workload.tasks_file, *memManager, *pcb, static_cast<int>(i * 2048));
+            const uint32_t segment_base = static_cast<uint32_t>(i * SEGMENT_SIZE_BYTES);
+            pcb->segment_base_addr = segment_base;
+            pcb->segment_limit = SEGMENT_SIZE_BYTES;
+            loadJsonProgram(workload.tasks_file, *memManager, *pcb, static_cast<int>(segment_base));
             pcb->estimated_job_size = pcb->program_size;
             pcb->priority = 10 - (static_cast<int>(i) % 3) * 3;
             process_ptrs.push_back(pcb.release());
@@ -182,76 +187,156 @@ PolicyMetrics run_policy(const std::string& policy,
             metrics.hit_rate_pct = total > 0 ? (metrics.cache_hits * 100.0 / total) : 0.0;
         };
 
-        if (policy == "RR") {
+        if (policy == "RR")
+        {
             RoundRobinScheduler scheduler(num_cores, memManager.get(), ioManager.get(), QUANTUM);
-            for (auto* pcb : process_ptrs) {
+            for (auto *pcb : process_ptrs)
+            {
                 scheduler.add_process(pcb);
             }
             int cycles = 0;
-            while (scheduler.has_pending_processes() && cycles < cycle_budget) {
+            while (scheduler.has_pending_processes() && cycles < cycle_budget)
+            {
                 scheduler.schedule_cycle();
                 ++cycles;
             }
-            for (int i = 0; i < 100; ++i) {
+            for (int i = 0; i < 100; ++i)
+            {
                 scheduler.schedule_cycle();
             }
             metrics.processes_finished = scheduler.get_finished_count();
             finalize_stats(scheduler.get_statistics());
-        } else if (policy == "FCFS") {
+        }
+        else if (policy == "FCFS")
+        {
             FCFSScheduler scheduler(num_cores, memManager.get(), ioManager.get());
-            for (auto* pcb : process_ptrs) {
+            for (auto *pcb : process_ptrs)
+            {
                 scheduler.add_process(pcb);
             }
+
             int cycles = 0;
-            while (scheduler.has_pending_processes() && cycles < cycle_budget) {
+            while (scheduler.has_pending_processes() && cycles < cycle_budget)
+            {
                 scheduler.schedule_cycle();
                 ++cycles;
             }
-            for (int i = 0; i < 200; ++i) {
+
+            // pequena folga pra deixar I/O terminar, se tiver algo na boca
+            for (int i = 0; i < 50; ++i)
+            {
+                if (!scheduler.has_pending_processes())
+                    break;
                 scheduler.schedule_cycle();
             }
+
             metrics.processes_finished = scheduler.get_finished_count();
-            if (cycles >= cycle_budget && scheduler.has_pending_processes()) {
+            const int total_processes = static_cast<int>(process_ptrs.size());
+            const bool hit_budget = (cycles >= cycle_budget);
+            const bool still_pending = scheduler.has_pending_processes();
+
+            if (hit_budget && still_pending && metrics.processes_finished < total_processes)
+            {
+                scheduler.dump_state("max_cycles_fcfs", cycles, cycle_budget);
+                std::cerr << "[WARN] FCFS atingiu MAX_CYCLES (" << cycle_budget
+                          << ") com processos ainda pendentes - veja logs/scheduler_dumps.log\n";
                 metrics.error = "FCFS atingiu o limite de ciclos antes de concluir todos os processos";
             }
+            else if (hit_budget)
+            {
+                std::cerr << "[INFO] FCFS atingiu o orçamento de ciclos, "
+                             "mas todos os processos foram concluídos.\n";
+            }
+
             finalize_stats(scheduler.get_statistics());
-        } else if (policy == "SJN") {
+        }
+        else if (policy == "SJN")
+        {
             SJNScheduler scheduler(num_cores, memManager.get(), ioManager.get());
-            for (auto* pcb : process_ptrs) {
+            for (auto *pcb : process_ptrs)
+            {
                 scheduler.add_process(pcb);
             }
+
             int cycles = 0;
-            while (scheduler.has_pending_processes() && cycles < cycle_budget) {
+            while (scheduler.has_pending_processes() && cycles < cycle_budget)
+            {
                 scheduler.schedule_cycle();
                 ++cycles;
             }
-            for (int i = 0; i < 200; ++i) {
+
+            // folga pro I/O terminar
+            for (int i = 0; i < 50; ++i)
+            {
+                if (!scheduler.has_pending_processes())
+                    break;
                 scheduler.schedule_cycle();
             }
+
             metrics.processes_finished = scheduler.get_finished_count();
-            if (cycles >= cycle_budget && scheduler.has_pending_processes()) {
+            const int total_processes = static_cast<int>(process_ptrs.size());
+            const bool hit_budget = (cycles >= cycle_budget);
+            const bool still_pending = scheduler.has_pending_processes();
+
+            if (hit_budget && still_pending && metrics.processes_finished < total_processes)
+            {
+                scheduler.dump_state("max_cycles_sjn", cycles, cycle_budget);
+                std::cerr << "[WARN] SJN atingiu MAX_CYCLES (" << cycle_budget
+                          << ") com processos ainda pendentes - veja logs/scheduler_dumps.log\n";
                 metrics.error = "SJN atingiu o limite de ciclos antes de concluir todos os processos";
             }
+            else if (hit_budget)
+            {
+                std::cerr << "[INFO] SJN atingiu o orçamento de ciclos, "
+                             "mas todos os processos foram concluídos.\n";
+            }
+
             finalize_stats(scheduler.get_statistics());
-        } else if (policy == "PRIORITY") {
+        }
+        else if (policy == "PRIORITY")
+        {
             PriorityScheduler scheduler(num_cores, memManager.get(), ioManager.get());
-            for (auto* pcb : process_ptrs) {
+            for (auto *pcb : process_ptrs)
+            {
                 scheduler.add_process(pcb);
             }
+
             int cycles = 0;
-            while (scheduler.has_pending_processes() && cycles < cycle_budget) {
+            while (scheduler.has_pending_processes() && cycles < cycle_budget)
+            {
                 scheduler.schedule_cycle();
                 ++cycles;
             }
-            for (int i = 0; i < 200; ++i) {
+
+            // folga pro I/O terminar
+            for (int i = 0; i < 50; ++i)
+            {
+                if (!scheduler.has_pending_processes())
+                    break;
                 scheduler.schedule_cycle();
             }
+
             metrics.processes_finished = scheduler.get_finished_count();
-            if (cycles >= cycle_budget && scheduler.has_pending_processes()) {
+            const int total_processes = static_cast<int>(process_ptrs.size());
+            const bool hit_budget = (cycles >= cycle_budget);
+            const bool still_pending = scheduler.has_pending_processes();
+
+            if (hit_budget && still_pending && metrics.processes_finished < total_processes)
+            {
+                std::cerr << "[WARN] PRIORITY atingiu MAX_CYCLES (" << cycle_budget
+                          << ") com processos ainda pendentes.\n";
                 metrics.error = "PRIORITY atingiu o limite de ciclos antes de concluir todos os processos";
             }
+            else if (hit_budget)
+            {
+                std::cerr << "[INFO] PRIORITY atingiu o orçamento de ciclos, "
+                             "mas todos os processos foram concluídos.\n";
+            }
+
             finalize_stats(scheduler.get_statistics());
-        } else {
+        }
+        else
+        {
             metrics.error = "Política não suportada: " + policy;
         }
 

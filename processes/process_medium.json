@@ -1,6 +1,6 @@
 {
-  "pid": 3,
-  "name": "Medium Process",
-  "quantum": 5,
+  "pid": 5,
+  "name": "medium",
+  "quantum": 8,
   "priority": 2
 }
