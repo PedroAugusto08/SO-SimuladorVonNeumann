@@ -1,0 +1,41 @@
+╔══════════════════════════════════════════════════════════════╗
+║  RELATÓRIO - MÉTRICAS POR POLÍTICA (2 CORE(S))  ║
+╚══════════════════════════════════════════════════════════════╝
+
+Workloads utilizados (8):
+  - balanced
+  - cpu_bound
+  - io_bound
+  - long
+  - medium
+  - memory_intensive
+  - quick
+  - short
+
+Política: RR
+------------------------------------------------------------
+[Métricas de Escalonamento]
+  • Tempo médio de espera:     4.47 ms
+  • Tempo médio de execução:   6.28 ms
+  • Utilização média da CPU:   100.00 %
+  • Eficiência estimada:       100.00 %
+  • Throughput global:         1066.26 proc/s
+[Métricas de Memória]
+  • Cache hits:                24
+  • Cache misses:              111
+  • Taxa de hit:               17.78 %
+
+Política: PRIORITY
+------------------------------------------------------------
+[Métricas de Escalonamento]
+  • Tempo médio de espera:     1.65 ms
+  • Tempo médio de execução:   2180.95 ms
+  • Utilização média da CPU:   100.00 %
+  • Eficiência estimada:       100.00 %
+  • Throughput global:         1.38 proc/s
+[Métricas de Memória]
+  • Cache hits:                24
+  • Cache misses:              111
+  • Taxa de hit:               17.78 %
+
+Relatório gerado automaticamente por test_metrics.cpp

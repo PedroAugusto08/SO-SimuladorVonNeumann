@@ -8,6 +8,7 @@
 #include <memory>
 #include <fstream>
 #include <chrono>
+#include <random>
 
 // Definição completa da estrutura IORequest
 struct IORequest {
@@ -48,6 +49,11 @@ private:
 
     std::ofstream resultFile;
     std::ofstream outputFile;
+
+    std::mt19937 rng;
+    std::uniform_int_distribution<int> printer_trigger_dist;
+    std::uniform_int_distribution<int> disk_trigger_dist;
+    std::uniform_int_distribution<int> cost_multiplier_dist;
 };
 
 #endif // IOMANAGER_HPP 

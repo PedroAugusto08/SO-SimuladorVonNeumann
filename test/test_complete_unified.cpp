@@ -44,6 +44,12 @@
 
 namespace fs = std::filesystem;
 
+struct WorkloadConfig {
+    std::string key;
+    std::string process_file;
+    std::string tasks_file;
+};
+
 // Estrutura completa de resultado
 struct UnifiedResult {
     std::string policy;
@@ -91,8 +97,65 @@ public:
     }
 };
 
-UnifiedResult run_unified_test(const std::string& policy, int num_cores, int num_processes, 
-                                int quantum, int max_cycles, const std::string& tasks_file,
+std::vector<WorkloadConfig> load_workloads(const std::string& process_dir,
+                                           const std::string& tasks_dir) {
+    std::vector<WorkloadConfig> workloads;
+    if (!fs::exists(process_dir) || !fs::exists(tasks_dir)) {
+        return workloads;
+    }
+
+    const std::string prefix = "process_";
+    std::vector<fs::path> process_files;
+    for (const auto& entry : fs::directory_iterator(process_dir)) {
+        if (!entry.is_regular_file()) continue;
+        if (entry.path().extension() != ".json") continue;
+        const auto stem = entry.path().stem().string();
+        if (stem.rfind(prefix, 0) != 0) continue;
+        process_files.push_back(entry.path());
+    }
+
+    std::sort(process_files.begin(), process_files.end());
+    for (const auto& process_path : process_files) {
+        const std::string stem = process_path.stem().string();
+        const std::string suffix = stem.substr(prefix.size());
+
+        if (suffix == "loop_heavy") {
+            continue; // workload extremamente longo já foi removido anteriormente
+        }
+
+        fs::path tasks_path = fs::path(tasks_dir) / ("tasks_" + suffix + ".json");
+        if (!fs::exists(tasks_path)) {
+            std::cerr << "⚠️  Workload ignorado: arquivo de tarefas não encontrado para '"
+                      << stem << "' (esperado " << tasks_path << ")\n";
+            continue;
+        }
+
+        workloads.push_back({suffix, process_path.string(), tasks_path.string()});
+    }
+
+    return workloads;
+}
+
+std::string format_workload_list(const std::vector<WorkloadConfig>& workloads) {
+    if (workloads.empty()) {
+        return "    (nenhum workload encontrado)\n";
+    }
+
+    std::ostringstream oss;
+    for (const auto& workload : workloads) {
+        const std::string label = workload.key.empty()
+            ? fs::path(workload.process_file).stem().string()
+            : workload.key;
+        oss << "    • " << label
+            << " (processo: " << workload.process_file
+            << ", tarefas: " << workload.tasks_file << ")\n";
+    }
+    return oss.str();
+}
+
+UnifiedResult run_unified_test(const std::string& policy, int num_cores,
+                                const std::vector<WorkloadConfig>& workloads,
+                                int quantum, int max_cycles,
                                 bool collect_detailed_metrics = true) {
     UnifiedResult result;
     result.policy = policy;
@@ -107,6 +170,7 @@ UnifiedResult run_unified_test(const std::string& policy, int num_cores, int num
     result.hit_rate_pct = 0;
     
     std::vector<PCB*> process_ptrs;
+    const int num_processes = static_cast<int>(workloads.size());
     
     try {
         SilentMode silent;
@@ -119,14 +183,19 @@ UnifiedResult run_unified_test(const std::string& policy, int num_cores, int num
         
         // Carregar processos
         for (int i = 0; i < num_processes; i++) {
+            const auto& workload = workloads[i];
             PCB* pcb = new PCB();
-            if (load_pcb_from_json("examples/processes/process1.json", *pcb)) {
+            if (load_pcb_from_json(workload.process_file.c_str(), *pcb)) {
                 pcb->pid = i + 1;
-                pcb->name = "P" + std::to_string(i + 1);
+                if (!workload.key.empty()) {
+                    pcb->name = workload.key;
+                } else {
+                    pcb->name = "P" + std::to_string(i + 1);
+                }
                 pcb->quantum = quantum;
                 pcb->arrival_time = 0;
                 pcb->state = State::Ready;
-                loadJsonProgram(tasks_file, *memManager, *pcb, i * 1024);
+                loadJsonProgram(workload.tasks_file, *memManager, *pcb, i * 2048);
                 pcb->estimated_job_size = pcb->program_size;
                 
                 // Prioridades variadas para PRIORITY
@@ -280,12 +349,20 @@ UnifiedResult run_unified_test(const std::string& policy, int num_cores, int num
 }
 
 int main() {
-    const int NUM_PROCESSES = 8;
+    const std::string PROCESS_DIR = "processes";
+    const std::string TASKS_DIR = "tasks";
+    const std::vector<WorkloadConfig> workloads = load_workloads(PROCESS_DIR, TASKS_DIR);
+    if (workloads.empty()) {
+        std::cerr << "❌ Nenhum workload encontrado em '" << PROCESS_DIR
+                  << "' ou '" << TASKS_DIR << "'.\n";
+        return 1;
+    }
+
+    const int NUM_PROCESSES = static_cast<int>(workloads.size());
     const int QUANTUM = 1000;
-    const int MAX_CYCLES = 10000000;
-    const std::string TASKS_FILE = "examples/programs/tasks.json";
-    const int ITERATIONS = 20;  // Mais iterações para melhor estabilidade estatística
-    const int WARMUP_ITERATIONS = 3;
+    const int MAX_CYCLES = 3000000;
+    const int ITERATIONS = 3;
+    const int WARMUP_ITERATIONS = 1;
     const std::string DATA_DIR = "dados_graficos";
     const std::string CSV_DIR = DATA_DIR + "/csv";
     const std::string REPORTS_DIR = DATA_DIR + "/reports";
@@ -315,10 +392,11 @@ int main() {
     std::cout << "Configuração:\n";
     std::cout << "  • Políticas: RR, FCFS, SJN, PRIORITY\n";
     std::cout << "  • Cores: 1, 2, 4, 6\n";
-    std::cout << "  • Processos: " << NUM_PROCESSES << "\n";
+    std::cout << "  • Processos: " << NUM_PROCESSES
+              << " (perfis em '" << PROCESS_DIR << "' + '" << TASKS_DIR << "')\n";
     std::cout << "  • Quantum (RR): " << QUANTUM << " ciclos\n";
     std::cout << "  • Iterações: " << ITERATIONS << " (após " << WARMUP_ITERATIONS << " warm-ups)\n";
-    std::cout << "  • Workload: " << TASKS_FILE << "\n\n";
+    std::cout << "  • Workloads disponíveis:\n" << format_workload_list(workloads) << "\n";
     
     std::cout << "Este teste gera dados completos para a GUI permitindo comparar:\n";
     std::cout << "  ✓ Número de Cores vs Cache Hits\n";
@@ -345,15 +423,15 @@ int main() {
             // Warm-up
             for (int w = 0; w < WARMUP_ITERATIONS; w++) {
                 std::cout << "W" << std::flush;
-                run_unified_test(policy, num_cores, NUM_PROCESSES, QUANTUM, MAX_CYCLES, TASKS_FILE, false);
+                run_unified_test(policy, num_cores, workloads, QUANTUM, MAX_CYCLES, false);
             }
             std::cout << " ";
             
             // Iterações válidas
             for (int i = 0; i < ITERATIONS; i++) {
                 std::cout << "." << std::flush;
-                UnifiedResult result = run_unified_test(policy, num_cores, NUM_PROCESSES, 
-                                                        QUANTUM, MAX_CYCLES, TASKS_FILE, true);
+                UnifiedResult result = run_unified_test(policy, num_cores, workloads,
+                                                        QUANTUM, MAX_CYCLES, true);
                 if (result.execution_time_ms > 0) {
                     iteration_results.push_back(result);
                 }
@@ -600,8 +678,15 @@ int main() {
             report << "╚════════════════════════════════════════════════════════════════════╝\n\n";
 
             report << "Configuração do Teste:\n";
-            report << "  • Workload: " << TASKS_FILE << "\n";
-            report << "  • Processos: " << NUM_PROCESSES << "\n";
+            report << "  • Processos: " << NUM_PROCESSES
+                   << " (perfis em '" << PROCESS_DIR << "' + '" << TASKS_DIR << "')\n";
+            report << "  • Workloads utilizados:\n";
+            for (const auto& workload : workloads) {
+                const auto name = workload.key.empty()
+                    ? fs::path(workload.process_file).stem().string()
+                    : workload.key;
+                report << "    - " << name << "\n";
+            }
             report << "  • Quantum (RR): " << QUANTUM << " ciclos\n";
             report << "  • Políticas testadas: RR, FCFS, SJN, PRIORITY\n";
             report << "  • Núcleos avaliados neste relatório: 2\n\n";

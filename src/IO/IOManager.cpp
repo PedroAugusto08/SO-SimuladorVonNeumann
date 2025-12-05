@@ -2,18 +2,18 @@
 #include <iostream>
 #include <chrono>
 #include <fstream>
-#include <cstdlib>
-#include <ctime>
 
 // Construtor
 IOManager::IOManager() :
     printer_requesting(false),
     disk_requesting(false),
     network_requesting(false),
-    shutdown_flag(false)
+    shutdown_flag(false),
+    rng(std::random_device{}()),
+    printer_trigger_dist(0, 99),
+    disk_trigger_dist(0, 49),
+    cost_multiplier_dist(1, 3)
 {
-    srand(time(nullptr));
-
     resultFile.open("result.dat", std::ios::app);
     outputFile.open("output.dat", std::ios::app);
 
@@ -51,13 +51,13 @@ void IOManager::managerLoop() {
         // ETAPA 1: Simula os dispositivos solicitando uma operação
         {
             std::lock_guard<std::mutex> lock(device_state_lock);
-            if (rand() % 100 == 0) {
+            if (printer_trigger_dist(rng) == 0) {
                 if (!printer_requesting) {
                     printer_requesting = true;
                     // std::cout << "I/O Manager: [Impressora] está solicitando uma operação." << std::endl;
                 }
             }
-            if (rand() % 50 == 0) {
+            if (disk_trigger_dist(rng) == 0) {
                 if (!disk_requesting) {
                     disk_requesting = true;
                     // std::cout << "I/O Manager: [Disco] está solicitando uma operação." << std::endl;
@@ -88,7 +88,8 @@ void IOManager::managerLoop() {
                 if (new_request) {
                     new_request->process = process_to_service;
                     waiting_processes.erase(waiting_processes.begin());
-                    new_request->cost_cycles = std::chrono::milliseconds((rand() % 3 + 1) * 100);
+                    const int multiplier = cost_multiplier_dist(rng);
+                    new_request->cost_cycles = std::chrono::milliseconds(multiplier * 100);
                 }
             }
         }

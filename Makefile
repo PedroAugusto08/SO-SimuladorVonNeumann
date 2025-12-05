@@ -14,7 +14,7 @@ TARGET_CPU_METRICS := $(BIN_DIR)/test_cpu_metrics
 TARGET_DEEP_INSPECT := $(BIN_DIR)/test_deep_inspection
 TARGET_RACE_DEBUG := $(BIN_DIR)/test_race_debug
 TARGET_SINGLE_CORE := $(BIN_DIR)/test_single_core_no_threads
-TARGET_UNIFIED := $(BIN_DIR)/test_complete_unified
+TARGET_METRICS := $(BIN_DIR)/test_metrics
 
 # Fontes principais
 SRC := src/teste.cpp src/cpu/ULA.cpp
@@ -111,9 +111,9 @@ SRC_RACE_DEBUG := test/test_race_debug.cpp $(BASE_TEST_SRC)
 OBJ_RACE_DEBUG := $(SRC_RACE_DEBUG:.cpp=.o)
 
 
-# Fontes para teste unificado completo (multicore + métricas + cache)
-SRC_UNIFIED := test/test_complete_unified.cpp $(BASE_TEST_SRC)
-OBJ_UNIFIED := $(SRC_UNIFIED:.cpp=.o)
+# Fontes para teste de métricas com núcleos fixos
+SRC_METRICS := test/test_metrics.cpp $(BASE_TEST_SRC)
+OBJ_METRICS := $(SRC_METRICS:.cpp=.o)
 
 # Make clean -> make -> make run
 all: clean $(TARGET_SIM)
@@ -177,11 +177,11 @@ $(TARGET_SINGLE_CORE): $(OBJ_SINGLE_CORE)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_SINGLE_CORE) $(LDFLAGS)
 	@echo "✓ Teste single-core (sem threads) compilado!"
 
-# Regra para teste unificado completo (multicore + métricas + cache)
-$(TARGET_UNIFIED): $(OBJ_UNIFIED)
+# Regra para teste de métricas com núcleos fixos
+$(TARGET_METRICS): $(OBJ_METRICS)
 	mkdir -p $(BIN_DIR)
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_UNIFIED) $(LDFLAGS)
-	@echo "✓ Teste unificado completo compilado!"
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_METRICS) $(LDFLAGS)
+	@echo "✓ Teste de métricas multicore (núcleos fixos) compilado!"
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -205,44 +205,26 @@ test-bank: clean $(TARGET_BANK)
 	@echo "🧪 Executando teste do Register Bank..."
 	@./$(TARGET_BANK)
 
-# Teste de preempção por quantum
-test-preemption: $(TARGET_PREEMPT)
-	@echo "🧪 Executando teste de preempção..."
-	@./$(TARGET_PREEMPT)
-
 # Teste de métricas de CPU
 test-cpu-metrics: $(TARGET_CPU_METRICS)
 	@echo "🧪 Executando teste de métricas de CPU..."
 	@./$(TARGET_CPU_METRICS)
-
-# Teste de prioridade preemptiva removido
-
-# Teste de inspeção profunda
-test-deep-inspection: $(TARGET_DEEP_INSPECT)
-	@echo "🧪 Executando teste de inspeção profunda..."
-	@./$(TARGET_DEEP_INSPECT)
-
-# Teste de race conditions
-test-race-debug: $(TARGET_RACE_DEBUG)
-	@echo "🧪 Executando teste de race debug..."
-	@./$(TARGET_RACE_DEBUG)
 
 # Teste single-core sem threads
 test-single-core: $(TARGET_SINGLE_CORE)
 	@echo "🧪 Executando teste single-core (sem threads)..."
 	@./$(TARGET_SINGLE_CORE)
 
-# Teste unificado completo (RECOMENDADO PARA GUI)
-test-unified: $(TARGET_UNIFIED)
-	@echo "🎯 Executando teste unificado completo (multicore + métricas + cache)..."
-	@./$(TARGET_UNIFIED)
+# Teste unificado simplificado (núcleos fixos)
+test-metrics: $(TARGET_METRICS)
+	@./$(TARGET_METRICS)
 
 # Alias para teste completo
-test-complete: test-unified
+test-complete: test-metrics
 
 # Executa TODOS os testes disponíveis em sequência (mantendo apenas os suportados)
 test-all: $(TARGET_HASH) $(TARGET_BANK) $(TARGET_PREEMPT) $(TARGET_CPU_METRICS) \
-	  $(TARGET_DEEP_INSPECT) $(TARGET_RACE_DEBUG) $(TARGET_SINGLE_CORE) $(TARGET_UNIFIED)
+	  $(TARGET_DEEP_INSPECT) $(TARGET_RACE_DEBUG) $(TARGET_SINGLE_CORE) $(TARGET_METRICS)
 	@echo "╔════════════════════════════════════════════════════════════╗"
 	@echo "║  🧪 EXECUTANDO BATERIA COMPLETA DE TESTES                 ║"
 	@echo "╚════════════════════════════════════════════════════════════╝"
@@ -269,8 +251,8 @@ test-all: $(TARGET_HASH) $(TARGET_BANK) $(TARGET_PREEMPT) $(TARGET_CPU_METRICS) 
 	@echo "┌─ [7/8] Single-Core Serial Test ────────────────────────────┐"
 	@./$(TARGET_SINGLE_CORE) || true
 	@echo ""
-	@echo "┌─ [8/8] Unified Complete Test ──────────────────────────────┐"
-	@./$(TARGET_UNIFIED) || true
+	@echo "┌─ [8/8] Fixed-Core Metrics Test ───────────────────────────┐"
+	@./$(TARGET_METRICS) || true
 	@echo ""
 	@echo "╔════════════════════════════════════════════════════════════╗"
 	@echo "║  ✅ BATERIA DE TESTES CONCLUÍDA                           ║"
@@ -288,7 +270,7 @@ help:
 	@echo "  make simulador     - 🎯 Compila simulador multicore Round-Robin"
 	@echo "  make run-sim       - 🚀 Executa simulador multicore"
 	@echo "  make test-preemption - 🧪 Testa preempção por quantum"
-	@echo "  make test-unified  - 🎯 Gera todos os CSVs/relatórios para a GUI"
+	@echo "  make test-metrics  - 🎯 Gera todos os CSVs/relatórios para a GUI"
 	@echo "  make / make all    - Compila e executa programa principal"
 	@echo "  make clean         - Remove arquivos gerados (.o, executáveis)"
 	@echo "  make run          - Executa programa principal (sem recompilar)"

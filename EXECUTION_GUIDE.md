@@ -193,7 +193,7 @@ Iniciando escalonador...
 Todos os testes legados (`test-multicore`, `test-multicore-comparative`, `test-throughput`, `test-metrics-complete` e afins) foram consolidados em **um único comando**:
 
 ```bash
-make test-unified
+make test-metrics
 ```
 
 **O que ele entrega:**
@@ -212,7 +212,12 @@ make test-unified
 **Relatório textual:**
 - `dados_graficos/reports/relatorio_comparativo.txt` – pronto para apresentações
 
-> 💡 Execute `make test-unified` sempre que precisar atualizar os dados da GUI ou obter um relatório completo. Não é necessário rodar nenhum outro binário auxiliar.
+Além desses datasets legados, cada execução também gera snapshots exclusivos para o número de núcleos definido em `DEFAULT_NUM_CORES`:
+- `dados_graficos/csv/metricas_<N>cores.csv`
+- `dados_graficos/reports/relatorio_metricas_<N>cores.txt`
+onde `<N>` representa a contagem efetiva de cores utilizada na coleta das métricas.
+
+> 💡 Execute `make test-metrics` sempre que precisar atualizar os dados da GUI ou obter um relatório completo. Não é necessário rodar nenhum outro binário auxiliar.
 
 ---
 
@@ -233,7 +238,7 @@ make test-all
 5. ✅ Deep Inspection Test
 6. ✅ Race Condition Debug Test
 7. ✅ Single-Core Serial Test
-8. ✅ Unified Complete Test (gera todos os CSVs/relatórios)
+8. ✅ Metrics Test (gera todos os CSVs/relatórios)
 
 **Tempo estimado:** 5 minutos
 
@@ -546,7 +551,7 @@ make: *** No rule to make target 'test-multicore'
 **Solução:**
 ```bash
 # Os testes legados foram removidos. Use o alvo unificado:
-make test-unified
+make test-metrics
 
 # Dúvidas? Confira os comandos atuais
 make help
@@ -560,8 +565,8 @@ make help
 
 **Solução:**
 ```bash
-# O teste unificado executa 20 iterações + filtro de outliers
-make test-unified
+# O teste de métricas executa 20 iterações + filtro de outliers
+make test-metrics
 
 # Verifique a coluna CV_Pct nos CSVs/GUI para estabilidade (< 15%)
 ```

@@ -22,8 +22,8 @@ const unordered_map<string, int> registerMap = {
     {"$t8",24},{"$t9",25},{"$k0",26},{"$k1",27},{"$gp",28},{"$sp",29},{"$fp",30},{"$ra",31}
 };
 
-static unordered_map<string, int> dataMap;
-static unordered_map<string, int> labelMap;
+static thread_local unordered_map<string, int> dataMap;
+static thread_local unordered_map<string, int> labelMap;
 
 // ======= Utils e Helpers (sem alterações) =======
 string toLower(string s){

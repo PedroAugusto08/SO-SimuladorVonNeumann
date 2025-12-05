@@ -125,6 +125,7 @@ void Core::run_process(PCB* process) {
             
             // 🆕 RASTREAR CICLO BUSY
             busy_cycles++;
+
             
         } catch (const std::exception& e) {
             std::cerr << "[Core " << core_id << "] Erro na execução de P" 

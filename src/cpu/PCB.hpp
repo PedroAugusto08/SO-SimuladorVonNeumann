@@ -51,6 +51,7 @@ struct PCB {
     std::atomic<uint64_t> mem_reads{0};
     std::atomic<uint64_t> mem_writes{0};
 
+
     // Novos contadores
     std::atomic<uint64_t> cache_hits{0};
     std::atomic<uint64_t> cache_misses{0};

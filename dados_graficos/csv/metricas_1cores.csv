@@ -1,0 +1,4 @@
+Politica,TempoMedioEspera_ms,TempoMedioExecucao_ms,CPUUtilizacao_pct,Eficiencia_pct,Throughput_proc_s,CacheHits,CacheMisses,TaxaHit_pct
+RR,3.99,4.67,100.00,100.00,1435.0291,24,111,17.78
+FCFS,1.82,2714.02,100.00,100.00,0.9691,24,111,17.78
+PRIORITY,2.72,966.08,100.00,100.00,2.5392,24,111,17.78
