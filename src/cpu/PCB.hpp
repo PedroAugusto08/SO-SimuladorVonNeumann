@@ -59,10 +59,37 @@ struct PCB {
     std::atomic<uint64_t> arrival_time{0};      // Quando entrou no sistema
     std::atomic<uint64_t> start_time{0};        // Primeira execução
     std::atomic<uint64_t> finish_time{0};       // Quando terminou
+<<<<<<< Updated upstream
     std::atomic<uint64_t> total_wait_time{0};   // Tempo total em espera
     std::atomic<uint64_t> context_switches{0};  // Número de trocas de contexto
     std::atomic<int> assigned_core{-1};         // Núcleo atual (-1 = nenhum)
     std::atomic<int> last_core{-1};             // Último núcleo usado
+=======
+    // Simulated timestamps (baseados no clock simulado do escalonador)
+    std::atomic<uint64_t> arrival_sim_time{0};
+    std::atomic<uint64_t> start_sim_time{0};
+    std::atomic<uint64_t> finish_sim_time{0};
+    std::atomic<uint64_t> total_wait_time{0};   // Tempo total em espera (ns)
+    // Simulated waiting time aggregated while in ready queue
+    std::atomic<uint64_t> total_wait_sim_time{0};
+    std::atomic<uint64_t> context_switches{0};  // Número de trocas de contexto
+    std::atomic<int> assigned_core{-1};         // Núcleo atual (-1 = nenhum)
+    std::atomic<int> last_core{-1};             // Último núcleo usado
+    std::atomic<uint64_t> ready_queue_enter_time{0}; // Timestamp de entrada na fila ready
+    // Simulated enter timestamp for ready queue
+    std::atomic<uint64_t> ready_queue_enter_sim_time{0};
+    std::atomic<bool> in_ready_queue{false};         // Evita re-enfileirar duplicado
+    std::atomic<bool> failed{false};
+    std::string failure_reason;
+
+    // Informações do programa carregado
+    uint32_t program_start_addr = 0;             // Endereço de início do programa
+    uint32_t program_size = 0;                   // Tamanho do programa em bytes
+    uint32_t segment_base_addr = 0;              // Base física do segmento do processo
+    uint32_t segment_limit = 0;                  // Limite (tamanho) do segmento
+
+    uint64_t estimated_job_size = 0; // Estimativa de ciclos para SJN
+>>>>>>> Stashed changes
 
     MemWeights memWeights;
     
@@ -71,10 +98,86 @@ struct PCB {
         if (finish_time == 0) return 0;
         return finish_time.load() - arrival_time.load();
     }
+    uint64_t get_turnaround_sim_time() const {
+        if (finish_sim_time == 0) return 0;
+        return finish_sim_time.load() - arrival_sim_time.load();
+    }
+
+    uint64_t get_wait_sim_time() const {
+        return total_wait_sim_time.load();
+    }
     
     uint64_t get_wait_time() const {
         return total_wait_time.load();
     }
+<<<<<<< Updated upstream
+=======
+
+    State get_state(std::memory_order order = std::memory_order_acquire) const {
+        return state.load(order);
+    }
+
+    void set_state(State new_state, std::memory_order order = std::memory_order_release) {
+        state.store(new_state, order);
+    }
+
+    bool enter_ready_queue() {
+        bool expected = false;
+        if (!in_ready_queue.compare_exchange_strong(expected, true, std::memory_order_acq_rel)) {
+            return false;
+        }
+        ready_queue_enter_time.store(cpu_time::now_ns(), std::memory_order_relaxed);
+        return true;
+    }
+
+    // Enter ready queue with simulated timestamp
+    bool enter_ready_queue_sim(uint64_t sim_ns) {
+        bool expected = false;
+        if (!in_ready_queue.compare_exchange_strong(expected, true, std::memory_order_acq_rel)) {
+            return false;
+        }
+        ready_queue_enter_sim_time.store(sim_ns, std::memory_order_relaxed);
+        // Keep old behavior for host timestamp as well
+        ready_queue_enter_time.store(cpu_time::now_ns(), std::memory_order_relaxed);
+        return true;
+    }
+
+    void leave_ready_queue() {
+        const uint64_t start = ready_queue_enter_time.exchange(0, std::memory_order_relaxed);
+        if (!in_ready_queue.exchange(false, std::memory_order_acq_rel) || start == 0) {
+            return;
+        }
+        const uint64_t end = cpu_time::now_ns();
+        if (end > start) {
+            total_wait_time.fetch_add(end - start, std::memory_order_relaxed);
+        }
+    }
+
+    // Leave ready queue using simulated timestamp
+    void leave_ready_queue_sim(uint64_t sim_ns) {
+        const uint64_t start_sim = ready_queue_enter_sim_time.exchange(0, std::memory_order_relaxed);
+        if (!in_ready_queue.exchange(false, std::memory_order_acq_rel) || start_sim == 0) {
+            return;
+        }
+        if (sim_ns > start_sim) {
+            total_wait_sim_time.fetch_add(sim_ns - start_sim, std::memory_order_relaxed);
+        }
+        // Keep host-based wait calc for compatibility
+        const uint64_t start = ready_queue_enter_time.exchange(0, std::memory_order_relaxed);
+        if (start != 0) {
+            const uint64_t end = cpu_time::now_ns();
+            if (end > start) {
+                total_wait_time.fetch_add(end - start, std::memory_order_relaxed);
+            }
+        }
+    }
+
+    void mark_failed(const std::string& reason) {
+        failed.store(true, std::memory_order_relaxed);
+        failure_reason = reason;
+        set_state(State::Failed);
+    }
+>>>>>>> Stashed changes
     
     double get_cache_hit_rate() const {
         uint64_t hits = cache_hits.load();

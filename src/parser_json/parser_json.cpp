@@ -294,6 +294,10 @@ int parseProgram(const json &programJson, MemoryManager &memManager, PCB& pcb, i
     }
 
     int current_mem_addr = startAddr;
+    std::cerr << "[PARSER-INFO] startAddr=" << startAddr << " pcb.segment_base=" << pcb.segment_base_addr << " pcb.segment_limit=" << pcb.segment_limit << "\n";
+    if (Log::debug_enabled()) {
+        std::cout << "[PARSER] parseProgram startAddr=" << startAddr << " initial current_mem_addr=" << current_mem_addr << "\n";
+    }
     int current_instruction_addr = 0;
     for (const auto &node : programJson) {
         if (!node.contains("instruction")) {
@@ -302,7 +306,12 @@ int parseProgram(const json &programJson, MemoryManager &memManager, PCB& pcb, i
         
         uint32_t binary_instruction = parseInstruction(node, current_instruction_addr);
         
+<<<<<<< Updated upstream
         memManager.write(current_mem_addr, binary_instruction, pcb); // Alterado aqui
+=======
+        std::cerr << "[PARSER] about to write inst at mem_addr=" << current_mem_addr << " (instr=0x" << std::hex << binary_instruction << std::dec << ")\n";
+        memManager.write_raw(current_mem_addr, binary_instruction); // Alterado aqui
+>>>>>>> Stashed changes
         
         current_mem_addr += 4;
         current_instruction_addr++;
@@ -324,7 +333,30 @@ int loadJsonProgram(const string &filename, MemoryManager &memManager, PCB& pcb,
 
     json j = readJsonFile(filename);
     int addr = startAddr;
+<<<<<<< Updated upstream
     if (j.contains("data"))    addr = parseData(j["data"], memManager, pcb, addr);
     if (j.contains("program")) addr = parseProgram(j["program"], memManager, pcb, addr);
+=======
+    
+    // Salvar endereço inicial
+    pcb.program_start_addr = startAddr;
+    // Temporariamente configurar segmento para permitir carregamento de dados
+    // O segment_limit será ajustado corretamente após o carregamento
+    pcb.segment_base_addr = static_cast<uint32_t>(startAddr);
+    
+
+    
+    if (j.contains("data"))    addr = parseData(j["data"], memManager, pcb, addr);
+    if (j.contains("program")) addr = parseProgram(j["program"], memManager, pcb, addr);
+    
+    // Calcular tamanho do programa carregado
+    pcb.program_size = addr - startAddr;
+    pcb.segment_base_addr = pcb.program_start_addr;
+    
+
+    // Garantir que o PC inicial aponta para o início do programa recem carregado
+    pcb.regBank.pc.write(pcb.program_start_addr);
+    
+>>>>>>> Stashed changes
     return addr;
 }

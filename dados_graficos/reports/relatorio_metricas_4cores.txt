@@ -1,0 +1,78 @@
+╔══════════════════════════════════════════════════════════════╗
+║  RELATÓRIO - MÉTRICAS POR POLÍTICA (4 CORE(S))  ║
+╚══════════════════════════════════════════════════════════════╝
+
+Workloads utilizados (8):
+  - balanced
+  - cpu_bound
+  - io_bound
+  - long
+  - medium
+  - memory_intensive
+  - quick
+  - short
+
+Política: RR
+  • Status: OK
+------------------------------------------------------------
+[Métricas de Escalonamento]
+  • Tempo médio de espera:     0.875000 ms
+  • Tempo médio de execução:   17.500000 ms
+  • Utilização média da CPU:   0.003206 %
+  • Eficiência estimada:       0.003206 %
+  • Throughput global:         0.007328 proc/s
+[Métricas de Memória]
+  • Cache hits:                3
+  • Cache misses:              48
+  • Taxa de hit:               5.882353 %
+  • Processos com falha:      0
+
+Política: FCFS
+  • Status: FALHA
+  • Motivo do erro: FCFS atingiu o limite de ciclos antes de concluir todos os processos
+------------------------------------------------------------
+[Métricas de Escalonamento]
+  • Tempo médio de espera:     0.000000 ms
+  • Tempo médio de execução:   0.000000 ms
+  • Utilização média da CPU:   0.000000 %
+  • Eficiência estimada:       0.000000 %
+  • Throughput global:         0.000000 proc/s
+[Métricas de Memória]
+  • Cache hits:                3
+  • Cache misses:              40
+  • Taxa de hit:               6.976744 %
+  • Processos com falha:      0
+
+Política: SJN
+  • Status: FALHA
+  • Motivo do erro: SJN atingiu o limite de ciclos antes de concluir todos os processos
+------------------------------------------------------------
+[Métricas de Escalonamento]
+  • Tempo médio de espera:     3.000000 ms
+  • Tempo médio de execução:   8571428.571429 ms
+  • Utilização média da CPU:   0.037500 %
+  • Eficiência estimada:       0.037500 %
+  • Throughput global:         0.000000 proc/s
+[Métricas de Memória]
+  • Cache hits:                3
+  • Cache misses:              47
+  • Taxa de hit:               6.000000 %
+  • Processos com falha:      0
+
+Política: PRIORITY
+  • Status: FALHA
+  • Motivo do erro: PRIORITY atingiu o limite de ciclos antes de concluir todos os processos
+------------------------------------------------------------
+[Métricas de Escalonamento]
+  • Tempo médio de espera:     0.000000 ms
+  • Tempo médio de execução:   0.000000 ms
+  • Utilização média da CPU:   0.000000 %
+  • Eficiência estimada:       0.000000 %
+  • Throughput global:         0.000000 proc/s
+[Métricas de Memória]
+  • Cache hits:                3
+  • Cache misses:              40
+  • Taxa de hit:               6.976744 %
+  • Processos com falha:      0
+
+Relatório gerado automaticamente por test_metrics.cpp

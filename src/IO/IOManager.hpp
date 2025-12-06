@@ -15,6 +15,7 @@ struct IORequest {
     std::string msg;
     PCB* process = nullptr; // Ponteiro para o PCB associado
     std::chrono::milliseconds cost_cycles;
+    uint64_t remaining_cycles;
 };
 
 class IOManager {
@@ -24,6 +25,7 @@ public:
 
     // Método para um processo se registrar como "esperando por I/O"
     void registerProcessWaitingForIO(PCB* process);
+<<<<<<< Updated upstream
 
 private:
     void managerLoop();
@@ -32,6 +34,13 @@ private:
     // Fila de requisições prontas para serem executadas
     std::vector<std::unique_ptr<IORequest>> requests;
     std::mutex queueLock;
+=======
+    bool is_idle() const;
+    void do_work();
+
+private:
+    std::vector<std::unique_ptr<IORequest>> active_requests;
+>>>>>>> Stashed changes
 
     // Fila de processos que estão no estado BLOCKED esperando por um dispositivo
     std::vector<PCB*> waiting_processes;
@@ -42,9 +51,6 @@ private:
     bool disk_requesting;
     bool network_requesting;
     std::mutex device_state_lock;
-
-    bool shutdown_flag;
-    std::thread managerThread;
 
     std::ofstream resultFile;
     std::ofstream outputFile;

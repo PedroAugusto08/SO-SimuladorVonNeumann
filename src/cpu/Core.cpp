@@ -132,6 +132,7 @@ void Core::run_process(PCB* process) {
     }
     
     // Determina o estado final do processo
+<<<<<<< Updated upstream
     if (endProgram) {
         process->state = State::Finished;
         process->finish_time = std::chrono::steady_clock::now()
@@ -141,6 +142,26 @@ void Core::run_process(PCB* process) {
                   << " FINALIZADO (total: " << process->pipeline_cycles.load() 
                   << " ciclos)\n";
         
+=======
+    if (context.endProgram) {
+        // Se o processo foi marcado como FAILED durante a execução, não sobrescrever
+        if (process->get_state() == State::Failed) {
+            // Manter como Failed, só assegurar que finish_time está setado
+            if (process->finish_time == 0) {
+                process->finish_time = cpu_time::now_ns();
+            }
+            std::cout << "[Core " << core_id << "] P" << process->pid 
+                      << " TERMINOU EM ERRO (estado=Failed). pipeline: " << process->pipeline_cycles.load() 
+                      << " ciclos)\n";
+        } else {
+            process->set_state(State::Finished);
+            process->finish_time = cpu_time::now_ns();
+            
+            std::cout << "[Core " << core_id << "] P" << process->pid 
+                      << " FINALIZADO (total: " << process->pipeline_cycles.load() 
+                      << " ciclos)\n";
+        }
+>>>>>>> Stashed changes
     } else if (!ioRequests.empty()) {
         process->state = State::Blocked;
         

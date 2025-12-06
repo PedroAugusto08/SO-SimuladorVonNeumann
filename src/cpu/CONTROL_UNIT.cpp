@@ -17,30 +17,6 @@
 #include <fstream>
 #include <mutex>
 
-static std::mutex log_mutex;
-
-
-
-using namespace std;
-
-void Control_Unit::log_operation(const std::string &msg) {
-    std::lock_guard<std::mutex> lock(log_mutex);
-
-    // Imprime no console
-    std::cout << "[LOG] " << msg << std::endl;
-
-    // Cria nome de arquivo temporário aleatório
-    static int temp_file_id = 1;  // pode ser mais sofisticado
-    std::ostringstream oss;
-    oss << "output/temp_" << temp_file_id << ".log";
-
-    std::ofstream fout(oss.str(), std::ios::app);
-    if (fout.is_open()) {
-        fout << msg << "\n";
-    }
-}
-
-
 // Helpers
 static uint32_t binaryStringToUint(const std::string &bin) {
     uint32_t value = 0;
@@ -128,7 +104,20 @@ void Control_Unit::Fetch(ControlContext &context) {
         return;
     }
     // PC <- PC + 4 (endereçamento por byte)
+<<<<<<< Updated upstream
     context.registers.pc.write(context.registers.pc.value + 4);
+=======
+    // CRITICAL: Incrementar ANTES de checar bounds para detectar corretamente
+    uint32_t next_pc = context.registers.pc.value + 4;
+    context.registers.pc.write(next_pc);
+    
+    // Verificar se PC saiu do espaço do programa (proteção contra loop infinito)
+    uint32_t program_end = context.process.program_start_addr + context.process.program_size;
+    if (next_pc >= program_end) {
+        context.endProgram = true;
+        return;
+    }
+>>>>>>> Stashed changes
 }
 
 void Control_Unit::Decode(hw::REGISTER_BANK &registers, Instruction_Data &data) {
@@ -199,63 +188,37 @@ void Control_Unit::Execute_Immediate_Operation(hw::REGISTER_BANK &registers, Ins
     std::string name_rs = this->map.getRegisterName(binaryStringToUint(data.source_register));
     std::string name_rt = this->map.getRegisterName(binaryStringToUint(data.target_register));
 
-    int32_t val_rs = registers.readRegister(name_rs);
-    int32_t imm = data.immediate; // já sign-extended
-
-    std::ostringstream ss;
-
     // ADDI / ADDIU
     if (data.op == "ADDI" || data.op == "ADDIU") {
         ALU alu;
-        alu.A = val_rs;
-        alu.B = imm;
+        alu.A = registers.readRegister(name_rs);
+        alu.B = data.immediate;
         alu.op = ADD;
         alu.calculate();
         registers.writeRegister(name_rt, alu.result);
-
-        ss << "[IMM] " << data.op << " "
-           << name_rt << " = " << name_rs << "(" << val_rs << ") + "
-           << imm << " -> " << alu.result;
-        log_operation(ss.str());
         return;
     }
 
     // SLTI
     if (data.op == "SLTI") {
-        int32_t res = (val_rs < imm) ? 1 : 0;
+        int32_t res = (registers.readRegister(name_rs) < data.immediate) ? 1 : 0;
         registers.writeRegister(name_rt, res);
-
-        ss << "[IMM] SLTI " << name_rt << " = (" << name_rs << "(" << val_rs
-           << ") < " << imm << ") ? 1 : 0 -> " << res;
-        log_operation(ss.str());
         return;
     }
 
     // LUI
     if (data.op == "LUI") {
-        uint32_t uimm = static_cast<uint32_t>(static_cast<uint16_t>(imm));
+        uint32_t uimm = static_cast<uint32_t>(static_cast<uint16_t>(data.immediate));
         int32_t val = static_cast<int32_t>(uimm << 16);
         registers.writeRegister(name_rt, val);
-
-        ss << "[IMM] LUI " << name_rt << " = (0x" << std::hex << imm
-           << " << 16) -> 0x" << val << std::dec;
-        log_operation(ss.str());
         return;
     }
 
     // LI
     if (data.op == "LI") {
-        registers.writeRegister(name_rt, imm);
-
-        ss << "[IMM] LI " << name_rt << " = " << imm;
-        log_operation(ss.str());
+        registers.writeRegister(name_rt, data.immediate);
         return;
     }
-
-    // Caso não mapeado
-    ss << "[IMM] UNKNOWN OP: " << data.op
-       << " rs=" << name_rs << " imm=" << imm;
-    log_operation(ss.str());
 }
 
 void Control_Unit::Execute_Aritmetic_Operation(hw::REGISTER_BANK &registers, Instruction_Data &data) {
@@ -263,12 +226,9 @@ void Control_Unit::Execute_Aritmetic_Operation(hw::REGISTER_BANK &registers, Ins
     std::string name_rt = this->map.getRegisterName(binaryStringToUint(data.target_register));
     std::string name_rd = this->map.getRegisterName(binaryStringToUint(data.destination_register));
 
-    int32_t val_rs = registers.readRegister(name_rs);
-    int32_t val_rt = registers.readRegister(name_rt);
-
     ALU alu;
-    alu.A = val_rs;
-    alu.B = val_rt;
+    alu.A = registers.readRegister(name_rs);
+    alu.B = registers.readRegister(name_rt);
 
     if (data.op == "ADD") alu.op = ADD;
     else if (data.op == "SUB") alu.op = SUB;
@@ -278,13 +238,6 @@ void Control_Unit::Execute_Aritmetic_Operation(hw::REGISTER_BANK &registers, Ins
 
     alu.calculate();
     registers.writeRegister(name_rd, alu.result);
-
-    std::ostringstream ss;
-    ss << "[ARIT] " << data.op << " " << name_rd
-       << " = " << name_rs << "(" << val_rs << ") "
-       << data.op << " " << name_rt << "(" << val_rt << ") = "
-       << alu.result;
-    log_operation(ss.str());
 }
 
 void Control_Unit::Execute_Operation(Instruction_Data &data, ControlContext &context) {
@@ -296,11 +249,6 @@ void Control_Unit::Execute_Operation(Instruction_Data &data, ControlContext &con
             req->msg = std::to_string(value);
             req->process = &context.process;
             context.ioRequests.push_back(std::move(req));
-
-            // TRACE PRINT from register
-            std::cout << "[PRINT-REQ] PRINT REG " << name << " value=" << value
-                      << " (pid=" << context.process.pid << ")\n";
-
             if (context.printLock) {
                 context.process.state = State::Blocked;
                 context.endExecution = true;
@@ -328,9 +276,6 @@ void Control_Unit::Execute_Loop_Operation(hw::REGISTER_BANK &registers, Instruct
 
     if (jump) {
         uint32_t addr = binaryStringToUint(data.addressRAMResult);
-        // TRACE BRANCH/JUMP
-        std::cout << "[BRANCH] OP=" << data.op << " taken, new PC=" << addr << "\n";
-
         registers.pc.write(addr);
         registers.ir.write(memManager.read(registers.pc.read(), process));
         counter = 0; counterForEnd = 5; programEnd = false;
@@ -362,16 +307,10 @@ void Control_Unit::Memory_Acess(Instruction_Data &data, ControlContext &context)
     if (data.op == "LW") {
         uint32_t addr = binaryStringToUint(data.addressRAMResult);
         int value = context.memManager.read(addr, context.process);
-        context.registers.writeRegister(name_rt, value);
-
-        std::cout << "[MEMORY] LW addr=" << addr << " value=" << value
-                  << " -> " << name_rt << "\n";
+        context.registers.writeRegister(name_rt, value);;
     } else if (data.op == "LA" || data.op == "LI") {
         uint32_t val = binaryStringToUint(data.addressRAMResult);
-        context.registers.writeRegister(name_rt, static_cast<int>(val));
-
-        std::cout << "[MEMORY] " << data.op << " -> " << name_rt
-                  << " value=" << static_cast<int>(val) << "\n";
+        context.registers.writeRegister(name_rt, static_cast<int>(val));;
     } else if (data.op == "PRINT" && data.target_register.empty()) {
         uint32_t addr = binaryStringToUint(data.addressRAMResult);
         int value = context.memManager.read(addr, context.process);
@@ -379,10 +318,6 @@ void Control_Unit::Memory_Acess(Instruction_Data &data, ControlContext &context)
         req->msg = std::to_string(value);
         req->process = &context.process;
         context.ioRequests.push_back(std::move(req));
-
-        std::cout << "[PRINT-REQ] PRINT MEM addr=" << addr << " value=" << value
-                  << " (pid=" << context.process.pid << ")\n";
-
         if (context.printLock) {
             context.process.state = State::Blocked;
             context.endExecution = true;
@@ -396,10 +331,7 @@ void Control_Unit::Write_Back(Instruction_Data &data, ControlContext &context) {
         uint32_t addr = binaryStringToUint(data.addressRAMResult);
         string name_rt = this->map.getRegisterName(binaryStringToUint(data.target_register));
         int value = context.registers.readRegister(name_rt);
-        context.memManager.write(addr, value, context.process);
-
-        std::cout << "[WRITE-BACK] SW addr=" << addr << " value=" << value
-                  << " from reg " << name_rt << "\n";
+        context.memManager.write(addr, value, context.process);;
     }
 }
 
@@ -450,6 +382,7 @@ void* CoreExecutionLoop(MemoryManager &memoryManager, PCB &process, vector<uniqu
         process.state = State::Finished;
     }
 
+<<<<<<< Updated upstream
     // === DUMP FINAL DOS REGISTRADORES ===
     {
         // nomes comuns de registradores MIPS como fallback
@@ -495,5 +428,7 @@ void* CoreExecutionLoop(MemoryManager &memoryManager, PCB &process, vector<uniqu
         std::cout << "========================================\n\n";
     }
 
+=======
+>>>>>>> Stashed changes
     return nullptr;
 }

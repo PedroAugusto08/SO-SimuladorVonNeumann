@@ -1,0 +1,306 @@
+🧹 Limpando arquivos antigos...
+g++ -Wall -Wextra -g -std=c++17 -Isrc -fsanitize=address -fno-omit-frame-pointer -O1 -g -c src/cpu/Core.cpp -o src/cpu/Core.o
+g++ -Wall -Wextra -g -std=c++17 -Isrc -fsanitize=address -fno-omit-frame-pointer -O1 -g -c src/cpu/RoundRobinScheduler.cpp -o src/cpu/RoundRobinScheduler.o
+g++ -Wall -Wextra -g -std=c++17 -Isrc -fsanitize=address -fno-omit-frame-pointer -O1 -g -c src/cpu/CONTROL_UNIT.cpp -o src/cpu/CONTROL_UNIT.o
+src/cpu/CONTROL_UNIT.cpp: In member function ‘void Control_Unit::Execute_Immediate_Operation(hw::REGISTER_BANK&, Instruction_Data&)’:
+src/cpu/CONTROL_UNIT.cpp:201:56: warning: comparison of integer expressions of different signedness: ‘uint32_t’ {aka ‘unsigned int’} and ‘int32_t’ {aka ‘int’} [-Wsign-compare]
+  201 |         int32_t res = (registers.readRegister(name_rs) < data.immediate) ? 1 : 0;
+      |                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+src/cpu/CONTROL_UNIT.cpp: At global scope:
+src/cpu/CONTROL_UNIT.cpp:46:20: warning: ‘std::string toBinStr(uint32_t, int)’ defined but not used [-Wunused-function]
+   46 | static std::string toBinStr(uint32_t v, int width) {
+      |                    ^~~~~~~~
+g++ -Wall -Wextra -g -std=c++17 -Isrc -fsanitize=address -fno-omit-frame-pointer -O1 -g -c src/cpu/pcb_loader.cpp -o src/cpu/pcb_loader.o
+g++ -Wall -Wextra -g -std=c++17 -Isrc -fsanitize=address -fno-omit-frame-pointer -O1 -g -c src/cpu/REGISTER_BANK.cpp -o src/cpu/REGISTER_BANK.o
+g++ -Wall -Wextra -g -std=c++17 -Isrc -fsanitize=address -fno-omit-frame-pointer -O1 -g -c src/cpu/ULA.cpp -o src/cpu/ULA.o
+g++ -Wall -Wextra -g -std=c++17 -Isrc -fsanitize=address -fno-omit-frame-pointer -O1 -g -c src/cpu/FCFSScheduler.cpp -o src/cpu/FCFSScheduler.o
+g++ -Wall -Wextra -g -std=c++17 -Isrc -fsanitize=address -fno-omit-frame-pointer -O1 -g -c src/cpu/SJNScheduler.cpp -o src/cpu/SJNScheduler.o
+g++ -Wall -Wextra -g -std=c++17 -Isrc -fsanitize=address -fno-omit-frame-pointer -O1 -g -c src/cpu/PriorityScheduler.cpp -o src/cpu/PriorityScheduler.o
+src/cpu/PriorityScheduler.cpp: In lambda function:
+src/cpu/PriorityScheduler.cpp:127:25: warning: unused variable ‘proc_state’ [-Wunused-variable]
+  127 |             const State proc_state = process->get_state();
+      |                         ^~~~~~~~~~
+g++ -Wall -Wextra -g -std=c++17 -Isrc -fsanitize=address -fno-omit-frame-pointer -O1 -g -c src/IO/IOManager.cpp -o src/IO/IOManager.o
+g++ -Wall -Wextra -g -std=c++17 -Isrc -fsanitize=address -fno-omit-frame-pointer -O1 -g -c src/memory/cache.cpp -o src/memory/cache.o
+g++ -Wall -Wextra -g -std=c++17 -Isrc -fsanitize=address -fno-omit-frame-pointer -O1 -g -c src/memory/cachePolicy.cpp -o src/memory/cachePolicy.o
+g++ -Wall -Wextra -g -std=c++17 -Isrc -fsanitize=address -fno-omit-frame-pointer -O1 -g -c src/memory/MAIN_MEMORY.cpp -o src/memory/MAIN_MEMORY.o
+g++ -Wall -Wextra -g -std=c++17 -Isrc -fsanitize=address -fno-omit-frame-pointer -O1 -g -c src/memory/MemoryManager.cpp -o src/memory/MemoryManager.o
+g++ -Wall -Wextra -g -std=c++17 -Isrc -fsanitize=address -fno-omit-frame-pointer -O1 -g -c src/memory/SECONDARY_MEMORY.cpp -o src/memory/SECONDARY_MEMORY.o
+g++ -Wall -Wextra -g -std=c++17 -Isrc -fsanitize=address -fno-omit-frame-pointer -O1 -g -c src/parser_json/parser_json.cpp -o src/parser_json/parser_json.o
+src/parser_json/parser_json.cpp: In function ‘int parseData(const nlohmann::json_abi_v3_12_0::json&, MemoryManager&, PCB&, int)’:
+src/parser_json/parser_json.cpp:207:69: warning: unused parameter ‘pcb’ [-Wunused-parameter]
+  207 | int parseData(const json &dataJson, MemoryManager &memManager, PCB& pcb, int startAddr){
+      |                                                                ~~~~~^~~
+g++ -Wall -Wextra -g -std=c++17 -Isrc -fsanitize=address -fno-omit-frame-pointer -O1 -g -c src/util/Log.cpp -o src/util/Log.o
+mkdir -p bin
+g++ -Wall -Wextra -g -std=c++17 -Isrc -fsanitize=address -fno-omit-frame-pointer -O1 -g -o bin/test_metrics test/test_metrics.o src/cpu/Core.o src/cpu/RoundRobinScheduler.o src/cpu/CONTROL_UNIT.o src/cpu/pcb_loader.o src/cpu/REGISTER_BANK.o src/cpu/ULA.o src/cpu/FCFSScheduler.o src/cpu/SJNScheduler.o src/cpu/PriorityScheduler.o src/IO/IOManager.o src/memory/cache.o src/memory/cachePolicy.o src/memory/MAIN_MEMORY.o src/memory/MemoryManager.o src/memory/SECONDARY_MEMORY.o src/parser_json/parser_json.o src/util/Log.o -lpthread
+✓ Teste de métricas multicore (núcleos fixos) compilado!
+🧪 Executando test-metrics com AddressSanitizer...
+
+╔══════════════════════════════════════════════════════════════╗
+║     TESTE DE MÉTRICAS POR NÚCLEOS FIXOS - MULTICORE        ║
+╚══════════════════════════════════════════════════════════════╝
+
+⚠️  Workload ignorado: arquivo de tarefas não encontrado para 'process_loop_heavy' (esperado "tasks/tasks_loop_heavy.json")
+Configuração atual:
+  • Núcleos fixos: 4
+  • Políticas: RR, FCFS, SJN, PRIORITY
+  • Workloads: 8
+  • Listagem:
+  • balanced -> processes/process_balanced.json | tasks/tasks_balanced.json
+  • cpu_bound -> processes/process_cpu_bound.json | tasks/tasks_cpu_bound.json
+  • io_bound -> processes/process_io_bound.json | tasks/tasks_io_bound.json
+  • long -> processes/process_long.json | tasks/tasks_long.json
+  • medium -> processes/process_medium.json | tasks/tasks_medium.json
+  • memory_intensive -> processes/process_memory_intensive.json | tasks/tasks_memory_intensive.json
+  • quick -> processes/process_quick.json | tasks/tasks_quick.json
+  • short -> processes/process_short.json | tasks/tasks_short.json
+
+Executando métricas...
+  → RR...[TEST] Loading workload file=tasks/tasks_balanced.json into segment_base=0 startAddr=0
+[PARSER-INFO] startAddr=0 pcb.segment_base=0 pcb.segment_limit=4294967295
+[PARSER] about to write inst at mem_addr=0 (instr=0x20080005)
+[PARSER] about to write inst at mem_addr=4 (instr=0x20090007)
+[PARSER] about to write inst at mem_addr=8 (instr=0x1095020)
+[PARSER] about to write inst at mem_addr=12 (instr=0xaf8a0000)
+[PARSER] about to write inst at mem_addr=16 (instr=0xf8000000)
+[PARSER] about to write inst at mem_addr=20 (instr=0xfc000000)
+[LOAD] PCB P1 loaded: program_size=24 base=0 limit=4294967295
+[TEST] Loading workload file=tasks/tasks_cpu_bound.json into segment_base=2048 startAddr=2048
+[PARSER-INFO] startAddr=2048 pcb.segment_base=2048 pcb.segment_limit=4294967295
+[PARSER] about to write inst at mem_addr=2048 (instr=0x2008000b)
+[PARSER] about to write inst at mem_addr=2052 (instr=0x2009000d)
+[PARSER] about to write inst at mem_addr=2056 (instr=0x1095018)
+[PARSER] about to write inst at mem_addr=2060 (instr=0x1495822)
+[PARSER] about to write inst at mem_addr=2064 (instr=0xf8000000)
+[PARSER] about to write inst at mem_addr=2068 (instr=0xfc000000)
+[LOAD] PCB P2 loaded: program_size=24 base=2048 limit=4294967295
+[TEST] Loading workload file=tasks/tasks_io_bound.json into segment_base=4096 startAddr=4096
+[PARSER-INFO] startAddr=4096 pcb.segment_base=4096 pcb.segment_limit=4294967295
+[PARSER] about to write inst at mem_addr=4096 (instr=0x20080004)
+[PARSER] about to write inst at mem_addr=4100 (instr=0x20090006)
+[PARSER] about to write inst at mem_addr=4104 (instr=0xaf880000)
+[PARSER] about to write inst at mem_addr=4108 (instr=0xaf890004)
+[PARSER] about to write inst at mem_addr=4112 (instr=0x8f8a0000)
+[PARSER] about to write inst at mem_addr=4116 (instr=0x8f8b0004)
+[PARSER] about to write inst at mem_addr=4120 (instr=0x14b6020)
+[PARSER] about to write inst at mem_addr=4124 (instr=0xf8000000)
+[PARSER] about to write inst at mem_addr=4128 (instr=0xfc000000)
+[LOAD] PCB P3 loaded: program_size=36 base=4096 limit=4294967295
+[TEST] Loading workload file=tasks/tasks_long.json into segment_base=6144 startAddr=6144
+[PARSER-INFO] startAddr=6144 pcb.segment_base=6144 pcb.segment_limit=4294967295
+[PARSER] about to write inst at mem_addr=6144 (instr=0x20080001)
+[PARSER] about to write inst at mem_addr=6148 (instr=0x20090002)
+[PARSER] about to write inst at mem_addr=6152 (instr=0x1095020)
+[PARSER] about to write inst at mem_addr=6156 (instr=0x1495820)
+[PARSER] about to write inst at mem_addr=6160 (instr=0x16a6018)
+[PARSER] about to write inst at mem_addr=6164 (instr=0x18b6822)
+[PARSER] about to write inst at mem_addr=6168 (instr=0xf8000000)
+[PARSER] about to write inst at mem_addr=6172 (instr=0xfc000000)
+[LOAD] PCB P4 loaded: program_size=32 base=6144 limit=4294967295
+[TEST] Loading workload file=tasks/tasks_medium.json into segment_base=8192 startAddr=8192
+[PARSER-INFO] startAddr=8192 pcb.segment_base=8192 pcb.segment_limit=4294967295
+[PARSER] about to write inst at mem_addr=8192 (instr=0x20080003)
+[PARSER] about to write inst at mem_addr=8196 (instr=0x20090005)
+[PARSER] about to write inst at mem_addr=8200 (instr=0x1095018)
+[PARSER] about to write inst at mem_addr=8204 (instr=0xf8000000)
+[PARSER] about to write inst at mem_addr=8208 (instr=0xfc000000)
+[LOAD] PCB P5 loaded: program_size=20 base=8192 limit=4294967295
+[TEST] Loading workload file=tasks/tasks_memory_intensive.json into segment_base=10240 startAddr=10240
+[PARSER-INFO] startAddr=10240 pcb.segment_base=10240 pcb.segment_limit=4294967295
+[PARSER] about to write inst at mem_addr=10240 (instr=0x2008000a)
+[PARSER] about to write inst at mem_addr=10244 (instr=0xaf880000)
+[PARSER] about to write inst at mem_addr=10248 (instr=0x8f890000)
+[PARSER] about to write inst at mem_addr=10252 (instr=0x1285020)
+[PARSER] about to write inst at mem_addr=10256 (instr=0xf8000000)
+[PARSER] about to write inst at mem_addr=10260 (instr=0xfc000000)
+[LOAD] PCB P6 loaded: program_size=24 base=10240 limit=4294967295
+[TEST] Loading workload file=tasks/tasks_quick.json into segment_base=12288 startAddr=12288
+[PARSER-INFO] startAddr=12288 pcb.segment_base=12288 pcb.segment_limit=4294967295
+[PARSER] about to write inst at mem_addr=12288 (instr=0x20080002)
+[PARSER] about to write inst at mem_addr=12292 (instr=0xf8000000)
+[PARSER] about to write inst at mem_addr=12296 (instr=0xfc000000)
+[LOAD] PCB P7 loaded: program_size=12 base=12288 limit=4294967295
+[TEST] Loading workload file=tasks/tasks_short.json into segment_base=14336 startAddr=14336
+[PARSER-INFO] startAddr=14336 pcb.segment_base=14336 pcb.segment_limit=4294967295
+[PARSER] about to write inst at mem_addr=14336 (instr=0x20080008)
+[PARSER] about to write inst at mem_addr=14340 (instr=0x20090004)
+[PARSER] about to write inst at mem_addr=14344 (instr=0x1095022)
+[PARSER] about to write inst at mem_addr=14348 (instr=0xf8000000)
+[PARSER] about to write inst at mem_addr=14352 (instr=0xfc000000)
+[LOAD] PCB P8 loaded: program_size=20 base=14336 limit=4294967295
+[Scheduler] Inicializando com 4 núcleos e quantum=10
+[Core 0] Inicializado com cache L1 privada
+[Core 1] Inicializado com cache L1 privada
+[Core 2] Inicializado com cache L1 privada
+[Core 3] Inicializado com cache L1 privada
+[Scheduler] Atribuindo P1 ao Core 0 (quantum=10)
+[Core 0] Iniciando execução do processo P1 (quantum=10)
+[Scheduler] Atribuindo P2 ao Core 1 (quantum=10)
+[Core 1] Iniciando execução do processo P2 (quantum=10)
+[Scheduler] Atribuindo P3 ao Core 2 (quantum=10)
+[Core 2] Iniciando execução do processo P3 (quantum=10)
+[Scheduler] Atribuindo P4 ao Core 3 (quantum=10)
+[Core 3] Iniciando execução do processo P4 (quantum=10)
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+[Core [Core 0[Core ] Processo P1] Processo P2 executando (quantum=10 ciclos)
+31 executando (quantum=10 ciclos)
+] Processo P4 executando (quantum=10 ciclos)
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+  Core 0: process=1 thread_running=1 is_idle=0
+  Core 1: process=2 thread_running=1 is_idle=0
+  Core 2: process=3 thread_running=1 is_idle=0
+  Core 3: process=4 thread_running=1 is_idle=0
+[Core 1] P2 FINALIZADO (total: 5 ciclos)
+[Core 1] Finalizado (agora IDLE)
+[Core 3] P4 FINALIZADO (total: 7 ciclos)
+[Core 3] Finalizado (agora IDLE)
+[Core 0] P1 BLOQUEADO (aguardando I/O)
+[Core 0] Finalizado (agora IDLE)
+[Core 2] Processo P3 executando (quantum=10 ciclos)
+[COLLECT] Core 0 coletando P1 (state=2 is_idle=1 thread_done=0)
+[Core 2] P3 FINALIZADO (total: 8 ciclos)
+[Core 2] Finalizado (agora IDLE)
+[Scheduler] P1 BLOQUEADO (I/O)
+[COLLECT] Core 1 coletando P2 (state=3 is_idle=1 thread_done=0)
+[Scheduler] P2 FINALIZADO!
+[COLLECT] Core 2 coletando P3 (state=3 is_idle=1 thread_done=0)
+[Scheduler] P3 FINALIZADO!
+[COLLECT] Core 3 coletando P4 (state=3 is_idle=1 thread_done=0)
+[Scheduler] P4 FINALIZADO!
+[Scheduler] Atribuindo P5 ao Core 0 (quantum=10)
+[Core 0] Iniciando execução do processo P5 (quantum=10)
+[Scheduler] Atribuindo P6 ao Core 1 (quantum=10)
+[Core 1] Iniciando execução do processo P6 (quantum=10)
+[Scheduler] Atribuindo P7 ao Core 2 (quantum=10)
+[Core 2] Iniciando execução do processo P7 (quantum=10)
+[Scheduler] Atribuindo P8 ao Core 3 (quantum=10)
+[Core 3] Iniciando execução do processo P8 (quantum=10)
+  Core 0: process=5 thread_running=1 is_idle=0
+  Core 1: process=6 thread_running=1 is_idle=0
+  Core 2: process=7 thread_running=1 is_idle=0
+  Core 3: process*** stack smashing detected ***: terminated
+Aborted (core dumped)
+make: *** [Makefile:216: test-metrics-asan] Erro 134

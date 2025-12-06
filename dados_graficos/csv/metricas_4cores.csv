@@ -1,0 +1,5 @@
+Politica,TempoMedioEspera_ms,TempoMedioExecucao_ms,CPUUtilizacao_pct,Eficiencia_pct,Throughput_proc_s,CacheHits,CacheMisses,TaxaHit_pct,FailedProcesses,Success,Error
+RR,0.875000,17.500000,0.00,0.00,0.0073,3,48,5.88,0,true,""
+FCFS,0.000000,0.000000,0.00,0.00,0.0000,3,40,6.98,0,false,"FCFS atingiu o limite de ciclos antes de concluir todos os processos"
+SJN,3.000000,8571428.571429,0.04,0.04,0.0000,3,47,6.00,0,false,"SJN atingiu o limite de ciclos antes de concluir todos os processos"
+PRIORITY,0.000000,0.000000,0.00,0.00,0.0000,3,40,6.98,0,false,"PRIORITY atingiu o limite de ciclos antes de concluir todos os processos"

@@ -1,0 +1,27 @@
+name: CI - ASAN & Sanity Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup build
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential python3
+      - name: Build tests and run ASAN metrics
+        run: |
+          make clean
+          make test-metrics-asan
+      - name: Run sanity tests
+        run: |
+          make test-sanity
+      - name: Run memory tests
+        run: |
+          make test-mem

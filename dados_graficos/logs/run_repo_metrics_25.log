@@ -1,0 +1,197 @@
+nohup: ignorando entrada
+
+╔══════════════════════════════════════════════════════════════╗
+║     TESTE DE MÉTRICAS POR NÚCLEOS FIXOS - MULTICORE        ║
+╚══════════════════════════════════════════════════════════════╝
+
+⚠️  Workload ignorado: arquivo de tarefas não encontrado para 'process_loop_heavy' (esperado "tasks/tasks_loop_heavy.json")
+Configuração atual:
+  • Núcleos fixos: 4
+  • Políticas: RR, FCFS, SJN, PRIORITY
+  • Workloads: 8
+  • Listagem:
+  • balanced -> processes/process_balanced.json | tasks/tasks_balanced.json
+  • cpu_bound -> processes/process_cpu_bound.json | tasks/tasks_cpu_bound.json
+  • io_bound -> processes/process_io_bound.json | tasks/tasks_io_bound.json
+  • long -> processes/process_long.json | tasks/tasks_long.json
+  • medium -> processes/process_medium.json | tasks/tasks_medium.json
+  • memory_intensive -> processes/process_memory_intensive.json | tasks/tasks_memory_intensive.json
+  • quick -> processes/process_quick.json | tasks/tasks_quick.json
+  • short -> processes/process_short.json | tasks/tasks_short.json
+
+Executando métricas...
+  → SJN...[TEST] Loading workload file=tasks/tasks_balanced.json into segment_base=0 startAddr=0
+[PARSER-INFO] startAddr=0 pcb.segment_base=0 pcb.segment_limit=2048
+[PARSER] about to write inst at mem_addr=0 (instr=0x20080005)
+[PARSER] about to write inst at mem_addr=4 (instr=0x20090007)
+[PARSER] about to write inst at mem_addr=8 (instr=0x1095020)
+[PARSER] about to write inst at mem_addr=12 (instr=0xaf8a0000)
+[PARSER] about to write inst at mem_addr=16 (instr=0xf8000000)
+[PARSER] about to write inst at mem_addr=20 (instr=0xfc000000)
+[LOAD] PCB P1 loaded: program_size=24 base=0 limit=2048
+[TEST] Loading workload file=tasks/tasks_cpu_bound.json into segment_base=2048 startAddr=2048
+[PARSER-INFO] startAddr=2048 pcb.segment_base=2048 pcb.segment_limit=2048
+[PARSER] about to write inst at mem_addr=2048 (instr=0x2008000b)
+[PARSER] about to write inst at mem_addr=2052 (instr=0x2009000d)
+[PARSER] about to write inst at mem_addr=2056 (instr=0x1095018)
+[PARSER] about to write inst at mem_addr=2060 (instr=0x1495822)
+[PARSER] about to write inst at mem_addr=2064 (instr=0xf8000000)
+[PARSER] about to write inst at mem_addr=2068 (instr=0xfc000000)
+[LOAD] PCB P2 loaded: program_size=24 base=2048 limit=2048
+[TEST] Loading workload file=tasks/tasks_io_bound.json into segment_base=4096 startAddr=4096
+[PARSER-INFO] startAddr=4096 pcb.segment_base=4096 pcb.segment_limit=2048
+[PARSER] about to write inst at mem_addr=4096 (instr=0x20080004)
+[PARSER] about to write inst at mem_addr=4100 (instr=0x20090006)
+[PARSER] about to write inst at mem_addr=4104 (instr=0xaf880000)
+[PARSER] about to write inst at mem_addr=4108 (instr=0xaf890004)
+[PARSER] about to write inst at mem_addr=4112 (instr=0x8f8a0000)
+[PARSER] about to write inst at mem_addr=4116 (instr=0x8f8b0004)
+[PARSER] about to write inst at mem_addr=4120 (instr=0x14b6020)
+[PARSER] about to write inst at mem_addr=4124 (instr=0xf8000000)
+[PARSER] about to write inst at mem_addr=4128 (instr=0xfc000000)
+[LOAD] PCB P3 loaded: program_size=36 base=4096 limit=2048
+[TEST] Loading workload file=tasks/tasks_long.json into segment_base=6144 startAddr=6144
+[PARSER-INFO] startAddr=6144 pcb.segment_base=6144 pcb.segment_limit=2048
+[PARSER] about to write inst at mem_addr=6144 (instr=0x20080001)
+[PARSER] about to write inst at mem_addr=6148 (instr=0x20090002)
+[PARSER] about to write inst at mem_addr=6152 (instr=0x1095020)
+[PARSER] about to write inst at mem_addr=6156 (instr=0x1495820)
+[PARSER] about to write inst at mem_addr=6160 (instr=0x16a6018)
+[PARSER] about to write inst at mem_addr=6164 (instr=0x18b6822)
+[PARSER] about to write inst at mem_addr=6168 (instr=0xf8000000)
+[PARSER] about to write inst at mem_addr=6172 (instr=0xfc000000)
+[LOAD] PCB P4 loaded: program_size=32 base=6144 limit=2048
+[TEST] Loading workload file=tasks/tasks_medium.json into segment_base=8192 startAddr=8192
+[PARSER-INFO] startAddr=8192 pcb.segment_base=8192 pcb.segment_limit=2048
+[PARSER] about to write inst at mem_addr=8192 (instr=0x20080003)
+[PARSER] about to write inst at mem_addr=8196 (instr=0x20090005)
+[PARSER] about to write inst at mem_addr=8200 (instr=0x1095018)
+[PARSER] about to write inst at mem_addr=8204 (instr=0xf8000000)
+[PARSER] about to write inst at mem_addr=8208 (instr=0xfc000000)
+[LOAD] PCB P5 loaded: program_size=20 base=8192 limit=2048
+[TEST] Loading workload file=tasks/tasks_memory_intensive.json into segment_base=10240 startAddr=10240
+[PARSER-INFO] startAddr=10240 pcb.segment_base=10240 pcb.segment_limit=2048
+[PARSER] about to write inst at mem_addr=10240 (instr=0x2008000a)
+[PARSER] about to write inst at mem_addr=10244 (instr=0xaf880000)
+[PARSER] about to write inst at mem_addr=10248 (instr=0x8f890000)
+[PARSER] about to write inst at mem_addr=10252 (instr=0x1285020)
+[PARSER] about to write inst at mem_addr=10256 (instr=0xf8000000)
+[PARSER] about to write inst at mem_addr=10260 (instr=0xfc000000)
+[LOAD] PCB P6 loaded: program_size=24 base=10240 limit=2048
+[TEST] Loading workload file=tasks/tasks_quick.json into segment_base=12288 startAddr=12288
+[PARSER-INFO] startAddr=12288 pcb.segment_base=12288 pcb.segment_limit=2048
+[PARSER] about to write inst at mem_addr=12288 (instr=0x20080002)
+[PARSER] about to write inst at mem_addr=12292 (instr=0xf8000000)
+[PARSER] about to write inst at mem_addr=12296 (instr=0xfc000000)
+[LOAD] PCB P7 loaded: program_size=12 base=12288 limit=2048
+[TEST] Loading workload file=tasks/tasks_short.json into segment_base=14336 startAddr=14336
+[PARSER-INFO] startAddr=14336 pcb.segment_base=14336 pcb.segment_limit=2048
+[PARSER] about to write inst at mem_addr=14336 (instr=0x20080008)
+[PARSER] about to write inst at mem_addr=14340 (instr=0x20090004)
+[PARSER] about to write inst at mem_addr=14344 (instr=0x1095022)
+[PARSER] about to write inst at mem_addr=14348 (instr=0xf8000000)
+[PARSER] about to write inst at mem_addr=14352 (instr=0xfc000000)
+[LOAD] PCB P8 loaded: program_size=20 base=14336 limit=2048
+[SJN] Inicializando com 4 núcleos
+[Core 0] Inicializado com cache L1 privada
+[Core 1] Inicializado com cache L1 privada
+[Core 2] Inicializado com cache L1 privada
+[Core 3] Inicializado com cache L1 privada
+[Core 0] Iniciando execução do processo P7 (quantum=999999)
+[Core 1] Iniciando execução do processo P5 (quantum=999999)
+[Core 2] Iniciando execução do processo P8 (quantum=999999)
+[Core 3] Iniciando execução do processo P1 (quantum=999999)
+[Core 1] Processo P5 executando (quantum=999999 ciclos)
+[Core 1] P5 BLOQUEADO (aguardando I/O)
+[Core 1] Finalizado (agora IDLE)
+[SJN] P5 BLOQUEADO (urgent collect) - esperando I/O
+[Core 1] Iniciando execução do processo P2 (quantum=999999)
+[Core 3] Processo P1 executando (quantum=999999 ciclos)
+[Core 2] Processo P8 executando (quantum=999999 ciclos)
+[Core 3] P1 BLOQUEADO (aguardando I/O)
+[Core 3] Finalizado (agora IDLE)
+[Core 2] P8 BLOQUEADO (aguardando I/O)
+[Core 2] Finalizado (agora IDLE)
+[SJN] P8 BLOQUEADO (urgent collect) - esperando I/O
+[Core 2] Iniciando execução do processo P6 (quantum=999999)
+[SJN] P1 BLOQUEADO (urgent collect) - esperando I/O
+[Core 3] Iniciando execução do processo P4 (quantum=999999)
+[Core 0] Processo P7 executando (quantum=999999 ciclos)
+[Core 0] P7 BLOQUEADO (aguardando I/O)
+[Core 0] Finalizado (agora IDLE)
+[SJN] P7 BLOQUEADO (urgent collect) - esperando I/O
+[Core 0] Iniciando execução do processo P3 (quantum=999999)
+[Core 0] Processo P3 executando (quantum=999999 ciclos)
+[Core 0] P3 BLOQUEADO (aguardando I/O)
+[Core 0] Finalizado (agora IDLE)
+I/O Manager: Processo 8 executou 'print_job'
+I/O Manager: Processo 1 executou 'read_from_disk'
+[SJN] P3 BLOQUEADO (urgent collect) - esperando I/O
+[Core 0] Iniciando execução do processo P8 (quantum=999999)
+[Core 0] Processo P8 executando (quantum=999999 ciclos)
+[Core 0] P8 FINALIZADO (total: 4 ciclos)
+[Core 0] Finalizado (agora IDLE)
+[Core 0] Iniciando execução do processo P1 (quantum=999999)
+[Core 3] Processo P4 executando (quantum=999999 ciclos)
+[Core 3] P4 BLOQUEADO (aguardando I/O)
+[Core 3] Finalizado (agora IDLE)
+[Core 0] Processo P1 executando (quantum=999999 ciclos)
+[Core 0] P1 FINALIZADO (total: 5 ciclos)
+[Core 0] Finalizado (agora IDLE)
+[Core 1] Processo P2 executando (quantum=999999 ciclos)
+[Core 1] P2 BLOQUEADO (aguardando I/O)
+[Core 1] Finalizado (agora IDLE)
+I/O Manager: Processo 5 executou 'read_from_disk'
+[Core 0] Iniciando execução do processo P5 (quantum=999999)
+[Core 0] Processo P5 executando (quantum=999999 ciclos)
+[Core 0] P5 FINALIZADO (total: 4 ciclos)
+[Core 0] Finalizado (agora IDLE)
+I/O Manager: Processo 7 executou 'print_job'
+I/O Manager: Processo 3 executou 'read_from_disk'
+[Core 0] Iniciando execução do processo P7 (quantum=999999)
+[SJN] P2 BLOQUEADO (urgent collect) - esperando I/O
+[Core 1] Iniciando execução do processo P3 (quantum=999999)
+[Core 2] Processo P6 executando (quantum=999999 ciclos)
+[Core 0] Processo P7 executando (quantum=999999 ciclos)
+[Core 0] P7 FINALIZADO (total: 2 ciclos)
+[Core 0] Finalizado (agora IDLE)
+[Core 2] P6 BLOQUEADO (aguardando I/O)
+[Core 2] Finalizado (agora IDLE)
+[Core 1] Processo P3 executando (quantum=999999 ciclos)
+[Core 1] P3 FINALIZADO (total: 8 ciclos)
+[Core 1] Finalizado (agora IDLE)
+I/O Manager: Processo 2 executou 'print_job'
+[Core 0] Iniciando execução do processo P2 (quantum=999999)
+[Core 0] Processo P2 executando (quantum=999999 ciclos)
+[Core 0] P2 FINALIZADO (total: 5 ciclos)
+[Core 0] Finalizado (agora IDLE)
+[Core 0] request_stop() while segurando P2 (state=Finished, thread_running=yes)
+[Core 1] request_stop() while segurando P3 (state=Finished, thread_running=yes)
+[Core 2] request_stop() while segurando P6 (state=Blocked, thread_running=yes)
+[Core 3] request_stop() while segurando P4 (state=Blocked, thread_running=yes)
+[SJN][drain] core#0 segurando P2 state=Finished thread_running=no
+[SJN][drain] core#1 segurando P3 state=Finished thread_running=no
+[SJN][drain] core#2 segurando P6 state=Blocked thread_running=no
+[SJN][drain] core#3 segurando P4 state=Blockeinalizado (agora IDLE)
+[Core 0] request_stop() while segurando P4 (state=Finished, thread_running=yes)
+[Core 1] request_stop() while segurando P3 (state=Finished, thread_running=yes)
+[Core 2] request_stop() while segurando P6 (state=Finished, thread_running=yes)
+[Core 3] request_stop() while segurando P2 (state=Finished, thread_running=yes)
+[SJN][drain] core#0 segurando P4 state=Finished thread_running=no
+[SJN][drain] core#1 segurando P3 state=Finished thread_running=no
+[SJN][drain] core#2 segurando P6 state=Finished thread_running=no
+[SJN][drain] core#3 segurando P2 state=Finished thread_running=no
+[SJN][drain] pending cores=4 newly_collected=4 finished=8/8 ready=0 blocked=0
+[INFO] SJN atingiu o orçamento de ciclos, mas todos os processos foram concluídos.
+[SJN] Encerrando...
+[Core 0] Finalizado
+[Core 1] Finalizado
+[Core 2] Finalizado
+[Core 3] Finalizado
+ ok (CPU 0.0%, hit 5.9%)
+
+Arquivos gerados:
+  • dados_graficos/csv/metricas_4cores.csv
+  • dados_graficos/reports/relatorio_metricas_4cores.txt
+
+✅ Teste encerrado. Ajuste DEFAULT_NUM_CORES para experimentar outras topologias.

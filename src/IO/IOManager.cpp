@@ -10,7 +10,14 @@ IOManager::IOManager() :
     printer_requesting(false),
     disk_requesting(false),
     network_requesting(false),
+<<<<<<< Updated upstream
     shutdown_flag(false)
+=======
+    rng(std::random_device{}()),
+    printer_trigger_dist(0, 99),
+    disk_trigger_dist(0, 49),
+    cost_multiplier_dist(1, 3)
+>>>>>>> Stashed changes
 {
     srand(time(nullptr));
 
@@ -21,15 +28,11 @@ IOManager::IOManager() :
         std::cerr << "Erro: não foi possível abrir arquivos de saída." << std::endl;
     }
 
-    managerThread = std::thread(&IOManager::managerLoop, this);
+    
 }
 
 // Destrutor
 IOManager::~IOManager() {
-    shutdown_flag = true;
-    if (managerThread.joinable()) {
-        managerThread.join();
-    }
     resultFile.close();
     outputFile.close();
 }
@@ -40,6 +43,7 @@ void IOManager::registerProcessWaitingForIO(PCB* process) {
     waiting_processes.push_back(process);
 }
 
+<<<<<<< Updated upstream
 // Adiciona uma requisição criada à fila de processamento
 void IOManager::addRequest(std::unique_ptr<IORequest> request) {
     std::lock_guard<std::mutex> lock(queueLock);
@@ -127,6 +131,59 @@ void IOManager::managerLoop() {
             req_to_process->process->state = State::Ready;
         } else {
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
+=======
+bool IOManager::is_idle() const {
+    std::lock_guard<std::mutex> lock(waiting_processes_lock);
+    return waiting_processes.empty() && active_requests.empty();
+}
+
+
+
+void IOManager::do_work() {
+    // Processa requisições ativas (de forma concorrente)
+    for (auto it = active_requests.begin(); it != active_requests.end(); ) {
+        auto& req = *it;
+        if (req->remaining_cycles > 0) {
+            req->remaining_cycles--;
+            req->process->io_cycles.fetch_add(1);
+            ++it;
+        } else {
+            // Requisição concluída
+            std::cout << "I/O Manager: Processo " << req->process->pid 
+                      << " executou '" << req->operation << "'\n";
+
+            resultFile << "Processo " << req->process->pid << " -> " 
+                       << req->operation << " : " << req->msg << "\n";
+            outputFile << req->process->pid << "," 
+                       << req->operation << "," << req->cost_cycles.count() << "ms\n";
+
+            req->process->set_state(State::Ready);
+            it = active_requests.erase(it); // Remove a requisição concluída
+>>>>>>> Stashed changes
         }
+    }
+
+    // Inicia novas requisições para todos os processos na fila de espera
+    std::lock_guard<std::mutex> wplock(waiting_processes_lock);
+    if (!waiting_processes.empty()) {
+        for (auto* process_to_service : waiting_processes) {
+            auto new_request = std::make_unique<IORequest>();
+            if (!last_request_was_disk) {
+                new_request->operation = "read_from_disk";
+                new_request->msg = "Lendo dados do disco...";
+                last_request_was_disk = true;
+            } else {
+                new_request->operation = "print_job";
+                new_request->msg = "Imprimindo documento...";
+                last_request_was_disk = false;
+            }
+
+            new_request->process = process_to_service;
+            const int multiplier = cost_multiplier_dist(rng);
+            new_request->cost_cycles = std::chrono::milliseconds(multiplier * 50);
+            new_request->remaining_cycles = new_request->cost_cycles.count();
+            active_requests.push_back(std::move(new_request));
+        }
+        waiting_processes.clear();
     }
 }
