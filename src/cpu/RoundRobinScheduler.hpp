@@ -37,6 +37,7 @@ public:
     void schedule_cycle();
     bool has_pending_processes() const;
     int get_finished_count() const { return finished_count.load(); }
+    int get_failed_count() const { return failed_count.load(); }
     int get_total_count() const { return total_count.load(); }
     Statistics get_statistics() const;
 
@@ -51,6 +52,7 @@ private:
 
     // CRITICAL: Atomics para evitar race conditions
     std::atomic<int> finished_count{0};
+    std::atomic<int> failed_count{0};
     std::atomic<int> total_count{0};
 
     uint64_t current_time{0};

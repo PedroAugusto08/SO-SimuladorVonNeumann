@@ -27,6 +27,7 @@ RoundRobinScheduler::RoundRobinScheduler(int num_cores,
     total_simulation_cycles.store(0);
     global_context_switches.store(0);
     finished_count.store(0);
+    failed_count.store(0);
     total_count.store(0);
     
     // Inicializar contador de cores ociosos
@@ -78,7 +79,7 @@ void RoundRobinScheduler::schedule_cycle() {
     // Verificação rápida antes de tentar lock
     bool should_schedule = (ready_count.load() > 0 && idle_cores.load() > 0);
     
-    if (current_time <= 20 && current_time % 5 == 0) {
+    if (Log::debug_enabled() && current_time <= 20 && current_time % 5 == 0) {
         std::cout << "[DEBUG] cycle=" << current_time 
                   << " ready=" << ready_count.load() 
                   << " idle=" << idle_cores.load() 
@@ -91,7 +92,7 @@ void RoundRobinScheduler::schedule_cycle() {
         
         handle_blocked_processes();
         
-        if (current_time <= 20 && !ready_queue.empty()) {
+        if (Log::debug_enabled() && current_time <= 20 && !ready_queue.empty()) {
             std::cout << "[DEBUG] Tentando agendar, ready_queue.size=" << ready_queue.size() << "\n";
             for (size_t i = 0; i < cores.size(); i++) {
                 std::cout << "  Core " << i << ": is_idle=" << cores[i]->is_idle() 
@@ -213,7 +214,7 @@ void RoundRobinScheduler::assign_process_to_core(PCB* process, Core* core) {
 void RoundRobinScheduler::collect_finished_processes() {
     int collected = 0;
     
-    if (current_time <= 200 && current_time % 10 == 0) {
+    if (Log::debug_enabled() && current_time <= 200 && current_time % 10 == 0) {
         std::cout << "[DEBUG collect] cycle=" << current_time << "\n";
     }
     
@@ -265,6 +266,13 @@ void RoundRobinScheduler::collect_finished_processes() {
         } else if (process->get_state() == State::Ready) {
             // Processo preemptado (quantum expirou)
             enqueue_ready_process(process);
+                    } else if (process->get_state() == State::Failed) {
+                        // Processo falhou
+                        process->finish_time = cpu_time::now_ns();
+                        finished_list.push_back(process);
+                        failed_count.fetch_add(1);
+                        finished_count.fetch_add(1);
+                        std::cout << "[Scheduler] P" << process->pid << " FALHOU! (collect)\n";
             
             std::cout << "[Scheduler] P" << process->pid << " RE-AGENDADO (preemptado)\n";
         }
@@ -324,6 +332,7 @@ RoundRobinScheduler::Statistics RoundRobinScheduler::get_statistics() const {
     uint64_t total_pipeline_cycles = 0;
     
     for (const PCB* p : finished_list) {
+        if (p->get_state() == State::Failed) continue; // exclude failed from metrics
         total_wait_ns += p->total_wait_time.load();
         const uint64_t tat = p->get_turnaround_time();
         total_turnaround_ns += tat;
@@ -341,7 +350,13 @@ RoundRobinScheduler::Statistics RoundRobinScheduler::get_statistics() const {
         earliest_arrival = latest_finish;
     }
 
-    s.total_processes = finished_list.size();
+    // Count only non-failed finished processes for metrics
+    int non_failed_finished = 0;
+    for (const auto* p : finished_list) {
+        if (p->get_state() != State::Failed) non_failed_finished++;
+    }
+    s.total_processes = non_failed_finished;
+    if (s.total_processes == 0) return s;
     const double inv_count = 1.0 / s.total_processes;
     s.avg_wait_time = cpu_time::ns_to_ms(static_cast<double>(total_wait_ns) * inv_count);
     s.avg_turnaround_time = cpu_time::ns_to_ms(static_cast<double>(total_turnaround_ns) * inv_count);

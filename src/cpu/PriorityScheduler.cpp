@@ -12,6 +12,7 @@ const char* to_string_state(State state) {
         case State::Running: return "Running";
         case State::Blocked: return "Blocked";
         case State::Finished: return "Finished";
+        case State::Failed: return "Failed";
     }
     return "Unknown";
 }
@@ -27,6 +28,7 @@ PriorityScheduler::PriorityScheduler(int num_cores, MemoryManager* memManager, I
     // Inicializar contadores atômicos
     total_simulation_cycles.store(0);
     finished_count.store(0);
+    failed_count.store(0);
     total_count.store(0);
     total_execution_time.store(0);
     ready_count.store(0);
@@ -104,7 +106,8 @@ void PriorityScheduler::collect_finished_processes() {
         
         const bool is_idle = core->is_idle();
         const bool thread_running = core->is_thread_running();
-        std::cout << "[PRIORITY][collect] core#" << core->get_id()
+        if (Log::info_enabled()) {
+            std::cout << "[PRIORITY][collect] core#" << core->get_id()
                   << " P" << process->pid
                   << " state=" << to_string_state(process->get_state())
                   << " thread_running=" << (thread_running ? "yes" : "no")
@@ -112,6 +115,7 @@ void PriorityScheduler::collect_finished_processes() {
                   << " finished=" << finished_count.load() << "/" << total_count.load()
                   << " ready=" << ready_count.load()
                   << " blocked=" << blocked_list.size() << "\n";
+        }
         
         if (!is_idle && thread_running) {
             std::cout << "[PRIORITY][collect] core#" << core->get_id()
@@ -146,6 +150,15 @@ void PriorityScheduler::collect_finished_processes() {
                     std::cout << "[PRIORITY][collect] P" << process->pid
                               << " BLOQUEADO (I/O) - blocked_list agora="
                               << blocked_list.size() << "\n";
+                    break;
+                case State::Failed:
+                    process->finish_time = cpu_time::now_ns();
+                    finished_list.push_back(process);
+                    {
+                        const int new_finished = finished_count.fetch_add(1) + 1;
+                        failed_count.fetch_add(1);
+                        std::cout << "[PRIORITY][collect] P" << process->pid << " FALHOU! contador=" << new_finished << "/" << total_count.load() << "\n";
+                    }
                     break;
                 default:
                     enqueue_ready_process(process);
@@ -334,8 +347,21 @@ bool PriorityScheduler::has_pending_processes() const {
         return false;
     }
 
+    // If there are ready processes, we have pending work
+    if (!ready_queue_empty()) {
+        return true;
+    }
+
     for (const auto& core : cores) {
         if (core->get_current_process() != nullptr || core->is_thread_running()) {
+            return true;
+        }
+    }
+
+    // If there are blocked processes (waiting for I/O), we also have pending work
+    {
+        std::lock_guard<std::mutex> lock(scheduler_mutex);
+        if (!blocked_list.empty()) {
             return true;
         }
     }
@@ -344,7 +370,8 @@ bool PriorityScheduler::has_pending_processes() const {
         return true;
     }
 
-    return true;
+    // Otherwise nothing pending
+    return false;
 }
 
 std::vector<std::unique_ptr<Core>>& PriorityScheduler::get_cores() { return cores; }
@@ -408,6 +435,7 @@ PriorityScheduler::Statistics PriorityScheduler::get_statistics() const {
     int total_cs = 0;
 
     for (const auto* pcb : finished_list) {
+        if (pcb->get_state() == State::Failed) continue; // skip failed from metrics
         total_wait_ns += pcb->total_wait_time.load();
         const uint64_t tat = pcb->get_turnaround_time();
         total_turnaround_ns += tat;
@@ -426,7 +454,13 @@ PriorityScheduler::Statistics PriorityScheduler::get_statistics() const {
         earliest_arrival = latest_finish;
     }
 
-    s.total_processes = finished_list.size();
+    // Count only non-failed finished processes for metrics
+    int non_failed_finished = 0;
+    for (const auto* pcb : finished_list) {
+        if (pcb->get_state() != State::Failed) non_failed_finished++;
+    }
+    s.total_processes = non_failed_finished;
+    if (s.total_processes == 0) return s;
     const double inv_count = 1.0 / s.total_processes;
     s.avg_wait_time = cpu_time::ns_to_ms(static_cast<double>(total_wait_ns) * inv_count);
     s.avg_turnaround_time = cpu_time::ns_to_ms(static_cast<double>(total_turnaround_ns) * inv_count);

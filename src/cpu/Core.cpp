@@ -15,6 +15,7 @@ const char* to_string_state(State state) {
         case State::Running: return "Running";
         case State::Blocked: return "Blocked";
         case State::Finished: return "Finished";
+        case State::Failed: return "Failed";
     }
     return "Unknown";
 }
@@ -148,6 +149,11 @@ void Core::run_process(PCB* process) {
         } catch (const std::exception& e) {
             std::cerr << "[Core " << core_id << "] Erro na execução de P" 
                       << process->pid << ": " << e.what() << "\n";
+            // Em caso de erro fatal na execução do processo, marcar como FAILED
+            process->mark_failed(std::string(e.what()));
+            process->finish_time = cpu_time::now_ns();
+            // Sinaliza que o programa terminou para evitar re-entrância e re-agendamento
+            context.endProgram = true;
             endExecution = true;
             break;
         }
@@ -170,7 +176,10 @@ void Core::run_process(PCB* process) {
         
     } else {
         // Quantum expirou
-        process->set_state(State::Ready);
+        // Só re-agendar (Ready) se o processo não foi marcado como Finished por um erro
+        if (process->get_state() != State::Finished) {
+            process->set_state(State::Ready);
+        }
         // 🆕 NÃO incrementar aqui - será feito no scheduler!
         // process->context_switches++;  // ❌ REMOVIDO
         

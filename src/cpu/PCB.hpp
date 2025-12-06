@@ -19,7 +19,8 @@ enum class State {
     Ready,
     Running,
     Blocked,
-    Finished
+    Finished,
+    Failed
 };
 
 struct MemWeights {
@@ -67,6 +68,8 @@ struct PCB {
     std::atomic<int> last_core{-1};             // Último núcleo usado
     std::atomic<uint64_t> ready_queue_enter_time{0}; // Timestamp de entrada na fila ready
     std::atomic<bool> in_ready_queue{false};         // Evita re-enfileirar duplicado
+    std::atomic<bool> failed{false};
+    std::string failure_reason;
 
     // Informações do programa carregado
     uint32_t program_start_addr = 0;             // Endereço de início do programa
@@ -114,6 +117,12 @@ struct PCB {
         if (end > start) {
             total_wait_time.fetch_add(end - start, std::memory_order_relaxed);
         }
+    }
+
+    void mark_failed(const std::string& reason) {
+        failed.store(true, std::memory_order_relaxed);
+        failure_reason = reason;
+        set_state(State::Failed);
     }
     
     double get_cache_hit_rate() const {

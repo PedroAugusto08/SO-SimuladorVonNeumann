@@ -65,6 +65,7 @@ struct PolicyMetrics {
     long cache_misses{0};
     double hit_rate_pct{0.0};
     int processes_finished{0};
+    int processes_failed{0};
     bool success{false};
     std::string error;
 };
@@ -145,7 +146,11 @@ PolicyMetrics run_policy(const std::string& policy,
             const auto& workload = workloads[i];
             auto pcb = std::make_unique<PCB>();
             if (!load_pcb_from_json(workload.process_file.c_str(), *pcb)) {
-                metrics.error = "Falha ao carregar " + workload.process_file;
+                std::string reason = "Falha ao carregar " + workload.process_file;
+                pcb->mark_failed(reason);
+                metrics.processes_failed++;
+                if (metrics.error.empty()) metrics.error = reason;
+                std::cerr << "[LOAD] Falha ao carregar PCB file=" << workload.process_file << ", reason=" << reason << "\n";
                 continue;
             }
             pcb->pid = static_cast<int>(i + 1);
@@ -158,9 +163,28 @@ PolicyMetrics run_policy(const std::string& policy,
             const uint32_t segment_base = static_cast<uint32_t>(i * SEGMENT_SIZE_BYTES);
             pcb->segment_base_addr = segment_base;
             pcb->segment_limit = SEGMENT_SIZE_BYTES;
-            loadJsonProgram(workload.tasks_file, *memManager, *pcb, static_cast<int>(segment_base));
+            try {
+                loadJsonProgram(workload.tasks_file, *memManager, *pcb, static_cast<int>(segment_base));
+            } catch (const std::exception &ex) {
+                // Marcar o PCB como failed e não agendar
+                pcb->mark_failed(ex.what());
+                metrics.processes_failed++;
+                if (metrics.error.empty()) metrics.error = ex.what();
+                std::cerr << "[LOAD] Falha ao carregar program=" << workload.tasks_file << ", exception=" << ex.what() << "\n";
+                continue;
+            }
+
+            // Se nada foi carregado (program_size == 0), marcar como failed
+            if (pcb->program_size == 0) {
+                pcb->mark_failed("Empty program loaded");
+                metrics.processes_failed++;
+                if (metrics.error.empty()) metrics.error = "Empty program loaded";
+                std::cerr << "[LOAD] Empty program in file=" << workload.tasks_file << "\n";
+                continue;
+            }
             pcb->estimated_job_size = pcb->program_size;
             pcb->priority = 10 - (static_cast<int>(i) % 3) * 3;
+            std::cout << "[LOAD] PCB P" << pcb->pid << " loaded: program_size=" << pcb->program_size << " base=" << pcb->segment_base_addr << " limit=" << pcb->segment_limit << "\n";
             process_ptrs.push_back(pcb.release());
         }
 
@@ -205,6 +229,7 @@ PolicyMetrics run_policy(const std::string& policy,
                 scheduler.schedule_cycle();
             }
             metrics.processes_finished = scheduler.get_finished_count();
+            metrics.processes_failed += scheduler.get_failed_count();
             finalize_stats(scheduler.get_statistics());
         }
         else if (policy == "FCFS")
@@ -225,6 +250,7 @@ PolicyMetrics run_policy(const std::string& policy,
             scheduler.drain_cores();
 
             metrics.processes_finished = scheduler.get_finished_count();
+            metrics.processes_failed += scheduler.get_failed_count();
             const int total_processes = static_cast<int>(process_ptrs.size());
             const bool hit_budget = (cycles >= cycle_budget);
             const bool still_pending = scheduler.has_pending_processes();
@@ -262,6 +288,7 @@ PolicyMetrics run_policy(const std::string& policy,
             scheduler.drain_cores();
 
             metrics.processes_finished = scheduler.get_finished_count();
+            metrics.processes_failed += scheduler.get_failed_count();
             const int total_processes = static_cast<int>(process_ptrs.size());
             const bool hit_budget = (cycles >= cycle_budget);
             const bool still_pending = scheduler.has_pending_processes();
@@ -299,6 +326,7 @@ PolicyMetrics run_policy(const std::string& policy,
             scheduler.drain_cores();
 
             metrics.processes_finished = scheduler.get_finished_count();
+            metrics.processes_failed += scheduler.get_failed_count();
             const int total_processes = static_cast<int>(process_ptrs.size());
             const bool hit_budget = (cycles >= cycle_budget);
             const bool still_pending = scheduler.has_pending_processes();
@@ -327,7 +355,7 @@ PolicyMetrics run_policy(const std::string& policy,
         metrics.execution_time_ms = static_cast<double>(duration.count());
 
         collect_memory();
-        metrics.success = metrics.error.empty();
+        metrics.success = metrics.error.empty() && (metrics.processes_failed == 0);
 
     } catch (const std::exception& ex) {
         metrics.error = ex.what();
@@ -356,14 +384,11 @@ void write_csv(const std::vector<PolicyMetrics>& results, const std::string& csv
         throw std::runtime_error(std::string("Não foi possível criar ") + csv_path);
     }
 
-    csv << "Politica,TempoMedioEspera_ms,TempoMedioExecucao_ms,CPUUtilizacao_pct,"
-           "Eficiencia_pct,Throughput_proc_s,CacheHits,CacheMisses,TaxaHit_pct\n";
+        csv << "Politica,TempoMedioEspera_ms,TempoMedioExecucao_ms,CPUUtilizacao_pct,"
+            "Eficiencia_pct,Throughput_proc_s,CacheHits,CacheMisses,TaxaHit_pct,FailedProcesses,Success,Error\n";
 
     csv << std::fixed;
     for (const auto& result : results) {
-        if (!result.success) {
-            continue;
-        }
         csv << result.policy << ","
             << std::setprecision(2) << result.avg_wait_ms << ","
             << std::setprecision(2) << result.avg_exec_ms << ","
@@ -372,7 +397,10 @@ void write_csv(const std::vector<PolicyMetrics>& results, const std::string& csv
             << std::setprecision(4) << result.throughput << ","
             << result.cache_hits << ","
             << result.cache_misses << ","
-            << std::setprecision(2) << result.hit_rate_pct << "\n";
+            << std::setprecision(2) << result.hit_rate_pct << ","
+            << result.processes_failed << ","
+            << std::boolalpha << result.success << ","
+            << "\"" << result.error << "\"" << "\n";
     }
 }
 
@@ -399,10 +427,11 @@ void write_report(const std::vector<PolicyMetrics>& results,
     report << "\n";
 
     for (const auto& result : results) {
-        if (!result.success) {
-            continue;
-        }
         report << "Política: " << result.policy << "\n";
+        report << "  • Status: " << (result.success ? "OK" : "FALHA") << "\n";
+        if (!result.success) {
+            report << "  • Motivo do erro: " << result.error << "\n";
+        }
         report << std::string(60, '-') << "\n";
         report << "[Métricas de Escalonamento]\n";
         report << std::fixed << std::setprecision(2);
@@ -414,7 +443,8 @@ void write_report(const std::vector<PolicyMetrics>& results,
         report << "[Métricas de Memória]\n";
         report << "  • Cache hits:                " << result.cache_hits << "\n";
         report << "  • Cache misses:              " << result.cache_misses << "\n";
-        report << "  • Taxa de hit:               " << result.hit_rate_pct << " %\n\n";
+        report << "  • Taxa de hit:               " << result.hit_rate_pct << " %\n";
+        report << "  • Processos com falha:      " << result.processes_failed << "\n\n";
     }
 
     report << "Relatório gerado automaticamente por test_metrics.cpp\n";

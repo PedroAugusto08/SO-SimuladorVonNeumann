@@ -701,3 +701,21 @@
     core#1 idle=1 thread_running=0 busy_cycles=10 idle_cycles=14999892 pid=<none>
     core#2 idle=1 thread_running=0 busy_cycles=14 idle_cycles=14999917 pid=<none>
     core#3 idle=1 thread_running=0 busy_cycles=7 idle_cycles=14999918 pid=<none>
+
+[FCFS] reason=max_cycles_fcfs cycles=5000000/5000000 timestamp=2025-12-05 20:12:45
+  finished=6/8 ready_queue=0 blocked=0 ready_count=0 idle_cores=4 context_switches=11
+  Ready queue: <empty>
+  Blocked list: <empty>
+    core#0 idle=1 thread_running=0 busy_cycles=7 idle_cycles=14999867 pid=<none>
+    core#1 idle=1 thread_running=0 busy_cycles=14 idle_cycles=14999934 pid=<none>
+    core#2 idle=1 thread_running=0 busy_cycles=8 idle_cycles=14999932 pid=<none>
+    core#3 idle=1 thread_running=0 busy_cycles=11 idle_cycles=14999932 pid=<none>
+
+[FCFS] reason=max_cycles_fcfs cycles=5000000/5000000 timestamp=2025-12-05 20:14:19
+  finished=5/8 ready_queue=0 blocked=0 ready_count=0 idle_cores=4 context_switches=10
+  Ready queue: <empty>
+  Blocked list: <empty>
+    core#0 idle=1 thread_running=0 busy_cycles=9 idle_cycles=14999787 pid=<none>
+    core#1 idle=1 thread_running=0 busy_cycles=9 idle_cycles=14999903 pid=<none>
+    core#2 idle=1 thread_running=0 busy_cycles=13 idle_cycles=14999877 pid=<none>
+    core#3 idle=1 thread_running=0 busy_cycles=9 idle_cycles=14999903 pid=<none>

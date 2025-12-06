@@ -13,29 +13,67 @@ Workloads utilizados (8):
   - short
 
 Política: RR
+  • Status: FALHA
+  • Motivo do erro: Segmentation Fault: Processo P1 sem segmento inicializado
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     2.89 ms
-  • Tempo médio de execução:   5.88 ms
-  • Utilização média da CPU:   100.00 %
-  • Eficiência estimada:       100.00 %
-  • Throughput global:         840.47 proc/s
+  • Tempo médio de espera:     0.00 ms
+  • Tempo médio de execução:   0.00 ms
+  • Utilização média da CPU:   0.00 %
+  • Eficiência estimada:       0.00 %
+  • Throughput global:         0.00 proc/s
 [Métricas de Memória]
-  • Cache hits:                3
-  • Cache misses:              46
-  • Taxa de hit:               6.12 %
+  • Cache hits:                0
+  • Cache misses:              0
+  • Taxa de hit:               0.00 %
+  • Processos com falha:      8
+
+Política: FCFS
+  • Status: FALHA
+  • Motivo do erro: Segmentation Fault: Processo P1 sem segmento inicializado
+------------------------------------------------------------
+[Métricas de Escalonamento]
+  • Tempo médio de espera:     0.00 ms
+  • Tempo médio de execução:   0.00 ms
+  • Utilização média da CPU:   0.00 %
+  • Eficiência estimada:       0.00 %
+  • Throughput global:         0.00 proc/s
+[Métricas de Memória]
+  • Cache hits:                0
+  • Cache misses:              0
+  • Taxa de hit:               0.00 %
+  • Processos com falha:      8
 
 Política: SJN
+  • Status: FALHA
+  • Motivo do erro: Segmentation Fault: Processo P1 sem segmento inicializado
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     0.60 ms
-  • Tempo médio de execução:   389.78 ms
-  • Utilização média da CPU:   77.69 %
-  • Eficiência estimada:       77.69 %
-  • Throughput global:         7.97 proc/s
+  • Tempo médio de espera:     0.00 ms
+  • Tempo médio de execução:   0.00 ms
+  • Utilização média da CPU:   0.00 %
+  • Eficiência estimada:       0.00 %
+  • Throughput global:         0.00 proc/s
 [Métricas de Memória]
-  • Cache hits:                3
-  • Cache misses:              48
-  • Taxa de hit:               5.88 %
+  • Cache hits:                0
+  • Cache misses:              0
+  • Taxa de hit:               0.00 %
+  • Processos com falha:      8
+
+Política: PRIORITY
+  • Status: FALHA
+  • Motivo do erro: Segmentation Fault: Processo P1 sem segmento inicializado
+------------------------------------------------------------
+[Métricas de Escalonamento]
+  • Tempo médio de espera:     0.00 ms
+  • Tempo médio de execução:   0.00 ms
+  • Utilização média da CPU:   0.00 %
+  • Eficiência estimada:       0.00 %
+  • Throughput global:         0.00 proc/s
+[Métricas de Memória]
+  • Cache hits:                0
+  • Cache misses:              0
+  • Taxa de hit:               0.00 %
+  • Processos com falha:      8
 
 Relatório gerado automaticamente por test_metrics.cpp

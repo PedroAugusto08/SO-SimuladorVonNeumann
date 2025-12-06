@@ -48,6 +48,7 @@ public:
     bool all_finished() const;
     bool has_pending_processes() const;
     int get_finished_count() const { return finished_count.load(); }
+    int get_failed_count() const { return failed_count.load(); }
     int get_total_count() const { return total_count.load(); }
     Statistics get_statistics() const;
     std::vector<std::unique_ptr<Core>>& get_cores();
@@ -70,6 +71,7 @@ private:
     
     // CRITICAL: Atomics para evitar race conditions (igual ao RoundRobin)
     std::atomic<int> finished_count{0};
+    std::atomic<int> failed_count{0};
     std::atomic<int> total_count{0};
     std::atomic<uint64_t> total_execution_time{0};
     std::chrono::steady_clock::time_point simulation_start_time;

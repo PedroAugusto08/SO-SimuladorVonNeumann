@@ -190,3 +190,38 @@ void MemoryManager::write(uint32_t address, uint32_t data, PCB& process) {
         }
     }
 }
+
+// Write to a physical address bypassing translate (used by loaders)
+void MemoryManager::write_raw(uint32_t physical_address, uint32_t data) {
+    Cache* l1_cache = current_thread_cache;
+    if (l1_cache) {
+        size_t cache_data = l1_cache->get(physical_address);
+        if (cache_data == CACHE_MISS) {
+            // load from memory into cache
+            uint32_t data_from_mem;
+            {
+                std::shared_lock<std::shared_mutex> lock(memory_mutex);
+                if (physical_address < mainMemoryLimit) {
+                    data_from_mem = mainMemory->ReadMem(physical_address);
+                } else {
+                    uint32_t secondaryAddress = physical_address - mainMemoryLimit;
+                    data_from_mem = secondaryMemory->ReadMem(secondaryAddress);
+                }
+            }
+            l1_cache->put(physical_address, data_from_mem, nullptr);
+        } else {
+            // cache hit - nothing to do
+        }
+        l1_cache->update(physical_address, data);
+        return;
+    }
+
+    // Without cache, write directly to RAM/Secondary
+    std::unique_lock<std::shared_mutex> lock(memory_mutex);
+    if (physical_address < mainMemoryLimit) {
+        mainMemory->WriteMem(physical_address, data);
+    } else {
+        uint32_t secondaryAddress = physical_address - mainMemoryLimit;
+        secondaryMemory->WriteMem(secondaryAddress, data);
+    }
+}

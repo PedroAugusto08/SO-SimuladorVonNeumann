@@ -215,13 +215,13 @@ int parseData(const json &dataJson, MemoryManager &memManager, PCB& pcb, int sta
                 for (auto &e : val){
                     int w = e.is_string()? static_cast<int>(std::stoul(e.get<string>(),nullptr,0))
                                           : e.get<int>();
-                    memManager.write(addr, w, pcb); // Alterado aqui
+                    memManager.write_raw(addr, w); // Alterado aqui
                     addr += 4;
                 }
             } else {
                 int w = val.is_string()? static_cast<int>(std::stoul(val.get<string>(),nullptr,0))
                                         : val.get<int>();
-                memManager.write(addr, w, pcb); // Alterado aqui
+                memManager.write_raw(addr, w); // Alterado aqui
                 addr += 4;
             }
         }
@@ -234,7 +234,7 @@ int parseData(const json &dataJson, MemoryManager &memManager, PCB& pcb, int sta
             for (size_t i=0;i<bytes.size(); i+=4){
                 uint32_t w=0;
                 for (size_t j=0;j<4 && i+j<bytes.size(); ++j) w = (w<<8) | bytes[i+j];
-                memManager.write(addr, w, pcb); // Alterado aqui
+                memManager.write_raw(addr, w); // Alterado aqui
                 addr += 4;
             }
             bytes.clear();
@@ -250,13 +250,13 @@ int parseData(const json &dataJson, MemoryManager &memManager, PCB& pcb, int sta
                     for (auto &v : item["value"]){
                         int w = v.is_string()? static_cast<int>(std::stoul(v.get<string>(),nullptr,0))
                                              : v.get<int>();
-                        memManager.write(addr, w, pcb); // Alterado aqui
+                        memManager.write_raw(addr, w); // Alterado aqui
                         addr += 4;
                     }
                 } else {
                     int w = item["value"].is_string()? static_cast<int>(std::stoul(item["value"].get<string>(),nullptr,0))
                                                       : item["value"].get<int>();
-                    memManager.write(addr, w, pcb); // Alterado aqui
+                    memManager.write_raw(addr, w); // Alterado aqui
                     addr += 4;
                 }
             } else if (type=="byte"){
@@ -302,7 +302,7 @@ int parseProgram(const json &programJson, MemoryManager &memManager, PCB& pcb, i
         
         uint32_t binary_instruction = parseInstruction(node, current_instruction_addr);
         
-        memManager.write(current_mem_addr, binary_instruction, pcb); // Alterado aqui
+        memManager.write_raw(current_mem_addr, binary_instruction); // Alterado aqui
         
         current_mem_addr += 4;
         current_instruction_addr++;
@@ -327,6 +327,11 @@ int loadJsonProgram(const string &filename, MemoryManager &memManager, PCB& pcb,
     
     // Salvar endereço inicial
     pcb.program_start_addr = startAddr;
+    // Temporariamente configurar segmento para permitir carregamento de dados
+    // O segment_limit será ajustado corretamente após o carregamento
+    pcb.segment_base_addr = static_cast<uint32_t>(startAddr);
+    pcb.segment_limit = UINT32_MAX;
+
     
     if (j.contains("data"))    addr = parseData(j["data"], memManager, pcb, addr);
     if (j.contains("program")) addr = parseProgram(j["program"], memManager, pcb, addr);

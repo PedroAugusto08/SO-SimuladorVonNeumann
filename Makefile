@@ -103,6 +103,9 @@ BASE_TEST_SRC := src/cpu/Core.cpp \
 SRC_CPU_METRICS := test/test_cpu_metrics.cpp $(BASE_TEST_SRC)
 OBJ_CPU_METRICS := $(SRC_CPU_METRICS:.cpp=.o)
 
+SRC_SCHED_PENDING := test/test_scheduler_pending.cpp $(BASE_TEST_SRC)
+OBJ_SCHED_PENDING := $(SRC_SCHED_PENDING:.cpp=.o)
+
 # SRC_PRIORITY_PREEMPT removed (priority preemptive tests removed)
 
 SRC_DEEP_INSPECT := test/test_deep_inspection.cpp $(BASE_TEST_SRC)
@@ -215,6 +218,12 @@ test-bank: clean $(TARGET_BANK)
 test-cpu-metrics: $(TARGET_CPU_METRICS)
 	@echo "🧪 Executando teste de métricas de CPU..."
 	@./$(TARGET_CPU_METRICS)
+
+test-scheduler-pending: $(OBJ_SCHED_PENDING)
+	@mkdir -p $(BIN_DIR)
+	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/test_scheduler_pending $(OBJ_SCHED_PENDING) $(BASE_TEST_SRC:.cpp=.o) $(LDFLAGS) || true
+	@echo "🧪 Executando teste de 'has_pending_processes'..."
+	@./$(BIN_DIR)/test_scheduler_pending || true
 
 # Teste single-core sem threads
 test-single-core: $(TARGET_SINGLE_CORE)

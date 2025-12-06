@@ -64,6 +64,8 @@ public:
 
     uint32_t read(uint32_t address, PCB& process);
     void write(uint32_t address, uint32_t data, PCB& process);
+    // Writes to physical address bypassing virtual-to-physical translation (used by loader)
+    void write_raw(uint32_t physical_address, uint32_t data);
     
     size_t getMainMemoryLimit() const { return mainMemoryLimit; }
     

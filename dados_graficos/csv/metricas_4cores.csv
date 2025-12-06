@@ -1,3 +1,5 @@
-Politica,TempoMedioEspera_ms,TempoMedioExecucao_ms,CPUUtilizacao_pct,Eficiencia_pct,Throughput_proc_s,CacheHits,CacheMisses,TaxaHit_pct
-RR,2.89,5.88,100.00,100.00,840.4734,3,46,6.12
-SJN,0.60,389.78,77.69,77.69,7.9727,3,48,5.88
+Politica,TempoMedioEspera_ms,TempoMedioExecucao_ms,CPUUtilizacao_pct,Eficiencia_pct,Throughput_proc_s,CacheHits,CacheMisses,TaxaHit_pct,FailedProcesses,Success,Error
+RR,0.00,0.00,0.00,0.00,0.0000,0,0,0.00,8,false,"Segmentation Fault: Processo P1 sem segmento inicializado"
+FCFS,0.00,0.00,0.00,0.00,0.0000,0,0,0.00,8,false,"Segmentation Fault: Processo P1 sem segmento inicializado"
+SJN,0.00,0.00,0.00,0.00,0.0000,0,0,0.00,8,false,"Segmentation Fault: Processo P1 sem segmento inicializado"
+PRIORITY,0.00,0.00,0.00,0.00,0.0000,0,0,0.00,8,false,"Segmentation Fault: Processo P1 sem segmento inicializado"
