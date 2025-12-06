@@ -3,6 +3,7 @@
 #include <chrono>
 #include <limits>
 #include "TimeUtils.hpp"
+#include <string>
 
 FCFSScheduler::FCFSScheduler(int num_cores, MemoryManager* memManager, IOManager* ioManager)
     : num_cores(num_cores), memManager(memManager), ioManager(ioManager) {
@@ -24,6 +25,33 @@ FCFSScheduler::FCFSScheduler(int num_cores, MemoryManager* memManager, IOManager
     context_switches = 0;
     
     simulation_start_time = std::chrono::steady_clock::now();
+}
+
+int FCFSScheduler::get_failed_count() const {
+    return std::max(0, get_total_count() - get_finished_count());
+}
+
+void FCFSScheduler::drain_cores() {
+    int tries = 0;
+    const int max_tries = 100000;
+    while (has_pending_processes() && tries++ < max_tries) {
+        schedule_cycle();
+    }
+}
+
+void FCFSScheduler::dump_state(const std::string& label, int cycles, int cycle_budget) const {
+    std::cerr << "[DUMP " << label << "] ready=" << ready_queue.size()
+              << " blocked=" << blocked_list.size()
+              << " finished=" << get_finished_count() << " total=" << get_total_count()
+              << " cycles=" << cycles << " budget=" << cycle_budget << "\n";
+    for (const auto& core : cores) {
+        auto p = core->get_current_process();
+        if (p) {
+            std::cerr << "  core=" << core->get_id() << " proc=P" << p->pid << "\n";
+        } else {
+            std::cerr << "  core=" << core->get_id() << " idle\n";
+        }
+    }
 }
 
 FCFSScheduler::~FCFSScheduler() {
@@ -82,12 +110,15 @@ void FCFSScheduler::collect_finished_processes() {
         }
         
         switch (process->state) {
-            case State::Finished:
+            case State::Finished: {
                 process->finish_time = cpu_time::now_ns();
                 finished_list.push_back(process);
                 finished_count.fetch_add(1);
-                std::cout << "[FCFS] P" << process->pid << " FINALIZADO!\n";
+                const double tat_ms = cpu_time::ns_to_ms(process->get_turnaround_time());
+                const double wait_ms = cpu_time::ns_to_ms(process->get_wait_time());
+                std::cout << "[FCFS] P" << process->pid << " FINALIZADO! turnaround=" << tat_ms << "ms wait=" << wait_ms << "ms\n";
                 break;
+            }
             case State::Blocked:
                 ioManager->registerProcessWaitingForIO(process);
                 blocked_list.push_back(process);

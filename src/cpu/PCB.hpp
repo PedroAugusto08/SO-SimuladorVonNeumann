@@ -69,10 +69,16 @@ struct PCB {
     // Informações do programa carregado
     uint32_t program_start_addr = 0;             // Endereço de início do programa
     uint32_t program_size = 0;                   // Tamanho do programa em bytes
+    // Segmentação (endereçamento por segmento)
+    uint32_t segment_base_addr = 0;              // Endereço base do segmento
+    uint32_t segment_limit = 0;                  // Tamanho/limite do segmento
 
     uint64_t estimated_job_size = 0; // Estimativa de ciclos para SJN
 
     MemWeights memWeights;
+    // Status de falha (usado por alguns testes/carregadores)
+    bool failed{false};
+    std::string error_reason;
     
     // Funções auxiliares para cálculo de métricas
     uint64_t get_turnaround_time() const {
@@ -105,7 +111,20 @@ struct PCB {
         if (hits + misses == 0) return 0.0;
         return (double)hits / (hits + misses);
     }
+
+    // Utilities used by tests and loaders
+    void mark_failed(const std::string &reason) {
+        failed = true;
+        error_reason = reason;
+        state = State::Finished; // Considerado finalizado por falha
+    }
+
+    void set_state(State s) {
+        state = s;
+    }
 };
+
+
 
 // Contabilizar cache
 inline void contabiliza_cache(PCB &pcb, bool hit) {

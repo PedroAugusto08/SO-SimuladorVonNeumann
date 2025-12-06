@@ -1,0 +1,76 @@
+╔══════════════════════════════════════════════════════════════╗
+║  RELATÓRIO - MÉTRICAS POR POLÍTICA (4 CORE(S))  ║
+╚══════════════════════════════════════════════════════════════╝
+
+Workloads utilizados (8):
+  - balanced
+  - cpu_bound
+  - io_bound
+  - long
+  - medium
+  - memory_intensive
+  - quick
+  - short
+
+Política: RR
+  • Status: OK
+------------------------------------------------------------
+[Métricas de Escalonamento]
+  • Tempo médio de espera:     5.33 ms
+  • Tempo médio de execução:   12.29 ms
+  • Utilização média da CPU:   100.00 %
+  • Eficiência estimada:       100.00 %
+  • Throughput global:         564.86 proc/s
+[Métricas de Memória]
+  • Cache hits:                3
+  • Cache misses:              48
+  • Taxa de hit:               5.88 %
+  • Processos com falha:      0
+
+Política: FCFS
+  • Status: FALHA
+  • Motivo do erro: FCFS atingiu o limite de ciclos antes de concluir todos os processos
+------------------------------------------------------------
+[Métricas de Escalonamento]
+  • Tempo médio de espera:     0.40 ms
+  • Tempo médio de execução:   504.48 ms
+  • Utilização média da CPU:   56.39 %
+  • Eficiência estimada:       56.39 %
+  • Throughput global:         4.47 proc/s
+[Métricas de Memória]
+  • Cache hits:                3
+  • Cache misses:              46
+  • Taxa de hit:               6.12 %
+  • Processos com falha:      2
+
+Política: SJN
+  • Status: OK
+------------------------------------------------------------
+[Métricas de Escalonamento]
+  • Tempo médio de espera:     0.20 ms
+  • Tempo médio de execução:   1704.67 ms
+  • Utilização média da CPU:   84.16 %
+  • Eficiência estimada:       84.16 %
+  • Throughput global:         1.97 proc/s
+[Métricas de Memória]
+  • Cache hits:                3
+  • Cache misses:              48
+  • Taxa de hit:               5.88 %
+  • Processos com falha:      0
+
+Política: PRIORITY
+  • Status: OK
+------------------------------------------------------------
+[Métricas de Escalonamento]
+  • Tempo médio de espera:     0.25 ms
+  • Tempo médio de execução:   1400.80 ms
+  • Utilização média da CPU:   73.15 %
+  • Eficiência estimada:       73.15 %
+  • Throughput global:         2.09 proc/s
+[Métricas de Memória]
+  • Cache hits:                3
+  • Cache misses:              48
+  • Taxa de hit:               5.88 %
+  • Processos com falha:      0
+
+Relatório gerado automaticamente por test_metrics.cpp

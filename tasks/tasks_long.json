@@ -1,0 +1,12 @@
+{
+  "program": [
+    { "instruction": "li", "rt": "$t0", "immediate": 1 },
+    { "instruction": "li", "rt": "$t1", "immediate": 2 },
+    { "instruction": "add", "rd": "$t2", "rs": "$t0", "rt": "$t1" },
+    { "instruction": "add", "rd": "$t3", "rs": "$t2", "rt": "$t1" },
+    { "instruction": "mult", "rd": "$t4", "rs": "$t3", "rt": "$t2" },
+    { "instruction": "sub", "rd": "$t5", "rs": "$t4", "rt": "$t3" },
+    { "instruction": "print", "rt": "$t5" },
+    { "instruction": "end" }
+  ]
+}

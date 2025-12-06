@@ -30,10 +30,14 @@ public:
     bool has_pending_processes() const;
     int get_finished_count() const { return finished_count.load(); }
     int get_total_count() const { return total_count.load(); }
+    int get_failed_count() const;
     Statistics get_statistics() const;
     std::vector<std::unique_ptr<Core>>& get_cores();
     std::deque<PCB*>& get_ready_queue();
     std::vector<PCB*>& get_blocked_list();
+    // Drain all cores (wait for running processes) and helper to print internal state
+    void drain_cores();
+    void dump_state(const std::string& label, int cycles, int cycle_budget) const;
     
 private:
     int num_cores;

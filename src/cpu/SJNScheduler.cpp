@@ -4,6 +4,7 @@
 #include <chrono>
 #include <limits>
 #include "TimeUtils.hpp"
+#include <string>
 
 SJNScheduler::SJNScheduler(int num_cores, MemoryManager* memManager, IOManager* ioManager)
     : num_cores(num_cores), memManager(memManager), ioManager(ioManager) {
@@ -25,6 +26,33 @@ SJNScheduler::SJNScheduler(int num_cores, MemoryManager* memManager, IOManager* 
     context_switches = 0;
     
     simulation_start_time = std::chrono::steady_clock::now();
+}
+
+int SJNScheduler::get_failed_count() const {
+    return std::max(0, get_total_count() - get_finished_count());
+}
+
+void SJNScheduler::drain_cores() {
+    int tries = 0;
+    const int max_tries = 100000;
+    while (has_pending_processes() && tries++ < max_tries) {
+        schedule_cycle();
+    }
+}
+
+void SJNScheduler::dump_state(const std::string& label, int cycles, int cycle_budget) const {
+    std::cerr << "[DUMP " << label << "] ready=" << ready_queue.size()
+              << " blocked=" << blocked_list.size()
+              << " finished=" << get_finished_count() << " total=" << get_total_count()
+              << " cycles=" << cycles << " budget=" << cycle_budget << "\n";
+    for (const auto& core : cores) {
+        auto p = core->get_current_process();
+        if (p) {
+            std::cerr << "  core=" << core->get_id() << " proc=P" << p->pid << "\n";
+        } else {
+            std::cerr << "  core=" << core->get_id() << " idle\n";
+        }
+    }
 }
 
 SJNScheduler::~SJNScheduler() {

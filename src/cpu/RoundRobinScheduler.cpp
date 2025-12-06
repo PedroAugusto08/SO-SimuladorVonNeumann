@@ -7,6 +7,7 @@
 #include "../memory/MemoryManager.hpp"
 #include "../IO/IOManager.hpp"
 #include "TimeUtils.hpp"
+#include <string>
 
 RoundRobinScheduler::RoundRobinScheduler(int num_cores,
                                          MemoryManager* mem_manager,
@@ -33,6 +34,33 @@ RoundRobinScheduler::RoundRobinScheduler(int num_cores,
     idle_cores.store(num_cores);
     
     simulation_start = std::chrono::steady_clock::now();
+}
+
+int RoundRobinScheduler::get_failed_count() const {
+    return std::max(0, get_total_count() - get_finished_count());
+}
+
+void RoundRobinScheduler::drain_cores() {
+    // Drain by scheduling until there are no pending processes
+    int tries = 0;
+    const int max_tries = 100000;
+    while (has_pending_processes() && tries++ < max_tries) {
+        schedule_cycle();
+    }
+}
+
+void RoundRobinScheduler::dump_state(const std::string &label, int cycles, int cycle_budget) const {
+    std::cerr << "[DUMP " << label << "] ready=" << ready_count.load()
+              << " finished=" << get_finished_count() << " total=" << get_total_count()
+              << " cycles=" << cycles << " budget=" << cycle_budget << "\n";
+    for (const auto& core : cores) {
+        auto p = core->get_current_process();
+        if (p) {
+            std::cerr << "  core=" << core->get_id() << " proc=P" << p->pid << " state=" << static_cast<int>(p->state) << "\n";
+        } else {
+            std::cerr << "  core=" << core->get_id() << " idle\n";
+        }
+    }
 }
 
 RoundRobinScheduler::~RoundRobinScheduler() {
@@ -255,8 +283,9 @@ void RoundRobinScheduler::collect_finished_processes() {
             process->finish_time = cpu_time::now_ns();
             finished_list.push_back(process);
             finished_count.fetch_add(1);
-            
-            std::cout << "[Scheduler] P" << process->pid << " FINALIZADO!\n";
+            const double tat_ms = cpu_time::ns_to_ms(process->get_turnaround_time());
+            const double wait_ms = cpu_time::ns_to_ms(process->get_wait_time());
+            std::cout << "[Scheduler] P" << process->pid << " FINALIZADO! turnaround=" << tat_ms << "ms wait=" << wait_ms << "ms\n";
         } else if (process->state == State::Blocked) {
             // Processo bloqueado (I/O)
             blocked_queue.push_back(process);

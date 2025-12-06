@@ -38,7 +38,11 @@ public:
     bool has_pending_processes() const;
     int get_finished_count() const { return finished_count.load(); }
     int get_total_count() const { return total_count.load(); }
+    int get_failed_count() const;
     Statistics get_statistics() const;
+    // Ensures cores finish their current execution and drains queues
+    void drain_cores();
+    void dump_state(const std::string &label, int cycles, int cycle_budget) const;
 
 private:
     std::vector<std::unique_ptr<Core>> cores;

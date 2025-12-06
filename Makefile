@@ -14,6 +14,7 @@ TARGET_THROUGHPUT := $(BIN_DIR)/test_multicore_throughput
 TARGET_COMPARATIVE := $(BIN_DIR)/test_multicore_comparative
 TARGET_PREEMPT := $(BIN_DIR)/test_preemption
 TARGET_METRICS := $(BIN_DIR)/test_metrics_complete
+TARGET_METRICS_SIMPLE := $(BIN_DIR)/test_metrics
 TARGET_CPU_METRICS := $(BIN_DIR)/test_cpu_metrics
 TARGET_DEEP_INSPECT := $(BIN_DIR)/test_deep_inspection
 TARGET_RACE_DEBUG := $(BIN_DIR)/test_race_debug
@@ -162,6 +163,7 @@ SRC_METRICS := test/test_metrics_complete.cpp \
 			   src/parser_json/parser_json.cpp
 OBJ_METRICS := $(SRC_METRICS:.cpp=.o)
 
+
 # Fontes base para testes (reutilizáveis)
 BASE_TEST_SRC := src/cpu/Core.cpp \
 				 src/cpu/RoundRobinScheduler.cpp \
@@ -197,6 +199,9 @@ OBJ_VERIFY_EXEC := $(SRC_VERIFY_EXEC:.cpp=.o)
 # Fontes para teste unificado completo (multicore + métricas + cache)
 SRC_UNIFIED := test/test_complete_unified.cpp $(BASE_TEST_SRC)
 OBJ_UNIFIED := $(SRC_UNIFIED:.cpp=.o)
+
+SRC_METRICS_SIMPLE := test/test_metrics.cpp $(BASE_TEST_SRC) src/log/Log.cpp
+OBJ_METRICS_SIMPLE := $(SRC_METRICS_SIMPLE:.cpp=.o)
 
 # Make clean -> make -> make run
 all: clean $(TARGET_SIM)
@@ -257,6 +262,16 @@ $(TARGET_METRICS): $(OBJ_METRICS)
 	mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_METRICS) $(LDFLAGS)
 	@echo "✓ Teste de métricas completas compilado!"
+
+# Regra para o teste de métricas (simplificado - test/test_metrics.cpp)
+$(TARGET_METRICS_SIMPLE): $(OBJ_METRICS_SIMPLE)
+	mkdir -p $(BIN_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_METRICS_SIMPLE) $(LDFLAGS)
+	@echo "✓ Teste de métricas (simple) compilado!"
+
+test-metrics: $(TARGET_METRICS_SIMPLE)
+	@echo "📊 Executando test_metrics (simple)..."
+	@./$(TARGET_METRICS_SIMPLE)
 
 # Regra para teste de métricas de CPU
 $(TARGET_CPU_METRICS): $(OBJ_CPU_METRICS)
