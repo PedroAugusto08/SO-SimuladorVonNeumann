@@ -1,4 +1,5 @@
 #include "parser_json.hpp"
+#include "../src/util/Log.hpp"
 #include "MainMemory.hpp"
 #include <unordered_map>
 #include <fstream>

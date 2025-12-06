@@ -1,5 +1,5 @@
 Politica,TempoMedioEspera_ms,TempoMedioExecucao_ms,CPUUtilizacao_pct,Eficiencia_pct,Throughput_proc_s,CacheHits,CacheMisses,TaxaHit_pct,FailedProcesses,Success,Error
-RR,0.00,0.00,0.00,0.00,0.0000,0,0,0.00,8,false,"Segmentation Fault: Processo P1 sem segmento inicializado"
-FCFS,0.00,0.00,0.00,0.00,0.0000,0,0,0.00,8,false,"Segmentation Fault: Processo P1 sem segmento inicializado"
-SJN,0.00,0.00,0.00,0.00,0.0000,0,0,0.00,8,false,"Segmentation Fault: Processo P1 sem segmento inicializado"
-PRIORITY,0.00,0.00,0.00,0.00,0.0000,0,0,0.00,8,false,"Segmentation Fault: Processo P1 sem segmento inicializado"
+RR,1.72,2.70,89.66,89.66,370.0784,2,13318288,0.00,0,true,""
+FCFS,2903.19,3161.74,100.00,100.00,0.6323,2,27199750,0.00,0,false,"FCFS atingiu o limite de ciclos antes de concluir todos os processos"
+SJN,2697.29,3150.40,100.00,100.00,0.6278,2,21739067,0.00,0,false,"SJN atingiu o limite de ciclos antes de concluir todos os processos"
+PRIORITY,2428.68,2632.04,100.00,100.00,0.7127,2,28352362,0.00,0,false,"PRIORITY atingiu o limite de ciclos antes de concluir todos os processos"

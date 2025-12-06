@@ -1,4 +1,5 @@
 #include "parser_json.hpp"
+#include "../util/Log.hpp"
 #include "../memory/MemoryManager.hpp" // Alterado de MainMemory.hpp
 #include "../cpu/PCB.hpp"              // Incluído para a função write
 #include "../cpu/instruction_codes.hpp" // Tabela unificada de opcodes

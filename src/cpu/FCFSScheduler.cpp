@@ -3,6 +3,7 @@
 #include <chrono>
 #include <limits>
 #include <filesystem>
+#include "util/Log.hpp"
 #include <fstream>
 #include <iomanip>
 #include <ctime>
@@ -107,7 +108,6 @@ void FCFSScheduler::collect_finished_processes() {
         const bool is_idle = core->is_idle();
         const bool thread_running = core->is_thread_running();
         if (Log::info_enabled()) {
-            if (Log::info_enabled()) {
                 std::cout << "[FCFS][collect] core#" << core->get_id()
                   << " P" << process->pid
                   << " state=" << to_string_state(process->get_state())
@@ -116,7 +116,7 @@ void FCFSScheduler::collect_finished_processes() {
                   << " finished=" << finished_count.load() << "/" << total_count.load()
                   << " ready=" << ready_count.load()
                   << " blocked=" << blocked_list.size() << "\n";
-            }
+        }
 
         if (!is_idle && thread_running) {
             std::cout << "[FCFS][collect] core#" << core->get_id()

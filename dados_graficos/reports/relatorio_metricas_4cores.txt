@@ -13,67 +13,66 @@ Workloads utilizados (8):
   - short
 
 Política: RR
-  • Status: FALHA
-  • Motivo do erro: Segmentation Fault: Processo P1 sem segmento inicializado
+  • Status: OK
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     0.00 ms
-  • Tempo médio de execução:   0.00 ms
-  • Utilização média da CPU:   0.00 %
-  • Eficiência estimada:       0.00 %
-  • Throughput global:         0.00 proc/s
+  • Tempo médio de espera:     1.72 ms
+  • Tempo médio de execução:   2.70 ms
+  • Utilização média da CPU:   89.66 %
+  • Eficiência estimada:       89.66 %
+  • Throughput global:         370.08 proc/s
 [Métricas de Memória]
-  • Cache hits:                0
-  • Cache misses:              0
+  • Cache hits:                2
+  • Cache misses:              13318288
   • Taxa de hit:               0.00 %
-  • Processos com falha:      8
+  • Processos com falha:      0
 
 Política: FCFS
   • Status: FALHA
-  • Motivo do erro: Segmentation Fault: Processo P1 sem segmento inicializado
+  • Motivo do erro: FCFS atingiu o limite de ciclos antes de concluir todos os processos
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     0.00 ms
-  • Tempo médio de execução:   0.00 ms
-  • Utilização média da CPU:   0.00 %
-  • Eficiência estimada:       0.00 %
-  • Throughput global:         0.00 proc/s
+  • Tempo médio de espera:     2903.19 ms
+  • Tempo médio de execução:   3161.74 ms
+  • Utilização média da CPU:   100.00 %
+  • Eficiência estimada:       100.00 %
+  • Throughput global:         0.63 proc/s
 [Métricas de Memória]
-  • Cache hits:                0
-  • Cache misses:              0
+  • Cache hits:                2
+  • Cache misses:              27199750
   • Taxa de hit:               0.00 %
-  • Processos com falha:      8
+  • Processos com falha:      0
 
 Política: SJN
   • Status: FALHA
-  • Motivo do erro: Segmentation Fault: Processo P1 sem segmento inicializado
+  • Motivo do erro: SJN atingiu o limite de ciclos antes de concluir todos os processos
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     0.00 ms
-  • Tempo médio de execução:   0.00 ms
-  • Utilização média da CPU:   0.00 %
-  • Eficiência estimada:       0.00 %
-  • Throughput global:         0.00 proc/s
+  • Tempo médio de espera:     2697.29 ms
+  • Tempo médio de execução:   3150.40 ms
+  • Utilização média da CPU:   100.00 %
+  • Eficiência estimada:       100.00 %
+  • Throughput global:         0.63 proc/s
 [Métricas de Memória]
-  • Cache hits:                0
-  • Cache misses:              0
+  • Cache hits:                2
+  • Cache misses:              21739067
   • Taxa de hit:               0.00 %
-  • Processos com falha:      8
+  • Processos com falha:      0
 
 Política: PRIORITY
   • Status: FALHA
-  • Motivo do erro: Segmentation Fault: Processo P1 sem segmento inicializado
+  • Motivo do erro: PRIORITY atingiu o limite de ciclos antes de concluir todos os processos
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     0.00 ms
-  • Tempo médio de execução:   0.00 ms
-  • Utilização média da CPU:   0.00 %
-  • Eficiência estimada:       0.00 %
-  • Throughput global:         0.00 proc/s
+  • Tempo médio de espera:     2428.68 ms
+  • Tempo médio de execução:   2632.04 ms
+  • Utilização média da CPU:   100.00 %
+  • Eficiência estimada:       100.00 %
+  • Throughput global:         0.71 proc/s
 [Métricas de Memória]
-  • Cache hits:                0
-  • Cache misses:              0
+  • Cache hits:                2
+  • Cache misses:              28352362
   • Taxa de hit:               0.00 %
-  • Processos com falha:      8
+  • Processos com falha:      0
 
 Relatório gerado automaticamente por test_metrics.cpp

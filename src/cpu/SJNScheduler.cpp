@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <ctime>
 #include "TimeUtils.hpp"
+#include "../util/Log.hpp"
 
 namespace {
 

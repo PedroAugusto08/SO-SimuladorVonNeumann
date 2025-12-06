@@ -3,6 +3,7 @@
 #include <chrono>
 #include <limits>
 #include "TimeUtils.hpp"
+#include "../util/Log.hpp"
 
 namespace {
 

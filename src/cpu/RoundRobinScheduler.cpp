@@ -7,6 +7,7 @@
 #include "../memory/MemoryManager.hpp"
 #include "../IO/IOManager.hpp"
 #include "TimeUtils.hpp"
+#include "../util/Log.hpp"
 
 RoundRobinScheduler::RoundRobinScheduler(int num_cores,
                                          MemoryManager* mem_manager,
@@ -92,7 +93,7 @@ void RoundRobinScheduler::schedule_cycle() {
         
         handle_blocked_processes();
         
-        if (Log::debug_enabled() && current_time <= 20 && !ready_queue.empty()) {
+            if (Log::debug_enabled() && current_time <= 20 && !ready_queue.empty()) {
             std::cout << "[DEBUG] Tentando agendar, ready_queue.size=" << ready_queue.size() << "\n";
             for (size_t i = 0; i < cores.size(); i++) {
                 std::cout << "  Core " << i << ": is_idle=" << cores[i]->is_idle() 
