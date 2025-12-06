@@ -2,8 +2,10 @@
 
 Status completo de todas as funcionalidades implementadas no simulador.
 
-**Última atualização:** 25/11/2025  
+**Última atualização:** 06/12/2025  
 **Progresso geral:** 63/65 tarefas (97%)
+
+> **Nota (06/12/2025):** Testes antigos foram removidos/consolidados. Agora usamos `test-metrics` e `test-single-core` como testes principais.
 
 ---
 
@@ -123,16 +125,16 @@ Status completo de todas as funcionalidades implementadas no simulador.
 |------|--------|------|-----------|
 | Estrutura métricas PCB | ✅ | 13/11 | 23 campos implementados |
 | Statistics no Scheduler | ✅ | 18/11 | Agregação de métricas |
-| test_multicore.cpp | ✅ | 14/11 | Teste básico multicore |
-| test_multicore_throughput.cpp | ✅ | 18/11 | Performance e speedup |
-| test_race_debug.cpp | ✅ | 18/11 | Validação 50 iterações |
-| test_verify_execution.cpp | ✅ | 18/11 | Verificação completa |
-| test_metrics_complete.cpp | ✅ | 25/11 | Métricas de todas políticas |
-| test_multicore_comparative.cpp | ✅ | 25/11 | Comparação multicore |
-| CSV detailed_metrics | ✅ | 25/11 | logs/detailed_metrics.csv |
-| CSV comparative_results | ✅ | 25/11 | logs/multicore_comparative_results.csv |
+| test_metrics.cpp | ✅ | 06/12 | Teste principal (FCFS/SJN/Priority) |
+| test_single_core_no_threads.cpp | ✅ | 06/12 | Round Robin determinístico |
+| test_hash_register | ✅ | 14/11 | Teste componente hash |
+| test_register_bank | ✅ | 14/11 | Teste componente bank |
+| CSV metricas_Xcores | ✅ | 06/12 | dados_graficos/csv/ |
+| Relatórios texto | ✅ | 06/12 | dados_graficos/reports/ |
 
-**Progresso:** 10/10 (100%) ✅
+**Progresso:** 8/8 (100%) ✅
+
+> **Nota:** Testes antigos (`test_multicore_comparative`, `test_priority_preemptive`, etc.) foram removidos/consolidados.
 
 ---
 
@@ -140,14 +142,13 @@ Status completo de todas as funcionalidades implementadas no simulador.
 
 | Item | Status | Data | Descrição |
 |------|--------|------|-----------|
-| CSV métricas multicore | ✅ | 18/11 | multicore_time_results.csv |
-| CSV métricas detalhadas | ✅ | 25/11 | detailed_metrics.csv |
-| CSV comparativo | ✅ | 25/11 | multicore_comparative_results.csv |
+| CSV métricas por cores | ✅ | 06/12 | dados_graficos/csv/metricas_Xcores.csv |
+| Relatórios de métricas | ✅ | 06/12 | dados_graficos/reports/ |
+| Saída teste single-core | ✅ | 06/12 | test/output/ |
 | Logs de execução | ✅ | 18/11 | Eventos do scheduler |
-| Logs de diagnóstico | ✅ | 18/11 | test_race_debug output |
 | MemoryMetrics CSV | ✅ | 24/11 | memory_utilization.csv |
 
-**Progresso:** 6/6 (100%) ✅
+**Progresso:** 5/5 (100%) ✅
 
 ---
 

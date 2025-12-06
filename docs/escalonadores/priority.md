@@ -104,8 +104,10 @@ A implementação atual inclui:
 
 ```bash
 # Priority não-preemptivo
-./simulador --policy PRIORITY --cores 2
+./bin/simulador --policy PRIORITY --cores 2
 ```
+
+> **Nota (06/12/2025):** A política `PRIORITY_PREEMPT` (preemptiva) foi temporariamente desabilitada para debugging. Use apenas `PRIORITY` (não-preemptiva).
 
 ## Definição de Prioridades
 

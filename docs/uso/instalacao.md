@@ -68,12 +68,15 @@ make simulador
 ### Build de Testes
 
 ```bash
-# Compilar todos os testes
-make test
+# Compilar e executar teste de métricas
+make test-metrics
 
-# Teste específico
-make test_multicore
-make test_metrics
+# Teste single-core determinístico
+make test-single-core
+
+# Testes de componentes
+make test-hash
+make test-bank
 ```
 
 ### Limpeza
@@ -90,29 +93,35 @@ make distclean
 
 | Comando | Descrição |
 |---------|-----------|
-| `make` | Compila o simulador principal |
-| `make all` | Compila tudo (simulador + testes) |
-| `make test` | Compila e executa testes |
+| `make` ou `make all` | Limpa e compila o simulador principal |
+| `make simulador` | Compila apenas o simulador multicore |
+| `make run-sim` | Executa o simulador multicore |
+| `make test-metrics` | Compila e executa testes de métricas |
+| `make test-single-core` | Teste single-core sem threads |
+| `make test-hash` | Teste do Hash Register |
+| `make test-bank` | Teste do Register Bank |
+| `make check` | Verificação rápida de componentes |
 | `make clean` | Remove arquivos compilados |
-| `make run` | Compila e executa |
+| `make debug` | Build com símbolos de debug |
+| `make help` | Mostra ajuda com todos os comandos |
 
 ## Verificação da Instalação
 
 ```bash
 # Compilar
-make
+make simulador
 
 # Verificar executável
-ls -la simulador
+ls -la bin/simulador
 
 # Teste rápido
-./simulador --help
+./bin/simulador --help
 ```
 
 **Saída esperada:**
 ```
 Simulador Von Neumann Multicore
-Uso: ./simulador [opções]
+Uso: ./bin/simulador [opções]
   --cores N        Número de núcleos (1-8)
   --policy POLICY  Política de escalonamento
   --quantum N      Quantum para Round Robin
@@ -125,15 +134,21 @@ Após compilação:
 
 ```
 SO-SimuladorVonNeumann/
-├── simulador              # Executável principal
-├── test_multicore         # Teste multicore
-├── test_metrics           # Teste de métricas
+├── bin/                   # Executáveis compilados
+│   ├── simulador          # Simulador principal
+│   ├── test_metrics       # Teste de métricas
+│   ├── test_single_core_no_threads
+│   ├── test_hash_register
+│   └── test_register_bank
 ├── src/
-│   ├── *.o               # Objetos compilados
-│   └── ...
-├── logs/
-│   └── metrics/          # Logs de execução
+│   └── *.o               # Objetos compilados
+├── dados_graficos/        # Dados e relatórios de métricas
+│   ├── csv/              # Arquivos CSV com métricas
+│   ├── reports/          # Relatórios de texto
+│   └── graficos/         # Gráficos gerados
+├── test/output/           # Saída dos testes
 └── ...
+```
 ```
 
 ## Problemas Comuns

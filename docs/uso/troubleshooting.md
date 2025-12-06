@@ -65,7 +65,7 @@ Verificar se todos os headers têm:
 1. **Acesso a ponteiro nulo:**
    ```bash
    # Debug com GDB
-   gdb ./simulador
+   gdb ./bin/simulador
    (gdb) run --policy FCFS --cores 2 -p tasks.json proc.json
    (gdb) bt  # backtrace após crash
    ```
@@ -73,8 +73,8 @@ Verificar se todos os headers têm:
 2. **Acesso fora dos limites:**
    ```bash
    # Compilar com AddressSanitizer
-   g++ -std=c++17 -fsanitize=address -g main.cpp -o simulador
-   ./simulador ...
+   make debug  # ou adicionar -fsanitize=address manualmente
+   ./bin/simulador ...
    ```
 
 3. **Stack overflow (recursão infinita):**

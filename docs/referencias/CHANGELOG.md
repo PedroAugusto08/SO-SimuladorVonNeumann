@@ -6,6 +6,61 @@ Este documento detalha todas as mudanças significativas feitas no simulador em 
 
 ---
 
+## [2.1.0] - 2025-12-06
+
+### 🧹 Limpeza e Simplificação do Makefile
+
+#### Alvos Removidos (Obsoletos)
+- `test-multicore` - Teste multicore antigo
+- `test-throughput` - Teste de throughput
+- `test-all` - Execução de todos os testes
+- `test_metrics_complete` - Métricas completas antigas
+- `test-priority-preempt` - Teste de prioridade preemptiva removido
+
+#### Alvos Mantidos e Atualizados
+| Alvo | Descrição |
+|------|-----------|
+| `make` / `make all` | Limpa e compila simulador principal |
+| `make simulador` | Compila simulador multicore |
+| `make run-sim` | Executa simulador multicore |
+| `make test-metrics` | Teste de métricas (FCFS/SJN/Priority) |
+| `make test-single-core` | Teste single-core determinístico (sem threads) |
+| `make test-hash` | Teste do Hash Register |
+| `make test-bank` | Teste do Register Bank |
+| `make check` | Verificação rápida de componentes |
+| `make clean` | Limpa arquivos compilados |
+| `make debug` | Build com símbolos de debug |
+| `make help` | Mostra ajuda |
+
+### 🧪 Sistema de Testes Simplificado
+
+#### Arquivos de Teste Atuais
+```
+test/
+├── test_metrics.cpp              # Teste principal de métricas (FCFS/SJN/Priority)
+└── test_single_core_no_threads.cpp # Teste determinístico single-core Round Robin
+```
+
+#### Saídas dos Testes
+- `dados_graficos/csv/metricas_Xcores.csv` - Métricas por número de cores
+- `dados_graficos/reports/relatorio_metricas_Xcores.txt` - Relatórios textuais
+- `test/output/` - Saída do teste single-core
+
+### 📁 Organização de Arquivos
+
+#### Diretórios de Saída Padronizados
+- `bin/` - Executáveis compilados
+- `dados_graficos/csv/` - Arquivos CSV com métricas
+- `dados_graficos/reports/` - Relatórios de texto
+- `dados_graficos/graficos/` - Gráficos gerados
+
+### ⚠️ Breaking Changes
+- Política `PRIORITY_PREEMPT` removida/desabilitada temporariamente
+- Testes antigos (`test_multicore_comparative.cpp`, etc.) não incluídos no Makefile
+- Quantum padrão alterado de 1000 para 100 ciclos
+
+---
+
 ## [2.0.0] - 2025-12-03
 
 ### 🔧 Correções Críticas de Race Conditions

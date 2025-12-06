@@ -4,6 +4,109 @@
 
 O simulador coleta métricas detalhadas de performance para análise e comparação entre políticas de escalonamento.
 
+> **Última atualização:** 06/12/2025
+
+## Medição de Tempo Atômico
+
+### Namespace `cpu_time`
+
+O projeto utiliza um namespace dedicado para garantir medições de tempo **thread-safe** e de **alta precisão**:
+
+```cpp
+// src/cpu/TimeUtils.hpp
+namespace cpu_time {
+
+// Retorna o timestamp atual em nanosegundos (desde epoch do steady_clock)
+inline uint64_t now_ns() {
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::steady_clock::now().time_since_epoch()).count();
+}
+
+// Converte nanosegundos para milissegundos
+inline double ns_to_ms(uint64_t value_ns) {
+    return static_cast<double>(value_ns) / 1'000'000.0;
+}
+
+// Converte nanosegundos para segundos
+inline double ns_to_seconds(uint64_t value_ns) {
+    return static_cast<double>(value_ns) / 1'000'000'000.0;
+}
+
+} // namespace cpu_time
+```
+
+### Por que `steady_clock`?
+
+| Característica | `steady_clock` | `system_clock` |
+|----------------|----------------|----------------|
+| Monotônico | ✅ Sim | ❌ Não |
+| Afetado por ajustes de sistema | ❌ Não | ✅ Sim |
+| Precisão | Nanosegundos | Variável |
+| Uso em métricas | **Recomendado** | Não recomendado |
+
+O `std::chrono::steady_clock` é **monotônico**, ou seja, nunca retrocede. Isso é essencial para medições de performance, pois mudanças de horário do sistema (NTP sync, daylight saving, etc.) não afetam as medições.
+
+### Contadores Atômicos no PCB
+
+Os tempos são armazenados em contadores **atômicos** para garantir consistência em ambiente **multithread**:
+
+```cpp
+// src/cpu/PCB.hpp
+struct PCB {
+    // Timestamps atômicos (nanosegundos)
+    std::atomic<uint64_t> arrival_time{0};    // Momento de chegada
+    std::atomic<uint64_t> start_time{0};      // Primeira execução
+    std::atomic<uint64_t> finish_time{0};     // Término
+    std::atomic<uint64_t> total_wait_time{0}; // Tempo acumulado em espera
+    
+    // Controle de entrada/saída da fila ready
+    std::atomic<uint64_t> ready_queue_enter_time{0};
+    
+    // Contadores de cache atômicos
+    std::atomic<uint64_t> cache_hits{0};
+    std::atomic<uint64_t> cache_misses{0};
+};
+```
+
+### Cálculo do Tempo de Espera
+
+O tempo de espera é calculado **incrementalmente** cada vez que o processo sai da fila de prontos:
+
+```cpp
+void PCB::enter_ready_queue() {
+    // Marca o momento de entrada na fila
+    ready_queue_enter_time.store(cpu_time::now_ns(), std::memory_order_relaxed);
+}
+
+void PCB::leave_ready_queue() {
+    // Obtém timestamp de entrada (e reseta para 0)
+    const uint64_t start = ready_queue_enter_time.exchange(0, std::memory_order_relaxed);
+    if (start == 0) return;  // Não estava na fila
+    
+    const uint64_t end = cpu_time::now_ns();
+    if (end > start) {
+        // Adiciona atomicamente ao tempo total de espera
+        total_wait_time.fetch_add(end - start, std::memory_order_relaxed);
+    }
+}
+```
+
+### Memory Ordering
+
+O projeto usa `std::memory_order_relaxed` para contadores de métricas porque:
+
+1. **Não há dependências de ordenação**: Cada contador é independente
+2. **Performance**: Menor overhead que `memory_order_seq_cst`
+3. **Atomicidade garantida**: A operação ainda é atômica, apenas a ordenação com outras operações é relaxada
+
+```cpp
+// Incremento atômico relaxado - alta performance
+total_wait_time.fetch_add(delta, std::memory_order_relaxed);
+
+// vs. sequencialmente consistente - mais lento
+total_wait_time.fetch_add(delta, std::memory_order_seq_cst);
+```
+
 ## Métricas Coletadas
 
 ### Por Processo
@@ -197,11 +300,23 @@ PID,Priority,StartTime,EndTime,WaitTime,Turnaround,Instructions,ContextSwitches
 ### Via CLI
 
 ```bash
-# Executar e gerar métricas
-./simulador --policy FCFS --cores 2 -p tasks.json process.json
+# Executar simulador e gerar métricas
+./bin/simulador --policy FCFS --cores 2 -p tasks.json process.json
 
-# Métricas serão salvas em:
-# logs/metrics/detailed_metrics.csv
+# Executar teste de métricas completo
+make test-metrics
+```
+
+**Arquivos de saída:**
+```
+dados_graficos/
+├── csv/
+│   ├── metricas_1cores.csv
+│   ├── metricas_2cores.csv
+│   ├── metricas_4cores.csv
+│   └── metricas_6cores.csv
+└── reports/
+    └── relatorio_metricas_Xcores.txt
 ```
 
 ### Análise Posterior
@@ -224,13 +339,42 @@ plt.show()
 
 ## Testes de Métricas
 
-O projeto inclui testes específicos para validar métricas:
+O projeto inclui testes específicos para validar e coletar métricas:
 
-- `test/test_cpu_metrics.cpp` - Validação de métricas de CPU
-- `test/test_metrics_complete.cpp` - Teste completo de coleta
-- `test/test_multicore_comparative.cpp` - Comparação entre políticas
+### `test_metrics.cpp` (Principal)
+
+Teste completo que avalia as políticas FCFS, SJN e Priority:
 
 ```bash
-# Executar testes de métricas
-make test_metrics
+make test-metrics
 ```
+
+**Saídas geradas:**
+- `dados_graficos/csv/metricas_Xcores.csv` - Dados estruturados
+- `dados_graficos/reports/relatorio_metricas_Xcores.txt` - Relatório legível
+
+### `test_single_core_no_threads.cpp`
+
+Teste determinístico single-core para validação de comportamento:
+
+```bash
+make test-single-core
+```
+
+**Uso:** Debugging e validação sem interferência de threads.
+
+## Visualização com GUI
+
+O projeto inclui uma interface gráfica para visualização de métricas:
+
+```bash
+python3 gui/monitor_v2.py
+```
+
+**Funcionalidades:**
+- Seleção de políticas e métricas
+- Gráficos de linha, barra e dispersão
+- Exportação de gráficos (PNG) e dados (CSV)
+- Comparação visual entre políticas
+
+Para mais detalhes, consulte a [documentação da GUI](../uso/gui.md).

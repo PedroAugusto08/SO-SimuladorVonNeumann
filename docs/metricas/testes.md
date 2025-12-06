@@ -2,33 +2,31 @@
 
 ## Visão Geral
 
-O projeto inclui testes abrangentes para validar todas as funcionalidades do simulador.
+O projeto inclui testes focados para validar as funcionalidades principais do simulador.
 
 ## Estrutura de Testes
 
 ```
 test/
-├── test_cpu_metrics.cpp          # Métricas de CPU
-├── test_deep_inspection.cpp      # Inspeção detalhada
-├── test_metrics_complete.cpp     # Métricas completas
-├── test_multicore_comparative.cpp # Comparação multi-core
-├── test_multicore_throughput.cpp  # Throughput multi-core
-├── test_multicore.cpp            # Testes multi-core
-├── test_priority_preemptive.cpp  # Priority preemptivo
-├── test_race_debug.cpp           # Debug de race conditions
-└── test_verify_execution.cpp     # Verificação de execução
+├── test_metrics.cpp              # Métricas completas (FCFS/SJN/Priority)
+└── test_single_core_no_threads.cpp # Execução determinística single-core
 ```
 
 ## Compilação
 
 ```bash
-# Compilar todos os testes
-make test
+# Compilar e executar teste de métricas
+make test-metrics
 
-# Compilar teste específico
-make test_multicore
-make test_metrics
-make test_priority
+# Teste single-core determinístico
+make test-single-core
+
+# Testes de componentes
+make test-hash
+make test-bank
+
+# Verificação rápida de todos os componentes
+make check
 ```
 
 ## Testes Disponíveis
@@ -99,36 +97,23 @@ Testa escalonamento com prioridade preemptiva:
 ./test_priority_preemptive
 ```
 
-### test_metrics_complete.cpp
+### Verificação Rápida
 
-Valida coleta de métricas:
-- Wait time calculado corretamente
-- Turnaround time correto
-- Contagem de instruções
-- Exportação para CSV
-
+Use o comando check para verificar todos os componentes rapidamente:
 ```bash
-./test_metrics_complete
-```
-
-### test_race_debug.cpp
-
-Debug de condições de corrida:
-- Acesso concorrente à memória
-- Sincronização de processos
-- Deadlock detection
-
-```bash
-./test_race_debug
+make check
 ```
 
 ## Executando Testes
 
-### Todos os Testes
+### Testes Principais
 
 ```bash
-make test
-./run_all_tests.sh
+# Teste de métricas completo
+make test-metrics
+
+# Teste single-core determinístico
+make test-single-core
 ```
 
 ### Teste Individual

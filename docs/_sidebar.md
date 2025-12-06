@@ -24,6 +24,7 @@
 * **🚀 Uso**
   * [Instalação](uso/instalacao.md)
   * [Comandos](uso/comandos.md)
+  * [Interface Gráfica (GUI)](uso/gui.md)
   * [Troubleshooting](uso/troubleshooting.md)
 
 * **📚 Referências**

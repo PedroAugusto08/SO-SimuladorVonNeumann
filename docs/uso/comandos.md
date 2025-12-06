@@ -3,7 +3,7 @@
 ## Sintaxe Básica
 
 ```bash
-./simulador [opções] -p <programa.json> <processo.json>
+./bin/simulador [opções] -p <programa.json> <processo.json>
 ```
 
 ## Opções Disponíveis
@@ -11,8 +11,8 @@
 | Opção | Descrição | Valores | Padrão |
 |-------|-----------|---------|--------|
 | `--cores N` | Número de núcleos | 1-8 | 2 |
-| `--policy POLICY` | Política de escalonamento | FCFS, SJN, RR, PRIORITY, PRIORITY_PREEMPT | FCFS |
-| `--quantum N` | Quantum para Round Robin | 100-10000 | 1000 |
+| `--policy POLICY` | Política de escalonamento | FCFS, SJN, RR, PRIORITY | RR |
+| `--quantum N` | Quantum para Round Robin | 10-10000 | 100 |
 | `--cache-policy` | Política de cache | FIFO, LRU | LRU |
 | `-p <prog> <proc>` | Par programa/processo | Arquivos JSON | - |
 | `--help` | Mostra ajuda | - | - |
@@ -23,7 +23,7 @@
 
 ```bash
 # FCFS com 2 núcleos
-./simulador --policy FCFS --cores 2 \
+./bin/simulador --policy FCFS --cores 2 \
     -p examples/programs/tasks.json examples/processes/process1.json
 ```
 
@@ -31,7 +31,7 @@
 
 ```bash
 # Round Robin com quantum de 500 ciclos
-./simulador --policy RR --cores 4 --quantum 500 \
+./bin/simulador --policy RR --cores 4 --quantum 500 \
     -p examples/programs/tasks.json examples/processes/process1.json
 ```
 
@@ -39,7 +39,7 @@
 
 ```bash
 # Executar 3 processos diferentes
-./simulador --policy FCFS --cores 4 \
+./bin/simulador --policy FCFS --cores 4 \
     -p examples/programs/tasks.json examples/processes/process_high.json \
     -p examples/programs/tasks.json examples/processes/process_medium.json \
     -p examples/programs/tasks.json examples/processes/process_low.json
@@ -49,13 +49,13 @@
 
 ```bash
 # FCFS
-./simulador --policy FCFS --cores 2 -p tasks.json proc.json > fcfs.log
+./bin/simulador --policy FCFS --cores 2 -p tasks.json proc.json > fcfs.log
 
 # SJN
-./simulador --policy SJN --cores 2 -p tasks.json proc.json > sjn.log
+./bin/simulador --policy SJN --cores 2 -p tasks.json proc.json > sjn.log
 
 # Round Robin
-./simulador --policy RR --cores 2 --quantum 1000 -p tasks.json proc.json > rr.log
+./bin/simulador --policy RR --cores 2 --quantum 1000 -p tasks.json proc.json > rr.log
 
 # Comparar resultados
 diff fcfs.log sjn.log
@@ -124,17 +124,32 @@ PID,Priority,StartTime,EndTime,WaitTime,Turnaround,Instructions,ContextSwitches
 ## Make Targets
 
 ```bash
-# Compilar e executar com configuração padrão
-make run
+# Compilar simulador principal (limpa e compila)
+make
+make all
+
+# Compilar apenas o simulador multicore
+make simulador
+
+# Executar simulador multicore
+make run-sim
 
 # Executar testes específicos
-make test_multicore
-make test_metrics
+make test-metrics      # Teste de métricas com FCFS/SJN/Priority
+make test-single-core  # Teste single-core determinístico (sem threads)
+make test-hash         # Teste do sistema de hash register
+make test-bank         # Teste do banco de registradores
 
-# Limpar e recompilar
-make clean && make
+# Verificação rápida de componentes
+make check
 
-# Ver todos os targets
+# Limpar arquivos compilados
+make clean
+
+# Build com símbolos de debug
+make debug
+
+# Ver todos os comandos disponíveis
 make help
 ```
 
@@ -151,7 +166,7 @@ CORES=4
 
 for policy in $POLICIES; do
     echo "=== $policy ==="
-    ./simulador --policy $policy --cores $CORES \
+    ./bin/simulador --policy $policy --cores $CORES \
         -p tasks.json process.json 2>&1 | tee ${policy,,}.log
     echo
 done
@@ -166,7 +181,7 @@ done
 for cores in 1 2 4 8; do
     for quantum in 500 1000 2000; do
         echo "Cores=$cores Quantum=$quantum"
-        time ./simulador --policy RR --cores $cores --quantum $quantum \
+        time ./bin/simulador --policy RR --cores $cores --quantum $quantum \
             -p tasks.json process.json > /dev/null
     done
 done
@@ -184,10 +199,10 @@ done
 
 ```bash
 # Executar com saída verbose
-./simulador --policy FCFS --cores 1 -p tasks.json process.json 2>&1 | less
+./bin/simulador --policy FCFS --cores 1 -p tasks.json process.json 2>&1 | less
 
 # Salvar logs para análise
-./simulador --policy FCFS --cores 2 -p tasks.json process.json > execution.log 2>&1
+./bin/simulador --policy FCFS --cores 2 -p tasks.json process.json > execution.log 2>&1
 ```
 
 ### Análise

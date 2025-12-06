@@ -47,13 +47,23 @@ GCC/G++ 9.0 ou superior (para suporte completo a C++17).
 ### Como compilar?
 
 ```bash
-make
+make simulador
 ```
 
 ### Como recompilar do zero?
 
 ```bash
-make clean && make
+make clean && make simulador
+```
+
+### Como rodar os testes?
+
+```bash
+# Teste de métricas completo
+make test-metrics
+
+# Teste single-core determinístico
+make test-single-core
 ```
 
 ### Erro "undefined reference to pthread"?
@@ -67,7 +77,7 @@ Verifique se o Makefile inclui `-pthread` nas flags.
 ### Qual o comando básico?
 
 ```bash
-./simulador --policy FCFS --cores 2 -p tasks.json process.json
+./bin/simulador --policy FCFS --cores 2 -p tasks.json process.json
 ```
 
 ### Quais políticas estão disponíveis?
@@ -77,7 +87,9 @@ Verifique se o Makefile inclui `-pthread` nas flags.
 | First Come First Served | `--policy FCFS` |
 | Shortest Job Next | `--policy SJN` |
 | Round Robin | `--policy RR` |
-| Priority | `--policy PRIORITY` |
+| Priority (não-preemptivo) | `--policy PRIORITY` |
+
+> **Nota:** A política `PRIORITY_PREEMPT` foi temporariamente desabilitada.
 | Priority Preemptivo | `--policy PRIORITY_PREEMPT` |
 
 ### Como usar Round Robin?

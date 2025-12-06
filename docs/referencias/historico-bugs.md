@@ -6,7 +6,54 @@ Este documento registra todos os bugs críticos identificados e corrigidos duran
 
 | Total de Bugs | Resolvidos | Taxa de Sucesso |
 |---------------|------------|-----------------|
-| 15 | 15 | 100% |
+| 17 | 17 | 100% |
+
+> **Última atualização:** 06/12/2025
+
+---
+
+## Bug #17: Makefile com Alvos Obsoletos
+
+**Data:** 06/12/2025  
+**Severidade:** Baixa  
+**Status:** ✅ Resolvido
+
+### Sintoma
+Makefile continha alvos (`test-multicore`, `test-throughput`, `test-all`) que não compilavam ou estavam desatualizados.
+
+### Causa Raiz
+Testes antigos foram removidos/consolidados mas alvos permaneceram no Makefile.
+
+### Correção
+- Removidos alvos obsoletos
+- Mantidos: `test-metrics`, `test-single-core`, `test-hash`, `test-bank`
+- Atualizado comando `help` com lista correta
+
+### Arquivo
+`Makefile`
+
+---
+
+## Bug #16: PRIORITY_PREEMPT com Comportamento Instável
+
+**Data:** 03/12/2025  
+**Severidade:** Alta  
+**Status:** ⏸️ Desabilitado temporariamente
+
+### Sintoma
+Política Priority Preemptive causava race conditions e comportamento inconsistente.
+
+### Causa Raiz
+`check_preemption()` interferia com coleta de processos finalizados.
+
+### Correção Temporária
+```cpp
+// check_preemption() desabilitado temporariamente para debugging
+// check_preemption();
+```
+
+### Arquivo
+`src/cpu/PriorityScheduler.cpp`
 
 ---
 
