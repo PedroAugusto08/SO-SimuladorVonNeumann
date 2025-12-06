@@ -20,6 +20,7 @@ class RoundRobinScheduler {
 public:
     struct Statistics {
         double avg_wait_time{0.0};
+        double avg_execution_time{0.0};
         double avg_turnaround_time{0.0};
         double avg_response_time{0.0};
         double avg_cpu_utilization{0.0};

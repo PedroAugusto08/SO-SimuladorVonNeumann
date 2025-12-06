@@ -189,11 +189,13 @@ int main() {
     std::cout << "| Métrica                          | Valor         |\n";
     std::cout << "+----------------------------------+---------------+\n";
     print_metric("Tempo médio de espera", stats.avg_wait_time, 2, "ms");
-    print_metric("Tempo médio de execução", stats.avg_turnaround_time, 2, "ms");
+    print_metric("Tempo médio de execução", stats.avg_execution_time * 1000.0, 2, "µs");
+    print_metric("Tempo médio de retorno", stats.avg_turnaround_time, 2, "ms");
     print_metric("Utilização média da CPU", stats.avg_cpu_utilization, 2, "%");
     print_metric("Throughput", stats.throughput, 4, "proc/s");
     print_metric("Eficiência", stats.avg_cpu_utilization, 2, "%");
     std::cout << "+----------------------------------+---------------+\n";
+
 
     if (!pending_labels.empty()) {
         std::cout << "Pendentes: ";

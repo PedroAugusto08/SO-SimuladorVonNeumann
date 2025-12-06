@@ -21,7 +21,7 @@
 namespace fs = std::filesystem;
 
 namespace {
-constexpr int DEFAULT_NUM_CORES = 4;
+constexpr int DEFAULT_NUM_CORES = 1;
 constexpr int QUANTUM = 10;
 constexpr int MAX_CYCLES = 2'000'000;
 constexpr const char* PROCESS_DIR = "processes";
@@ -39,8 +39,7 @@ std::string build_report_path(int num_cores) {
            std::to_string(std::max(1, num_cores)) + "cores.txt";
 }
 
-int compute_cycle_budget(int num_cores, size_t workload_count) {
-    const int safe_cores = std::max(1, num_cores);
+int compute_cycle_budget([[maybe_unused]] int num_cores, size_t workload_count) {
     const double workload_scale = std::max(1.0, static_cast<double>(workload_count) / 8.0);
     // 2M ciclos base, ajustados pelo número de workloads (mas sem exagerar)
     const double budget = static_cast<double>(MAX_CYCLES) * workload_scale;
@@ -68,7 +67,8 @@ struct WorkloadConfig {
 struct PolicyMetrics {
     std::string policy;
     double avg_wait_ms{0.0};
-    double avg_exec_ms{0.0};
+    double avg_exec_us{0.0};
+    double avg_turnaround_ms{0.0};
     double cpu_util_pct{0.0};
     double efficiency_pct{0.0};
     double throughput{0.0};
@@ -215,11 +215,12 @@ PolicyMetrics run_policy(const std::string& policy,
 
         auto finalize_stats = [&](const auto& stats) {
             metrics.avg_wait_ms = stats.avg_wait_time;
-            metrics.avg_exec_ms = stats.avg_turnaround_time;
+            metrics.avg_exec_us = stats.avg_execution_time * 1000.0;
+            metrics.avg_turnaround_ms = stats.avg_turnaround_time;
             metrics.cpu_util_pct = stats.avg_cpu_utilization;
             metrics.throughput = stats.throughput;
-            if (metrics.throughput > 0.0 && metrics.avg_exec_ms > 0.0 && num_cores > 0) {
-                const double avg_exec_s = metrics.avg_exec_ms / 1000.0;
+            if (metrics.throughput > 0.0 && metrics.avg_exec_us > 0.0 && num_cores > 0) {
+                const double avg_exec_s = metrics.avg_exec_us / 1'000'000.0;
                 const double occupancy = metrics.throughput * avg_exec_s; // processos simultâneos
                 const double estimated_util = std::min(100.0, std::max(0.0, (occupancy / num_cores) * 100.0));
                 metrics.cpu_util_pct = std::max(metrics.cpu_util_pct, estimated_util);
@@ -384,14 +385,15 @@ void write_csv(const std::vector<PolicyMetrics>& results, const std::string& csv
         throw std::runtime_error(std::string("Não foi possível criar ") + csv_path);
     }
 
-        csv << "Politica,TempoMedioEspera_ms,TempoMedioExecucao_ms,CPUUtilizacao_pct,"
+        csv << "Politica,TempoMedioEspera_ms,TempoMedioExecucao_us,TempoMedioTurnaround_ms,CPUUtilizacao_pct,"
             "Eficiencia_pct,Throughput_proc_s,CacheHits,CacheMisses,TaxaHit_pct,FailedProcesses,Success,Error\n";
 
     csv << std::fixed;
     for (const auto& result : results) {
         csv << result.policy << ","
             << std::setprecision(2) << result.avg_wait_ms << ","
-            << std::setprecision(2) << result.avg_exec_ms << ","
+            << std::setprecision(2) << result.avg_exec_us << ","
+            << std::setprecision(2) << result.avg_turnaround_ms << ","
             << std::setprecision(2) << result.cpu_util_pct << ","
             << std::setprecision(2) << result.efficiency_pct << ","
             << std::setprecision(4) << result.throughput << ","
@@ -436,7 +438,8 @@ void write_report(const std::vector<PolicyMetrics>& results,
         report << "[Métricas de Escalonamento]\n";
         report << std::fixed << std::setprecision(2);
         report << "  • Tempo médio de espera:     " << result.avg_wait_ms << " ms\n";
-        report << "  • Tempo médio de execução:   " << result.avg_exec_ms << " ms\n";
+        report << "  • Tempo médio de execução:   " << result.avg_exec_us << " µs\n";
+        report << "  • Tempo médio de retorno:    " << result.avg_turnaround_ms << " ms\n";
         report << "  • Utilização média da CPU:   " << result.cpu_util_pct << " %\n";
         report << "  • Eficiência estimada:       " << result.efficiency_pct << " %\n";
         report << "  • Throughput global:         " << result.throughput << " proc/s\n";

@@ -28,6 +28,7 @@ public:
      */
     struct Statistics {
         double avg_wait_time{0.0};
+        double avg_execution_time{0.0};
         double avg_turnaround_time{0.0};
         double avg_response_time{0.0};
         double avg_cpu_utilization{0.0};
@@ -97,6 +98,11 @@ protected:
         stats.avg_wait_time = cpu_time::ns_to_ms(static_cast<double>(total_wait_ns) * inv_count);
         stats.avg_turnaround_time = cpu_time::ns_to_ms(static_cast<double>(total_turnaround_ns) * inv_count);
         stats.avg_response_time = cpu_time::ns_to_ms(static_cast<double>(total_response_ns) * inv_count);
+        const double avg_pipeline_cycles = static_cast<double>(total_pipeline_cycles) * inv_count;
+        if (avg_pipeline_cycles > 0.0) {
+            const double avg_exec_ms = (avg_pipeline_cycles / CLOCK_FREQ_HZ) * 1000.0;
+            stats.avg_execution_time = avg_exec_ms;
+        }
         if (earliest_arrival == std::numeric_limits<uint64_t>::max()) {
             earliest_arrival = simulation_start_time;
         }

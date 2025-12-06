@@ -115,7 +115,8 @@ class DataManager:
         metricas.extend([
             ('Throughput_proc_s', 'Throughput (proc/s)'),
             ('TempoMedioEspera_ms', 'Tempo Médio de Espera (ms)'),
-            ('TempoMedioExecucao_ms', 'Tempo Médio de Execução (ms)'),
+            ('TempoMedioTurnaround_ms', 'Tempo Médio de Retorno (ms)'),
+            ('TempoMedioExecucao_us', 'Tempo Médio de Execução (µs)'),
             ('CPUUtilizacao_pct', 'Utilização de CPU (%)'),
             ('Eficiencia_pct', 'Eficiência (%)'),
             ('CacheHits', 'Cache Hits'),

@@ -185,9 +185,53 @@ def grafico3_tempo_espera(df):
     plt.close()
 
 
-def grafico4_tempo_execucao(df):
+def grafico4_tempo_turnaround(df):
     """
-    GRÁFICO 4: Tempo Médio de Execução por Cores
+    GRÁFICO 4: Tempo Médio de Retorno (Turnaround) por Cores
+    Destaca quanto tempo os processos levam do início ao fim.
+    """
+    fig, ax = plt.subplots(figsize=(14, 8))
+    
+    politicas = ['RR', 'FCFS', 'SJN', 'PRIORITY']
+    cores_list = sorted(df['Cores'].unique())
+    x = np.arange(len(cores_list))
+    width = 0.18
+    n_politicas = len(politicas)
+    offset = (n_politicas - 1) * width / 2
+    
+    for i, politica in enumerate(politicas):
+        dados_pol = df[df['Politica'] == politica]
+        tempos = [dados_pol[dados_pol['Cores'] == c]['TempoMedioTurnaround_ms'].values[0]
+                 if len(dados_pol[dados_pol['Cores'] == c]) > 0 else 0
+                 for c in cores_list]
+        
+        cor = CORES_POLITICAS.get(politica, '#95a5a6')
+        bars = ax.bar(x + i * width - offset, tempos, width,
+                     label=politica, color=cor, edgecolor='black', linewidth=0.8)
+        
+        for bar, val in zip(bars, tempos):
+            ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.02,
+                    f'{val:.2f}', ha='center', va='bottom', fontsize=8, fontweight='bold')
+    
+    ax.set_xlabel('Número de Cores', fontweight='bold', fontsize=12)
+    ax.set_ylabel('Tempo Médio de Retorno (ms)', fontweight='bold', fontsize=12)
+    ax.set_title('Tempo Médio de Retorno por Política e Número de Cores\n',
+                fontweight='bold', fontsize=14)
+    ax.set_xticks(x)
+    ax.set_xticklabels([f'{c} core(s)' for c in cores_list], fontsize=11)
+    ax.legend(title='Política', loc='upper right', fontsize=10)
+    ax.grid(True, axis='y', linestyle='--', alpha=0.5)
+    
+    plt.tight_layout()
+    plt.savefig('graficos/grafico4_tempo_turnaround.png', dpi=150, bbox_inches='tight')
+    plt.savefig('graficos/grafico4_tempo_turnaround.pdf', bbox_inches='tight')
+    print('✅ Gráfico 4 salvo: grafico4_tempo_turnaround.png/pdf')
+    plt.close()
+
+
+def grafico5_tempo_execucao(df):
+    """
+    GRÁFICO 5: Tempo Médio de Execução por Cores
     Compara o tempo de execução de cada política.
     """
     fig, ax = plt.subplots(figsize=(12, 7))
@@ -201,13 +245,13 @@ def grafico4_tempo_execucao(df):
         marcador = MARCADORES.get(politica, 'o')
         estilo = ESTILOS.get(politica, '-')
         
-        ax.plot(dados_pol['Cores'], dados_pol['TempoMedioExecucao_ms'],
+        ax.plot(dados_pol['Cores'], dados_pol['TempoMedioExecucao_us'],
                marker=marcador, linestyle=estilo, color=cor,
                linewidth=2.5, markersize=10, markeredgecolor='black',
                markeredgewidth=1.2, label=politica)
     
     ax.set_xlabel('Número de Cores', fontweight='bold', fontsize=12)
-    ax.set_ylabel('Tempo Médio de Execução (ms)', fontweight='bold', fontsize=12)
+    ax.set_ylabel('Tempo Médio de Execução (µs)', fontweight='bold', fontsize=12)
     ax.set_title('Tempo Médio de Execução vs Número de Cores\n', 
                 fontweight='bold', fontsize=14)
     ax.set_xticks(cores_list)
@@ -215,15 +259,15 @@ def grafico4_tempo_execucao(df):
     ax.grid(True, linestyle='--', alpha=0.6)
     
     plt.tight_layout()
-    plt.savefig('graficos/grafico4_tempo_execucao.png', dpi=150, bbox_inches='tight')
-    plt.savefig('graficos/grafico4_tempo_execucao.pdf', bbox_inches='tight')
-    print('✅ Gráfico 4 salvo: grafico4_tempo_execucao.png/pdf')
+    plt.savefig('graficos/grafico5_tempo_execucao.png', dpi=150, bbox_inches='tight')
+    plt.savefig('graficos/grafico5_tempo_execucao.pdf', bbox_inches='tight')
+    print('✅ Gráfico 5 salvo: grafico5_tempo_execucao.png/pdf')
     plt.close()
 
 
-def grafico5_utilizacao_cpu(df):
+def grafico6_utilizacao_cpu(df):
     """
-    GRÁFICO 5: Utilização de CPU por Cores
+    GRÁFICO 6: Utilização de CPU por Cores
     Mostra como a utilização de CPU varia com o número de cores.
     """
     fig, ax = plt.subplots(figsize=(14, 8))
@@ -270,15 +314,15 @@ def grafico5_utilizacao_cpu(df):
                bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.9))
     
     plt.tight_layout()
-    plt.savefig('graficos/grafico5_utilizacao_cpu.png', dpi=150, bbox_inches='tight')
-    plt.savefig('graficos/grafico5_utilizacao_cpu.pdf', bbox_inches='tight')
-    print('✅ Gráfico 5 salvo: grafico5_utilizacao_cpu.png/pdf')
+    plt.savefig('graficos/grafico6_utilizacao_cpu.png', dpi=150, bbox_inches='tight')
+    plt.savefig('graficos/grafico6_utilizacao_cpu.pdf', bbox_inches='tight')
+    print('✅ Gráfico 6 salvo: grafico6_utilizacao_cpu.png/pdf')
     plt.close()
 
 
-def grafico6_heatmap_throughput(df):
+def grafico7_heatmap_throughput(df):
     """
-    GRÁFICO 6: Heatmap de Throughput
+    GRÁFICO 7: Heatmap de Throughput
     Matriz visual: Política × Número de Cores
     """
     # Criar matriz pivot
@@ -317,15 +361,15 @@ def grafico6_heatmap_throughput(df):
     ax.set_ylabel('Política de Escalonamento', fontweight='bold')
     
     plt.tight_layout()
-    plt.savefig('graficos/grafico6_heatmap_throughput.png', dpi=150, bbox_inches='tight')
-    plt.savefig('graficos/grafico6_heatmap_throughput.pdf', bbox_inches='tight')
-    print('✅ Gráfico 6 salvo: grafico6_heatmap_throughput.png/pdf')
+    plt.savefig('graficos/grafico7_heatmap_throughput.png', dpi=150, bbox_inches='tight')
+    plt.savefig('graficos/grafico7_heatmap_throughput.pdf', bbox_inches='tight')
+    print('✅ Gráfico 7 salvo: grafico7_heatmap_throughput.png/pdf')
     plt.close()
 
 
-def grafico7_heatmap_tempo_espera(df):
+def grafico8_heatmap_tempo_espera(df):
     """
-    GRÁFICO 7: Heatmap de Tempo de Espera
+    GRÁFICO 8: Heatmap de Tempo de Espera
     Matriz visual: Política × Número de Cores
     """
     # Criar matriz pivot
@@ -364,15 +408,15 @@ def grafico7_heatmap_tempo_espera(df):
     ax.set_ylabel('Política de Escalonamento', fontweight='bold')
     
     plt.tight_layout()
-    plt.savefig('graficos/grafico7_heatmap_tempo_espera.png', dpi=150, bbox_inches='tight')
-    plt.savefig('graficos/grafico7_heatmap_tempo_espera.pdf', bbox_inches='tight')
-    print('✅ Gráfico 7 salvo: grafico7_heatmap_tempo_espera.png/pdf')
+    plt.savefig('graficos/grafico8_heatmap_tempo_espera.png', dpi=150, bbox_inches='tight')
+    plt.savefig('graficos/grafico8_heatmap_tempo_espera.pdf', bbox_inches='tight')
+    print('✅ Gráfico 8 salvo: grafico8_heatmap_tempo_espera.png/pdf')
     plt.close()
 
 
-def grafico8_radar_4cores(df):
+def grafico9_radar_4cores(df):
     """
-    GRÁFICO 8: Radar Chart - Comparação com 4 Cores
+    GRÁFICO 9: Radar Chart - Comparação com 4 Cores
     Visualização multidimensional das métricas.
     """
     # Filtrar apenas 4 cores
@@ -426,97 +470,59 @@ def grafico8_radar_4cores(df):
     ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.0), fontsize=11)
     
     plt.tight_layout()
-    plt.savefig('graficos/grafico8_radar_4cores.png', dpi=150, bbox_inches='tight')
-    plt.savefig('graficos/grafico8_radar_4cores.pdf', bbox_inches='tight')
-    print('✅ Gráfico 8 salvo: grafico8_radar_4cores.png/pdf')
+    plt.savefig('graficos/grafico9_radar_4cores.png', dpi=150, bbox_inches='tight')
+    plt.savefig('graficos/grafico9_radar_4cores.pdf', bbox_inches='tight')
+    print('✅ Gráfico 9 salvo: grafico9_radar_4cores.png/pdf')
     plt.close()
 
 
-def grafico9_comparativo_geral(df):
+def grafico10_comparativo_geral(df):
     """
-    GRÁFICO 9: Comparativo Geral - Subplots
-    4 métricas principais em um único gráfico.
+    GRÁFICO 10: Comparativo Geral - Subplots
+    6 métricas principais em um único painel.
     """
-    fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+    fig, axes = plt.subplots(2, 3, figsize=(18, 10))
     
     politicas = ['RR', 'FCFS', 'SJN', 'PRIORITY']
     cores_list = sorted(df['Cores'].unique())
+
+    def plot_linhas(ax, coluna, ylabel, titulo):
+        for politica in politicas:
+            dados_pol = df[df['Politica'] == politica].sort_values('Cores')
+            cor = CORES_POLITICAS.get(politica, '#95a5a6')
+            ax.plot(dados_pol['Cores'], dados_pol[coluna],
+                    marker=MARCADORES[politica], linestyle=ESTILOS[politica],
+                    color=cor, linewidth=2, markersize=8, label=politica)
+        ax.set_xlabel('Cores')
+        ax.set_ylabel(ylabel)
+        ax.set_title(titulo, fontweight='bold')
+        ax.legend(loc='best')
+        ax.grid(True, linestyle='--', alpha=0.5)
+        ax.set_xticks(cores_list)
     
-    # Subplot 1: Throughput
-    ax = axes[0, 0]
-    for politica in politicas:
-        dados_pol = df[df['Politica'] == politica].sort_values('Cores')
-        cor = CORES_POLITICAS.get(politica, '#95a5a6')
-        ax.plot(dados_pol['Cores'], dados_pol['Throughput_proc_s'],
-               marker=MARCADORES[politica], linestyle=ESTILOS[politica], 
-               color=cor, linewidth=2, markersize=8, label=politica)
-    ax.set_xlabel('Cores')
-    ax.set_ylabel('Throughput (proc/s)')
-    ax.set_title('Throughput ', fontweight='bold')
-    ax.legend(loc='best')
-    ax.grid(True, linestyle='--', alpha=0.5)
-    ax.set_xticks(cores_list)
+    plot_linhas(axes[0, 0], 'Throughput_proc_s', 'Throughput (proc/s)', 'Throughput')
+    plot_linhas(axes[0, 1], 'TempoMedioEspera_ms', 'Tempo de Espera (ms)', 'Tempo Médio de Espera')
+    plot_linhas(axes[0, 2], 'TempoMedioTurnaround_ms', 'Tempo de Retorno (ms)', 'Tempo Médio de Retorno')
+    plot_linhas(axes[1, 0], 'TempoMedioExecucao_us', 'Tempo de Execução (µs)', 'Tempo Médio de Execução')
+    plot_linhas(axes[1, 1], 'CPUUtilizacao_pct', 'Utilização de CPU (%)', 'Utilização de CPU')
+    axes[1, 1].axhline(y=100, color='gray', linestyle='--', alpha=0.5, linewidth=1)
+    axes[1, 1].set_ylim(0, 110)
+    plot_linhas(axes[1, 2], 'Eficiencia_pct', 'Eficiência (%)', 'Eficiência da CPU')
+    axes[1, 2].set_ylim(0, 110)
     
-    # Subplot 2: Tempo de Espera
-    ax = axes[0, 1]
-    for politica in politicas:
-        dados_pol = df[df['Politica'] == politica].sort_values('Cores')
-        cor = CORES_POLITICAS.get(politica, '#95a5a6')
-        ax.plot(dados_pol['Cores'], dados_pol['TempoMedioEspera_ms'],
-               marker=MARCADORES[politica], linestyle=ESTILOS[politica], 
-               color=cor, linewidth=2, markersize=8, label=politica)
-    ax.set_xlabel('Cores')
-    ax.set_ylabel('Tempo de Espera (ms)')
-    ax.set_title('Tempo Médio de Espera ', fontweight='bold')
-    ax.legend(loc='best')
-    ax.grid(True, linestyle='--', alpha=0.5)
-    ax.set_xticks(cores_list)
-    
-    # Subplot 3: Tempo de Execução
-    ax = axes[1, 0]
-    for politica in politicas:
-        dados_pol = df[df['Politica'] == politica].sort_values('Cores')
-        cor = CORES_POLITICAS.get(politica, '#95a5a6')
-        ax.plot(dados_pol['Cores'], dados_pol['TempoMedioExecucao_ms'],
-               marker=MARCADORES[politica], linestyle=ESTILOS[politica], 
-               color=cor, linewidth=2, markersize=8, label=politica)
-    ax.set_xlabel('Cores')
-    ax.set_ylabel('Tempo de Execução (ms)')
-    ax.set_title('Tempo Médio de Execução ', fontweight='bold')
-    ax.legend(loc='best')
-    ax.grid(True, linestyle='--', alpha=0.5)
-    ax.set_xticks(cores_list)
-    
-    # Subplot 4: Utilização de CPU
-    ax = axes[1, 1]
-    for politica in politicas:
-        dados_pol = df[df['Politica'] == politica].sort_values('Cores')
-        cor = CORES_POLITICAS.get(politica, '#95a5a6')
-        ax.plot(dados_pol['Cores'], dados_pol['CPUUtilizacao_pct'],
-               marker=MARCADORES[politica], linestyle=ESTILOS[politica], 
-               color=cor, linewidth=2, markersize=8, label=politica)
-    ax.axhline(y=100, color='gray', linestyle='--', alpha=0.5, linewidth=1)
-    ax.set_xlabel('Cores')
-    ax.set_ylabel('Utilização de CPU (%)')
-    ax.set_title('Utilização de CPU ', fontweight='bold')
-    ax.legend(loc='best')
-    ax.grid(True, linestyle='--', alpha=0.5)
-    ax.set_xticks(cores_list)
-    ax.set_ylim(0, 110)
-    
-    fig.suptitle('Comparativo Geral: Métricas de Escalonamento vs Número de Cores', 
+    fig.suptitle('Comparativo Geral: Métricas vs Número de Cores', 
                 fontweight='bold', fontsize=16, y=1.02)
     
     plt.tight_layout()
-    plt.savefig('graficos/grafico9_comparativo_geral.png', dpi=150, bbox_inches='tight')
-    plt.savefig('graficos/grafico9_comparativo_geral.pdf', bbox_inches='tight')
-    print('✅ Gráfico 9 salvo: grafico9_comparativo_geral.png/pdf')
+    plt.savefig('graficos/grafico10_comparativo_geral.png', dpi=150, bbox_inches='tight')
+    plt.savefig('graficos/grafico10_comparativo_geral.pdf', bbox_inches='tight')
+    print('✅ Gráfico 10 salvo: grafico10_comparativo_geral.png/pdf')
     plt.close()
 
 
-def grafico10_cache_analysis(df):
+def grafico11_cache_analysis(df):
     """
-    GRÁFICO 10: Análise de Cache
+    GRÁFICO 11: Análise de Cache
     Cache Hits e Taxa de Hit por configuração.
     """
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
@@ -567,9 +573,9 @@ def grafico10_cache_analysis(df):
     ax2.grid(True, axis='y', linestyle='--', alpha=0.5)
     
     plt.tight_layout()
-    plt.savefig('graficos/grafico10_cache_analysis.png', dpi=150, bbox_inches='tight')
-    plt.savefig('graficos/grafico10_cache_analysis.pdf', bbox_inches='tight')
-    print('✅ Gráfico 10 salvo: grafico10_cache_analysis.png/pdf')
+    plt.savefig('graficos/grafico11_cache_analysis.png', dpi=150, bbox_inches='tight')
+    plt.savefig('graficos/grafico11_cache_analysis.pdf', bbox_inches='tight')
+    print('✅ Gráfico 11 salvo: grafico11_cache_analysis.png/pdf')
     plt.close()
 
 
@@ -584,18 +590,21 @@ def gerar_tabela_resumo(df):
     
     for num_cores in cores_list:
         print(f'\n--- {num_cores} CORE(S) ---')
-        print(f'{"Política":<10} {"Throughput":>12} {"Espera(ms)":>12} {"Exec(ms)":>12} {"CPU%":>8}')
-        print('-' * 56)
+        print(f'{"Política":<10} {"Throughput":>12} {"Espera(ms)":>12} {"Exec(µs)":>12} {"Retorno(ms)":>14} {"CPU%":>8}')
+        print('-' * 72)
         
         df_cores = df[df['Cores'] == num_cores]
         for politica in politicas:
             dados = df_cores[df_cores['Politica'] == politica]
             if len(dados) > 0:
                 row = dados.iloc[0]
-                print(f'{politica:<10} {row["Throughput_proc_s"]:>12.1f} '
-                      f'{row["TempoMedioEspera_ms"]:>12.2f} '
-                      f'{row["TempoMedioExecucao_ms"]:>12.2f} '
-                      f'{row["CPUUtilizacao_pct"]:>8.1f}')
+                print(
+                    f'{politica:<10} {row["Throughput_proc_s"]:>12.1f} '
+                    f'{row["TempoMedioEspera_ms"]:>12.2f} '
+                    f'{row["TempoMedioExecucao_us"]:>12.2f} '
+                    f'{row["TempoMedioTurnaround_ms"]:>14.2f} '
+                    f'{row["CPUUtilizacao_pct"]:>8.1f}'
+                )
     
     print('\n' + '=' * 80)
 
@@ -629,13 +638,14 @@ def main():
     grafico1_throughput_por_cores(df)
     grafico2_throughput_linhas(df)
     grafico3_tempo_espera(df)
-    grafico4_tempo_execucao(df)
-    grafico5_utilizacao_cpu(df)
-    grafico6_heatmap_throughput(df)
-    grafico7_heatmap_tempo_espera(df)
-    grafico8_radar_4cores(df)
-    grafico9_comparativo_geral(df)
-    grafico10_cache_analysis(df)
+    grafico4_tempo_turnaround(df)
+    grafico5_tempo_execucao(df)
+    grafico6_utilizacao_cpu(df)
+    grafico7_heatmap_throughput(df)
+    grafico8_heatmap_tempo_espera(df)
+    grafico9_radar_4cores(df)
+    grafico10_comparativo_geral(df)
+    grafico11_cache_analysis(df)
     
     # Gerar tabela resumo
     gerar_tabela_resumo(df)
@@ -649,13 +659,14 @@ def main():
     print('   • grafico1_throughput_cores.png/pdf - Throughput por cores (barras)')
     print('   • grafico2_throughput_evolucao.png/pdf - Evolução do throughput (linhas)')
     print('   • grafico3_tempo_espera.png/pdf - Tempo de espera por cores')
-    print('   • grafico4_tempo_execucao.png/pdf - Tempo de execução (linhas)')
-    print('   • grafico5_utilizacao_cpu.png/pdf - Utilização de CPU')
-    print('   • grafico6_heatmap_throughput.png/pdf - Heatmap de throughput')
-    print('   • grafico7_heatmap_tempo_espera.png/pdf - Heatmap de tempo de espera')
-    print('   • grafico8_radar_4cores.png/pdf - Radar chart (4 cores)')
-    print('   • grafico9_comparativo_geral.png/pdf - Comparativo 4 métricas')
-    print('   • grafico10_cache_analysis.png/pdf - Análise de cache')
+    print('   • grafico4_tempo_turnaround.png/pdf - Tempo de retorno (barras)')
+    print('   • grafico5_tempo_execucao.png/pdf - Tempo de execução (linhas)')
+    print('   • grafico6_utilizacao_cpu.png/pdf - Utilização de CPU')
+    print('   • grafico7_heatmap_throughput.png/pdf - Heatmap de throughput')
+    print('   • grafico8_heatmap_tempo_espera.png/pdf - Heatmap de tempo de espera')
+    print('   • grafico9_radar_4cores.png/pdf - Radar chart (4 cores)')
+    print('   • grafico10_comparativo_geral.png/pdf - Comparativo 6 métricas')
+    print('   • grafico11_cache_analysis.png/pdf - Análise de cache')
     print()
 
 

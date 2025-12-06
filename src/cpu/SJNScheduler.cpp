@@ -357,6 +357,10 @@ SJNScheduler::Statistics SJNScheduler::get_statistics() const {
     s.avg_wait_time = cpu_time::ns_to_ms(static_cast<double>(total_wait_ns) * inv_count);
     s.avg_turnaround_time = cpu_time::ns_to_ms(static_cast<double>(total_turnaround_ns) * inv_count);
     s.avg_response_time = cpu_time::ns_to_ms(static_cast<double>(total_response_ns) * inv_count);
+    const double avg_cycles = static_cast<double>(total_pipeline_cycles) * inv_count;
+    if (avg_cycles > 0.0) {
+        s.avg_execution_time = (avg_cycles / CLOCK_FREQ_HZ) * 1000.0;
+    }
     
     const uint64_t span_ns = (latest_finish > earliest_arrival)
         ? (latest_finish - earliest_arrival)

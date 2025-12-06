@@ -1,5 +1,5 @@
-Politica,TempoMedioEspera_ms,TempoMedioExecucao_ms,CPUUtilizacao_pct,Eficiencia_pct,Throughput_proc_s,CacheHits,CacheMisses,TaxaHit_pct,FailedProcesses,Success,Error
-RR,2.58,3.16,100.00,100.00,1714.0476,3,48,5.88,0,true,""
-FCFS,1.96,2.37,100.00,100.00,2430.0849,3,48,5.88,0,true,""
-SJN,1.64,2.18,100.00,100.00,1816.3118,3,48,5.88,0,true,""
-PRIORITY,2.34,2.91,100.00,100.00,1729.3293,3,48,5.88,0,true,""
+Politica,TempoMedioEspera_ms,TempoMedioExecucao_us,TempoMedioTurnaround_ms,CPUUtilizacao_pct,Eficiencia_pct,Throughput_proc_s,CacheHits,CacheMisses,TaxaHit_pct,FailedProcesses,Success,Error
+RR,3.44,0.01,4.04,15.56,15.56,1647.6765,3,48,5.88,0,true,""
+FCFS,2.44,0.01,2.88,66.67,66.67,2088.3225,3,48,5.88,0,true,""
+SJN,1.37,0.01,1.80,66.67,66.67,2256.5392,3,48,5.88,0,true,""
+PRIORITY,1.82,0.01,2.24,68.97,68.97,2267.3038,3,48,5.88,0,true,""
