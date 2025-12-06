@@ -86,6 +86,9 @@ void FCFSScheduler::collect_finished_processes() {
                 process->finish_time = cpu_time::now_ns();
                 finished_list.push_back(process);
                 finished_count.fetch_add(1);
+                if (process->failed.load()) {
+                    failed_count.fetch_add(1);
+                }
                 std::cout << "[FCFS] P" << process->pid << " FINALIZADO!\n";
                 break;
             case State::Blocked:
@@ -102,6 +105,20 @@ void FCFSScheduler::collect_finished_processes() {
         core->clear_current_process();
         idle_cores_count.fetch_add(1);
     }
+}
+
+void FCFSScheduler::drain_cores() {
+    int safety = 0;
+    while (has_pending_processes() && safety < 1000000) {
+        schedule_cycle();
+        ++safety;
+    }
+    std::lock_guard<std::mutex> lock(scheduler_mutex);
+    collect_finished_processes();
+}
+
+void FCFSScheduler::dump_state(const std::string &tag, int cycles, int cycle_budget) {
+    std::cerr << "[FCFS DUMP] " << tag << " cycles=" << cycles << " budget=" << cycle_budget << "\n";
 }
 
 void FCFSScheduler::schedule_cycle() {

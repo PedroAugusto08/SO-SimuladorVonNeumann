@@ -2,6 +2,7 @@
 #define ROUND_ROBIN_SCHEDULER_HPP
 
 #include <deque>
+#include <string>
 #include <vector>
 #include <mutex>
 #include <memory>
@@ -37,6 +38,7 @@ public:
     void schedule_cycle();
     bool has_pending_processes() const;
     int get_finished_count() const { return finished_count.load(); }
+    int get_failed_count() const { return failed_count.load(); }
     int get_total_count() const { return total_count.load(); }
     Statistics get_statistics() const;
 
@@ -76,6 +78,11 @@ private:
     void collect_finished_processes();
     void handle_blocked_processes();
     void enqueue_ready_process(PCB* process);
+    // Compatibilidade: métodos esperados por testes antigos
+    void drain_cores();
+    void dump_state(const std::string &tag, int cycles, int cycle_budget);
+    // Contador de processos com falha durante execução
+    std::atomic<int> failed_count{0};
 };
 
 #endif // ROUND_ROBIN_SCHEDULER_HPP

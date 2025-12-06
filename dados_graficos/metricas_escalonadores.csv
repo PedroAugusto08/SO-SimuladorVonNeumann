@@ -1,5 +1,0 @@
-Politica,Tempo_Espera_ms,Tempo_Execucao_ms,CPU_Utilizacao_Pct,Throughput_proc_s,Eficiencia
-RR,2.08,4.81,57.33,631.9195,362.2649
-FCFS,1.44,4.05,53.22,649.8604,345.8232
-SJN,1.43,4.05,53.65,650.5222,349.0108
-PRIORITY,2.26,4.88,71.01,711.7692,505.4200

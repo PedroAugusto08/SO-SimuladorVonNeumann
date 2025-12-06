@@ -90,6 +90,9 @@ void SJNScheduler::collect_finished_processes() {
                 process->finish_time = cpu_time::now_ns();
                 finished_list.push_back(process);
                 finished_count.fetch_add(1);
+                if (process->failed.load()) {
+                    failed_count.fetch_add(1);
+                }
                 std::cout << "[SJN] P" << process->pid << " FINALIZADO!\n";
                 break;
             case State::Blocked:
@@ -106,6 +109,20 @@ void SJNScheduler::collect_finished_processes() {
         core->clear_current_process();
         idle_cores_count.fetch_add(1);
     }
+}
+
+void SJNScheduler::drain_cores() {
+    int safety = 0;
+    while (has_pending_processes() && safety < 1000000) {
+        schedule_cycle();
+        ++safety;
+    }
+    std::lock_guard<std::mutex> lock(scheduler_mutex);
+    collect_finished_processes();
+}
+
+void SJNScheduler::dump_state(const std::string &tag, int cycles, int cycle_budget) {
+    std::cerr << "[SJN DUMP] " << tag << " cycles=" << cycles << " budget=" << cycle_budget << "\n";
 }
 
 void SJNScheduler::schedule_cycle() {

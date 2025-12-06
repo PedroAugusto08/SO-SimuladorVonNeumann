@@ -162,6 +162,9 @@ SRC_METRICS := test/test_metrics_complete.cpp \
 			   src/parser_json/parser_json.cpp
 OBJ_METRICS := $(SRC_METRICS:.cpp=.o)
 
+# Fontes para teste de métricas (arquivo test/test_metrics.cpp)
+# (definido abaixo após BASE_TEST_SRC para garantir expansão correta)
+
 # Fontes base para testes (reutilizáveis)
 BASE_TEST_SRC := src/cpu/Core.cpp \
 				 src/cpu/RoundRobinScheduler.cpp \
@@ -179,6 +182,11 @@ BASE_TEST_SRC := src/cpu/Core.cpp \
 				 src/memory/MemoryManager.cpp \
 				 src/memory/SECONDARY_MEMORY.cpp \
 				 src/parser_json/parser_json.cpp
+
+				# Fontes para teste de métricas (arquivo test/test_metrics.cpp)
+				SRC_METRICS_PLAIN := test/test_metrics.cpp $(BASE_TEST_SRC)
+				OBJ_METRICS_PLAIN := $(SRC_METRICS_PLAIN:.cpp=.o)
+				TARGET_METRICS_PLAIN := $(BIN_DIR)/test_metrics
 
 SRC_CPU_METRICS := test/test_cpu_metrics.cpp $(BASE_TEST_SRC)
 OBJ_CPU_METRICS := $(SRC_CPU_METRICS:.cpp=.o)
@@ -350,6 +358,17 @@ test-metrics-complete: $(TARGET_METRICS)
 test-cpu-metrics: $(TARGET_CPU_METRICS)
 	@echo "🧪 Executando teste de métricas de CPU..."
 	@./$(TARGET_CPU_METRICS)
+
+# Regra para o teste de métricas (test/test_metrics.cpp)
+$(TARGET_METRICS_PLAIN): $(OBJ_METRICS_PLAIN) src/log/Log.o
+	mkdir -p $(BIN_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_METRICS_PLAIN) src/log/Log.o $(LDFLAGS)
+	@echo "✓ Teste de métricas (test_metrics.cpp) compilado!"
+
+# Teste de métricas (arquivo test_metrics.cpp)
+test-metrics: $(TARGET_METRICS_PLAIN)
+	@echo "📊 Executando teste de métricas (test_metrics.cpp)..."
+	@./$(TARGET_METRICS_PLAIN)
 
 # Teste de prioridade preemptiva removido
 

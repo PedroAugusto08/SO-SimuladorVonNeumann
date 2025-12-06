@@ -69,6 +69,13 @@ struct PCB {
     // Informações do programa carregado
     uint32_t program_start_addr = 0;             // Endereço de início do programa
     uint32_t program_size = 0;                   // Tamanho do programa em bytes
+    // Compatibilidade com test_metrics.cpp: campos segment_base_addr e segment_limit
+    uint32_t segment_base_addr = 0;
+    uint32_t segment_limit = 0;
+
+    // Flags de falha e razão (compatibilidade com API antiga)
+    std::atomic<bool> failed{false};
+    std::string fail_reason;
 
     uint64_t estimated_job_size = 0; // Estimativa de ciclos para SJN
 
@@ -105,6 +112,9 @@ struct PCB {
         if (hits + misses == 0) return 0.0;
         return (double)hits / (hits + misses);
     }
+    // Compatibilidade: métodos esperados por testes antigos
+    void mark_failed(const std::string &reason);
+    void set_state(State s);
 };
 
 // Contabilizar cache
@@ -114,6 +124,16 @@ inline void contabiliza_cache(PCB &pcb, bool hit) {
     } else {
         pcb.cache_misses++;
     }
+}
+
+// Implementações inline dos métodos de compatibilidade
+inline void PCB::mark_failed(const std::string &reason) {
+    failed.store(true);
+    fail_reason = reason;
+    state = State::Finished;
+}
+inline void PCB::set_state(State s) {
+    state = s;
 }
 
 #endif // PCB_HPP

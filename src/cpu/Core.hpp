@@ -8,6 +8,8 @@
 #include "CONTROL_UNIT.hpp"
 #include "REGISTER_BANK.hpp"
 #include "../memory/cache.hpp"
+// Logging API used by tests
+#include "../log/Log.hpp"
 
 // Forward declarations
 class MemoryManager;

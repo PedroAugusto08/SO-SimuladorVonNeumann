@@ -1,0 +1,17 @@
+534:[WARN] FCFS atingiu MAX_CYCLES (5000000) com processos ainda pendentes - veja logs/scheduler_dumps.log
+2134:[WARN] FCFS atingiu MAX_CYCLES (5000000) com processos ainda pendentes - veja logs/scheduler_dumps.log
+2268:[WARN] SJN atingiu MAX_CYCLES (5000000) com processos ainda pendentes - veja logs/scheduler_dumps.log
+3026:[WARN] FCFS atingiu MAX_CYCLES (5000000) com processos ainda pendentes - veja logs/scheduler_dumps.log
+3292:[WARN] PRIORITY atingiu MAX_CYCLES (5000000) com processos ainda pendentes.
+4674:[WARN] FCFS atingiu MAX_CYCLES (5000000) com processos ainda pendentes - veja logs/scheduler_dumps.log
+4939:[WARN] PRIORITY atingiu MAX_CYCLES (5000000) com processos ainda pendentes.
+5491:[WARN] FCFS atingiu MAX_CYCLES (5000000) com processos ainda pendentes - veja logs/scheduler_dumps.log
+5618:[WARN] SJN atingiu MAX_CYCLES (5000000) com processos ainda pendentes - veja logs/scheduler_dumps.log
+5746:[WARN] PRIORITY atingiu MAX_CYCLES (5000000) com processos ainda pendentes.
+6288:[WARN] FCFS atingiu MAX_CYCLES (5000000) com processos ainda pendentes - veja logs/scheduler_dumps.log
+6554:[WARN] PRIORITY atingiu MAX_CYCLES (5000000) com processos ainda pendentes.
+7089:[WARN] FCFS atingiu MAX_CYCLES (5000000) com processos ainda pendentes - veja logs/scheduler_dumps.log
+7223:[WARN] SJN atingiu MAX_CYCLES (5000000) com processos ainda pendentes - veja logs/scheduler_dumps.log
+7359:[WARN] PRIORITY atingiu MAX_CYCLES (5000000) com processos ainda pendentes.
+8126:[WARN] SJN atingiu MAX_CYCLES (5000000) com processos ainda pendentes - veja logs/scheduler_dumps.log
+8262:[WARN] PRIORITY atingiu MAX_CYCLES (5000000) com processos ainda pendentes.

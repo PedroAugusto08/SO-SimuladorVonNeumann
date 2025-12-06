@@ -15,6 +15,7 @@
  */
 
 #include <vector>
+#include <string>
 #include <deque>
 #include <memory>
 #include <algorithm>
@@ -45,10 +46,15 @@ public:
     bool all_finished() const;
     bool has_pending_processes() const;
     int get_finished_count() const { return finished_count.load(); }
+    int get_failed_count() const { return failed_count.load(); }
     int get_total_count() const { return total_count.load(); }
     Statistics get_statistics() const;
     std::vector<std::unique_ptr<Core>>& get_cores();
     std::deque<PCB*>& get_ready_queue();
+    // Compatibilidade
+    void drain_cores();
+    void dump_state(const std::string &tag, int cycles, int cycle_budget);
+    std::atomic<int> failed_count{0};
     std::vector<PCB*>& get_blocked_list();
     
 private:
