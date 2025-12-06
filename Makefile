@@ -47,6 +47,8 @@ SRC_SIM := src/main.cpp \
 		src/memory/SECONDARY_MEMORY.cpp \
 		src/parser_json/parser_json.cpp \
 		src/memory/MemoryMetrics.cpp
+SRC_SIM := $(SRC_SIM) \
+           src/util/Log.cpp
 OBJ_SIM := $(SRC_SIM:.cpp=.o)
 
 	# Fontes para teste single-core sem threads
@@ -99,6 +101,8 @@ BASE_TEST_SRC := src/cpu/Core.cpp \
 				 src/memory/MemoryManager.cpp \
 				 src/memory/SECONDARY_MEMORY.cpp \
 				 src/parser_json/parser_json.cpp
+		BASE_TEST_SRC := $(BASE_TEST_SRC) \
+		                src/util/Log.cpp
 
 SRC_CPU_METRICS := test/test_cpu_metrics.cpp $(BASE_TEST_SRC)
 OBJ_CPU_METRICS := $(SRC_CPU_METRICS:.cpp=.o)
