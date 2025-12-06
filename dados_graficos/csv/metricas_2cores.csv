@@ -1,0 +1,5 @@
+Politica,TempoMedioEspera_ms,TempoMedioExecucao_ms,CPUUtilizacao_pct,Eficiencia_pct,Throughput_proc_s,CacheHits,CacheMisses,TaxaHit_pct,FailedProcesses,Success,Error
+RR,0.91,1.44,100.00,100.00,3470.7382,3,47,6.00,0,true,""
+FCFS,0.83,1.20,100.00,100.00,5219.9831,3,48,5.88,0,true,""
+SJN,0.45,0.73,100.00,100.00,6266.8127,3,48,5.88,0,true,""
+PRIORITY,0.68,1.14,100.00,100.00,4068.1558,3,48,5.88,0,true,""

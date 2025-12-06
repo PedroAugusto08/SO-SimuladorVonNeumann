@@ -360,9 +360,9 @@ test-cpu-metrics: $(TARGET_CPU_METRICS)
 	@./$(TARGET_CPU_METRICS)
 
 # Regra para o teste de métricas (test/test_metrics.cpp)
-$(TARGET_METRICS_PLAIN): $(OBJ_METRICS_PLAIN) src/log/Log.o
+$(TARGET_METRICS_PLAIN): $(OBJ_METRICS_PLAIN)
 	mkdir -p $(BIN_DIR)
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_METRICS_PLAIN) src/log/Log.o $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_METRICS_PLAIN) $(LDFLAGS)
 	@echo "✓ Teste de métricas (test_metrics.cpp) compilado!"
 
 # Teste de métricas (arquivo test_metrics.cpp)

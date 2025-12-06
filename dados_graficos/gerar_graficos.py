@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Gerador de Gráficos - Simulador Von Neumann
-Gera visualizações dos dados de escalonadores e métricas.
+Gerador de Gráficos Legado - Simulador Von Neumann
+Este script foi atualizado para usar os CSVs de métricas por cores.
+Para gráficos completos, use: gerar_graficos_metricas.py
 """
 
 import matplotlib
@@ -10,6 +11,7 @@ matplotlib.use('Agg')  # Backend sem GUI
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 # Configuração de estilo
 plt.style.use('seaborn-v0_8-whitegrid')
@@ -26,11 +28,23 @@ CORES_POLITICAS = {
     'PRIORITY': '#9b59b6',     # Roxo
 }
 
-def carregar_dados():
-    """Carrega todos os CSVs disponíveis"""
-    multicore = pd.read_csv('escalonadores_multicore.csv')
-    metricas = pd.read_csv('metricas_escalonadores.csv')
-    return multicore, metricas
+
+def carregar_dados_metricas():
+    """Carrega os CSVs de métricas por cores."""
+    configs_cores = [1, 2, 4, 6]
+    dados = []
+    
+    for num_cores in configs_cores:
+        arquivo = f'csv/metricas_{num_cores}cores.csv'
+        if os.path.exists(arquivo):
+            df = pd.read_csv(arquivo)
+            df['Cores'] = num_cores
+            dados.append(df)
+    
+    if not dados:
+        return None
+    
+    return pd.concat(dados, ignore_index=True)
 
 def grafico1_tempo_execucao_multicore(df):
     """
@@ -441,10 +455,22 @@ def main():
     print('  📊 GERADOR DE GRÁFICOS - SIMULADOR VON NEUMANN')
     print('=' * 60)
     print()
+    print('⚠️  Este script usa formato legado de CSVs.')
+    print('   Para gráficos atualizados, use: gerar_graficos_metricas.py')
+    print()
     
-    # Carregar dados
-    print('📂 Carregando dados...')
-    multicore, metricas = carregar_dados()
+    # Verificar se os CSVs legados existem
+    if not os.path.exists('escalonadores_multicore.csv') or not os.path.exists('metricas_escalonadores.csv'):
+        print('❌ CSVs legados não encontrados.')
+        print('   Executando gerar_graficos_metricas.py automaticamente...')
+        print()
+        os.system('python3 gerar_graficos_metricas.py')
+        return
+    
+    # Carregar dados legados
+    print('📂 Carregando dados legados...')
+    multicore = pd.read_csv('escalonadores_multicore.csv')
+    metricas = pd.read_csv('metricas_escalonadores.csv')
     print(f'   • escalonadores_multicore.csv: {len(multicore)} linhas')
     print(f'   • metricas_escalonadores.csv: {len(metricas)} linhas')
     print()

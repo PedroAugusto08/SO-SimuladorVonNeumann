@@ -1,0 +1,75 @@
+╔══════════════════════════════════════════════════════════════╗
+║  RELATÓRIO - MÉTRICAS POR POLÍTICA (6 CORE(S))  ║
+╚══════════════════════════════════════════════════════════════╝
+
+Workloads utilizados (8):
+  - balanced
+  - cpu_bound
+  - io_bound
+  - long
+  - medium
+  - memory_intensive
+  - quick
+  - short
+
+Política: RR
+  • Status: OK
+------------------------------------------------------------
+[Métricas de Escalonamento]
+  • Tempo médio de espera:     0.22 ms
+  • Tempo médio de execução:   1.00 ms
+  • Utilização média da CPU:   87.74 %
+  • Eficiência estimada:       87.74 %
+  • Throughput global:         5259.77 proc/s
+[Métricas de Memória]
+  • Cache hits:                3
+  • Cache misses:              47
+  • Taxa de hit:               6.00 %
+  • Processos com falha:      0
+
+Política: FCFS
+  • Status: OK
+------------------------------------------------------------
+[Métricas de Escalonamento]
+  • Tempo médio de espera:     0.26 ms
+  • Tempo médio de execução:   1.23 ms
+  • Utilização média da CPU:   95.33 %
+  • Eficiência estimada:       95.33 %
+  • Throughput global:         4644.65 proc/s
+[Métricas de Memória]
+  • Cache hits:                3
+  • Cache misses:              48
+  • Taxa de hit:               5.88 %
+  • Processos com falha:      0
+
+Política: SJN
+  • Status: OK
+------------------------------------------------------------
+[Métricas de Escalonamento]
+  • Tempo médio de espera:     0.56 ms
+  • Tempo médio de execução:   1.22 ms
+  • Utilização média da CPU:   100.00 %
+  • Eficiência estimada:       100.00 %
+  • Throughput global:         5074.20 proc/s
+[Métricas de Memória]
+  • Cache hits:                3
+  • Cache misses:              48
+  • Taxa de hit:               5.88 %
+  • Processos com falha:      0
+
+Política: PRIORITY
+  • Status: OK
+------------------------------------------------------------
+[Métricas de Escalonamento]
+  • Tempo médio de espera:     0.28 ms
+  • Tempo médio de execução:   0.93 ms
+  • Utilização média da CPU:   92.48 %
+  • Eficiência estimada:       92.48 %
+  • Throughput global:         5945.63 proc/s
+[Métricas de Memória]
+  • Cache hits:                3
+  • Cache misses:              48
+  • Taxa de hit:               5.88 %
+  • Processos com falha:      0
+
+Relatório gerado automaticamente por test_metrics.cpp

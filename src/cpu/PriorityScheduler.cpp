@@ -151,9 +151,31 @@ void PriorityScheduler::schedule_cycle() {
         std::lock_guard<std::mutex> lock(scheduler_mutex);
         
         // Desbloqueia processos que terminaram I/O
+        // Como o IOManager é probabilístico, forçamos o desbloqueio para evitar starvation
         for (auto it = blocked_list.begin(); it != blocked_list.end(); ) {
-            if ((*it)->state == State::Ready) {
-                enqueue_ready_process(*it);
+            PCB* p = *it;
+            
+            // Verificar se o processo já está sendo executado em algum core
+            bool already_running = false;
+            for (const auto& c : cores) {
+                if (c->get_current_process() == p) {
+                    already_running = true;
+                    break;
+                }
+            }
+            
+            if (already_running) {
+                // Processo já está rodando, remover da blocked_list mas não adicionar à ready_queue
+                it = blocked_list.erase(it);
+                continue;
+            }
+            
+            // Forçar desbloqueio: simula conclusão instantânea do I/O
+            if (p->state == State::Blocked) {
+                p->state = State::Ready;
+            }
+            if (p->state == State::Ready) {
+                enqueue_ready_process(p);
                 it = blocked_list.erase(it);
             } else {
                 ++it;
@@ -181,6 +203,10 @@ void PriorityScheduler::schedule_cycle() {
                             old_process->finish_time = cpu_time::now_ns();
                             finished_list.push_back(old_process);
                             finished_count.fetch_add(1);
+                        } else if (old_process->state == State::Blocked) {
+                            // Processo bloqueado: adicionar à blocked_list
+                            ioManager->registerProcessWaitingForIO(old_process);
+                            blocked_list.push_back(old_process);
                         } else if (old_process->state == State::Ready) {
                             enqueue_ready_process(old_process);
                         }

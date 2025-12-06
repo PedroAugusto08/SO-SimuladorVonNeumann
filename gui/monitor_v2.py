@@ -7,7 +7,6 @@ métricas e tipos de visualização.
 
 import os
 import sys
-import glob
 import traceback
 import numpy as np
 
@@ -52,214 +51,77 @@ NOMES_COMPLETOS = {
 # ==============================================================================
 
 class DataManager:
-    """Carrega e unifica todos os CSVs em um dataset consolidado"""
+    """Carrega e unifica todos os CSVs de métricas por cores (1, 2, 4, 6)"""
     
     def __init__(self, dados_dir):
         self.dados_dir = dados_dir
-        self.df_multicore = None      # Dados de múltiplos cores
-        self.df_metricas = None       # Métricas gerais
-        self.df_unified = None        # CSV unificado completo
-        self.dados_memoria = {}       # Dados de memória por política
-        self.df_unificado = None      # Dataset unificado completo
+        self.df_metricas_cores = None  # DataFrame unificado com todos os cores
+        self.configs_cores = [1, 2, 4, 6]
         
     def carregar_todos(self):
-        """Carrega todos os CSVs disponíveis"""
-        self._carregar_unified()      # Novo: tenta carregar CSV unificado primeiro
-        self._carregar_multicore()
-        self._carregar_metricas()
-        self._carregar_memoria()
-        self._criar_dataset_unificado()
+        """Carrega todos os CSVs de métricas por cores"""
+        self._carregar_metricas_por_cores()
         return self
     
-    def _carregar_unified(self):
-        """Carrega unified_complete.csv (novo formato completo)"""
-        path = os.path.join(self.dados_dir, 'unified_complete.csv')
-        if os.path.isfile(path):
-            try:
-                self.df_unified = pd.read_csv(path)
-                print(f"✅ Carregado unified_complete.csv com {len(self.df_unified)} registros")
-            except Exception as e:
-                print(f"Erro ao carregar unified: {e}")
+    def _carregar_metricas_por_cores(self):
+        """Carrega metricas_Xcores.csv para X = 1, 2, 4, 6"""
+        dados = []
         
-    def _carregar_multicore(self):
-        """Carrega escalonadores_multicore.csv"""
-        path = os.path.join(self.dados_dir, 'escalonadores_multicore.csv')
-        if os.path.isfile(path):
-            try:
-                self.df_multicore = pd.read_csv(path)
-            except Exception as e:
-                print(f"Erro ao carregar multicore: {e}")
-                
-    def _carregar_metricas(self):
-        """Carrega metricas_escalonadores.csv"""
-        path = os.path.join(self.dados_dir, 'metricas_escalonadores.csv')
-        if os.path.isfile(path):
-            try:
-                df = pd.read_csv(path)
-                # Normalizar nomes das políticas
-                df['Politica_Key'] = df['Politica'].apply(self._extrair_politica)
-                self.df_metricas = df
-            except Exception as e:
-                print(f"Erro ao carregar métricas: {e}")
-                
-    def _carregar_memoria(self):
-        """Carrega arquivos memoria_*.csv"""
-        arquivos = glob.glob(os.path.join(self.dados_dir, 'memoria_*.csv'))
-        for f in arquivos:
-            nome = os.path.basename(f)
-            politica = self._extrair_politica(nome)
-            try:
-                df = pd.read_csv(f)
-                self.dados_memoria[politica] = df
-            except Exception:
-                pass
-                
-    def _extrair_politica(self, nome):
-        """Extrai nome da política a partir do nome do arquivo/coluna"""
-        nome_upper = nome.upper()
-        if 'FCFS' in nome_upper:
-            return 'FCFS'
-        elif 'SJN' in nome_upper:
-            return 'SJN'
-        elif 'ROUND' in nome_upper or nome_upper.startswith('RR'):
-            return 'RR'
-        elif 'PRIORITY' in nome_upper:
-            return 'PRIORITY'
-        return nome.split('_')[0]
+        for num_cores in self.configs_cores:
+            # Tentar diferentes caminhos
+            caminhos = [
+                os.path.join(self.dados_dir, 'csv', f'metricas_{num_cores}cores.csv'),
+                os.path.join(self.dados_dir, f'metricas_{num_cores}cores.csv'),
+            ]
+            
+            for path in caminhos:
+                if os.path.isfile(path):
+                    try:
+                        df = pd.read_csv(path)
+                        df['Cores'] = num_cores
+                        dados.append(df)
+                        print(f"✅ Carregado: metricas_{num_cores}cores.csv ({len(df)} políticas)")
+                        break
+                    except Exception as e:
+                        print(f"Erro ao carregar {path}: {e}")
         
-    def _criar_dataset_unificado(self):
-        """Cria um dataset unificado com TODAS as métricas por escalonador"""
-        # Criar dicionário base por política
-        dados_por_politica = {}
-        
-        # Inicializar com políticas conhecidas
-        for pol in ['RR', 'FCFS', 'SJN', 'PRIORITY']:
-            dados_por_politica[pol] = {
-                'Politica': pol,
-                # Multicore (média de todos os cores)
-                'Tempo_ms': np.nan,
-                'Speedup': np.nan,
-                'Eficiencia_Pct': np.nan,
-                'CV_Pct': np.nan,
-                # Por número de cores
-                'Tempo_1core': np.nan,
-                'Tempo_2cores': np.nan,
-                'Tempo_4cores': np.nan,
-                'Tempo_6cores': np.nan,
-                'Speedup_2cores': np.nan,
-                'Speedup_4cores': np.nan,
-                'Speedup_6cores': np.nan,
-                'Eficiencia_2cores': np.nan,
-                'Eficiencia_4cores': np.nan,
-                'Eficiencia_6cores': np.nan,
-                # Métricas gerais
-                'Tempo_Espera_ms': np.nan,
-                'Tempo_Execucao_ms': np.nan,
-                'CPU_Utilizacao_Pct': np.nan,
-                'Throughput_proc_s': np.nan,
-                # Memória
-                'Cache_Hits': np.nan,
-                'Cache_Misses': np.nan,
-                'Hit_Rate': np.nan,
-            }
-        
-        # Preencher dados do multicore
-        if self.df_multicore is not None:
-            for pol in dados_por_politica.keys():
-                df_pol = self.df_multicore[self.df_multicore['Politica'] == pol]
-                if not df_pol.empty:
-                    # Médias gerais
-                    dados_por_politica[pol]['Tempo_ms'] = df_pol['Tempo_ms'].mean()
-                    dados_por_politica[pol]['Speedup'] = df_pol['Speedup'].mean()
-                    dados_por_politica[pol]['Eficiencia_Pct'] = df_pol['Eficiencia_Pct'].mean()
-                    dados_por_politica[pol]['CV_Pct'] = df_pol['CV_Pct'].mean()
-                    
-                    # Por número de cores
-                    for _, row in df_pol.iterrows():
-                        cores = int(row['Cores'])
-                        dados_por_politica[pol][f'Tempo_{cores}core{"s" if cores > 1 else ""}'] = row['Tempo_ms']
-                        if cores > 1:
-                            dados_por_politica[pol][f'Speedup_{cores}cores'] = row['Speedup']
-                            dados_por_politica[pol][f'Eficiencia_{cores}cores'] = row['Eficiencia_Pct']
-        
-        # Preencher dados de métricas
-        if self.df_metricas is not None:
-            for _, row in self.df_metricas.iterrows():
-                pol = row['Politica_Key']
-                if pol in dados_por_politica:
-                    dados_por_politica[pol]['Tempo_Espera_ms'] = row['Tempo_Espera_ms']
-                    dados_por_politica[pol]['Tempo_Execucao_ms'] = row['Tempo_Execucao_ms']
-                    dados_por_politica[pol]['CPU_Utilizacao_Pct'] = row['CPU_Utilizacao_Pct']
-                    dados_por_politica[pol]['Throughput_proc_s'] = row['Throughput_proc_s']
-        
-        # Preencher dados de memória
-        for pol, df in self.dados_memoria.items():
-            if pol in dados_por_politica and len(df) > 0:
-                ultimo = df.iloc[-1]
-                dados_por_politica[pol]['Cache_Hits'] = ultimo.get('cache_hits', np.nan)
-                dados_por_politica[pol]['Cache_Misses'] = ultimo.get('cache_misses', np.nan)
-                dados_por_politica[pol]['Hit_Rate'] = ultimo.get('hit_rate', np.nan)
-        
-        # Criar DataFrame unificado
-        self.df_unificado = pd.DataFrame(list(dados_por_politica.values()))
+        if dados:
+            self.df_metricas_cores = pd.concat(dados, ignore_index=True)
+            print(f"📊 Total: {len(self.df_metricas_cores)} registros carregados")
+        else:
+            print("⚠️ Nenhum CSV de métricas encontrado!")
+            self.df_metricas_cores = pd.DataFrame()
             
     def get_politicas_disponiveis(self):
         """Retorna lista de políticas disponíveis"""
-        politicas = set()
-        if self.df_multicore is not None:
-            politicas.update(self.df_multicore['Politica'].unique())
-        if self.df_metricas is not None:
-            politicas.update(self.df_metricas['Politica_Key'].unique())
-        politicas.update(self.dados_memoria.keys())
-        return sorted(list(politicas))
+        if self.df_metricas_cores is not None and not self.df_metricas_cores.empty:
+            return sorted(self.df_metricas_cores['Politica'].unique().tolist())
+        return ['RR', 'FCFS', 'SJN', 'PRIORITY']
     
     def get_cores_disponiveis(self):
         """Retorna lista de configurações de cores disponíveis"""
-        if self.df_multicore is not None:
-            return sorted(self.df_multicore['Cores'].unique().tolist())
-        return [1, 2, 4, 6]
+        if self.df_metricas_cores is not None and not self.df_metricas_cores.empty:
+            return sorted(self.df_metricas_cores['Cores'].unique().tolist())
+        return self.configs_cores
     
     def get_todas_metricas(self):
         """Retorna TODAS as métricas disponíveis para eixos X e Y"""
         metricas = [
             ('Politica', 'Escalonador (categórico)'),
+            ('Cores', 'Número de Cores'),
         ]
         
-        # Métricas de multicore
+        # Métricas do CSV de métricas por cores
         metricas.extend([
-            ('Tempo_ms', 'Tempo Médio (ms)'),
-            ('Tempo_1core', 'Tempo 1 Core (ms)'),
-            ('Tempo_2cores', 'Tempo 2 Cores (ms)'),
-            ('Tempo_4cores', 'Tempo 4 Cores (ms)'),
-            ('Tempo_6cores', 'Tempo 6 Cores (ms)'),
-            ('Speedup', 'Speedup Médio'),
-            ('Speedup_2cores', 'Speedup 2 Cores'),
-            ('Speedup_4cores', 'Speedup 4 Cores'),
-            ('Speedup_6cores', 'Speedup 6 Cores'),
-            ('Eficiencia_Pct', 'Eficiência Média (%)'),
-            ('Eficiencia_2cores', 'Eficiência 2 Cores (%)'),
-            ('Eficiencia_4cores', 'Eficiência 4 Cores (%)'),
-            ('Eficiencia_6cores', 'Eficiência 6 Cores (%)'),
-            ('CV_Pct', 'Coef. Variação (%)'),
-        ])
-        
-        # Métricas gerais
-        metricas.extend([
-            ('Tempo_Espera_ms', 'Tempo de Espera (ms)'),
-            ('Tempo_Execucao_ms', 'Tempo Turnaround (ms)'),
-            ('CPU_Utilizacao_Pct', 'Utilização CPU (%)'),
             ('Throughput_proc_s', 'Throughput (proc/s)'),
+            ('TempoMedioEspera_ms', 'Tempo Médio de Espera (ms)'),
+            ('TempoMedioExecucao_ms', 'Tempo Médio de Execução (ms)'),
+            ('CPUUtilizacao_pct', 'Utilização de CPU (%)'),
+            ('Eficiencia_pct', 'Eficiência (%)'),
+            ('CacheHits', 'Cache Hits'),
+            ('CacheMisses', 'Cache Misses'),
+            ('TaxaHit_pct', 'Taxa de Cache Hit (%)'),
         ])
-        
-        # Métricas de memória
-        metricas.extend([
-            ('Cache_Hits', 'Cache Hits'),
-            ('Cache_Misses', 'Cache Misses'),
-            ('Hit_Rate', 'Taxa de Acerto Cache (%)'),
-        ])
-        
-        # Cores como eixo X
-        metricas.append(('Cores', 'Número de Cores'))
             
         return metricas
     
@@ -271,85 +133,77 @@ class DataManager:
         """Retorna dados para gráfico X vs Y para as políticas selecionadas"""
         resultado = {}
         
-        # NOVO: Se temos o CSV unificado, usar ele para dados por cores
-        if self.df_unified is not None and metrica_x == 'Cores':
-            # Mapeamento de métricas para colunas do CSV unificado
-            col_map = {
-                'Tempo_ms': 'Tempo_ms',
-                'Speedup': 'Speedup',
-                'Eficiencia_Pct': 'Eficiencia_Pct',
-                'CV_Pct': 'CV_Pct',
-                'Cache_Hits': 'Cache_Hits',
-                'Cache_Misses': 'Cache_Misses',
-                'Hit_Rate': 'Hit_Rate_Pct',
-                'Hit_Rate_Pct': 'Hit_Rate_Pct',
-                'Tempo_Espera_ms': 'Tempo_Espera_ms',
-                'Tempo_Turnaround_ms': 'Tempo_Turnaround_ms',
-                'Tempo_Execucao_ms': 'Tempo_Turnaround_ms',
-                'CPU_Utilizacao_Pct': 'CPU_Utilizacao_Pct',
-                'Throughput_proc_s': 'Throughput_proc_s',
-            }
-            
-            col_y = col_map.get(metrica_y, metrica_y)
-            
-            if col_y in self.df_unified.columns:
-                for pol in politicas:
-                    df_pol = self.df_unified[self.df_unified['Politica'] == pol]
-                    if not df_pol.empty:
-                        resultado[pol] = {
-                            'x': df_pol['Cores'].values,
-                            'y': df_pol[col_y].values
-                        }
-                if resultado:
-                    return resultado
+        if self.df_metricas_cores is None or self.df_metricas_cores.empty:
+            return resultado
         
-        # Caso especial: Cores no eixo X (dados de multicore por core)
+        # Caso: X = Cores (gráfico de linha/barras por número de cores)
         if metrica_x == 'Cores':
-            if self.df_multicore is not None:
-                for pol in politicas:
-                    df_pol = self.df_multicore[self.df_multicore['Politica'] == pol]
-                    if not df_pol.empty:
-                        # Mapear métrica Y para coluna do multicore
-                        col_y = metrica_y
-                        if metrica_y == 'Tempo_ms':
-                            col_y = 'Tempo_ms'
-                        elif metrica_y == 'Eficiencia_Pct':
-                            col_y = 'Eficiencia_Pct'
-                        
-                        if col_y in df_pol.columns:
-                            resultado[pol] = {
-                                'x': df_pol['Cores'].values,
-                                'y': df_pol[col_y].values
-                            }
+            for pol in politicas:
+                df_pol = self.df_metricas_cores[self.df_metricas_cores['Politica'] == pol]
+                df_pol = df_pol.sort_values('Cores')
+                
+                if not df_pol.empty and metrica_y in df_pol.columns:
+                    resultado[pol] = {
+                        'x': df_pol['Cores'].values,
+                        'y': df_pol[metrica_y].values
+                    }
             return resultado
         
-        # Caso especial: Politica no eixo X (gráfico de barras comparativo)
+        # Caso: X = Politica (gráfico de barras comparativo)
         if metrica_x == 'Politica':
+            # Usar dados de 4 cores como padrão para comparação
+            df_4cores = self.df_metricas_cores[self.df_metricas_cores['Cores'] == 4]
+            
             for pol in politicas:
-                if self.df_unificado is not None:
-                    df_pol = self.df_unificado[self.df_unificado['Politica'] == pol]
-                    if not df_pol.empty and metrica_y in df_pol.columns:
-                        val = df_pol[metrica_y].values[0]
-                        if not np.isnan(val):
-                            resultado[pol] = {'x': pol, 'y': val}
+                df_pol = df_4cores[df_4cores['Politica'] == pol]
+                if not df_pol.empty and metrica_y in df_pol.columns:
+                    resultado[pol] = {
+                        'x': pol,
+                        'y': df_pol[metrica_y].values[0]
+                    }
             return resultado
         
-        # Caso geral: X e Y são métricas numéricas do dataset unificado
-        if self.df_unificado is not None:
-            for pol in politicas:
-                df_pol = self.df_unificado[self.df_unificado['Politica'] == pol]
-                if not df_pol.empty:
-                    if metrica_x in df_pol.columns and metrica_y in df_pol.columns:
-                        val_x = df_pol[metrica_x].values[0]
-                        val_y = df_pol[metrica_y].values[0]
-                        if not np.isnan(val_x) and not np.isnan(val_y):
-                            resultado[pol] = {'x': val_x, 'y': val_y}
+        # Caso geral: X e Y são métricas numéricas (scatter)
+        # Usar dados de 4 cores
+        df_4cores = self.df_metricas_cores[self.df_metricas_cores['Cores'] == 4]
+        
+        for pol in politicas:
+            df_pol = df_4cores[df_4cores['Politica'] == pol]
+            if not df_pol.empty:
+                if metrica_x in df_pol.columns and metrica_y in df_pol.columns:
+                    val_x = df_pol[metrica_x].values[0]
+                    val_y = df_pol[metrica_y].values[0]
+                    resultado[pol] = {'x': val_x, 'y': val_y}
         
         return resultado
     
     def get_dados_para_grafico(self, metrica, politicas, cores=None):
         """Retorna dados formatados para plotagem (compatibilidade)"""
         return self.get_dados_xy('Cores', metrica, politicas)
+    
+    def get_resumo_dados(self):
+        """Retorna resumo dos dados carregados"""
+        if self.df_metricas_cores is None or self.df_metricas_cores.empty:
+            return "Nenhum dado carregado"
+        
+        linhas = []
+        linhas.append(f"📊 Total: {len(self.df_metricas_cores)} registros")
+        
+        cores_disp = self.get_cores_disponiveis()
+        linhas.append(f"🔢 Cores: {', '.join(map(str, cores_disp))}")
+        
+        politicas = self.get_politicas_disponiveis()
+        linhas.append(f"📋 Políticas: {', '.join(politicas)}")
+        
+        # Resumo por cores
+        for nc in cores_disp:
+            df_nc = self.df_metricas_cores[self.df_metricas_cores['Cores'] == nc]
+            if not df_nc.empty:
+                linhas.append(f"\n--- {nc} Core(s) ---")
+                for _, row in df_nc.iterrows():
+                    linhas.append(f"  {row['Politica']}: {row['Throughput_proc_s']:.0f} proc/s")
+        
+        return '\n'.join(linhas)
 
 
 # ==============================================================================
@@ -461,21 +315,23 @@ class MonitorGUI(QWidget):
         self.btn_atualizar = QPushButton('🔄 Atualizar Dados')
         self.btn_atualizar.clicked.connect(self.carregar_dados)
         
-        self.btn_gerar_unificado = QPushButton('🎯 Gerar Dados Completos')
-        self.btn_gerar_unificado.clicked.connect(lambda: self.executar_teste('test_complete_unified'))
-        self.btn_gerar_unificado.setStyleSheet('background-color: #27ae60; color: white; font-weight: bold;')
-        self.btn_gerar_unificado.setToolTip('Executa teste unificado que gera TODOS os dados\n(Cores vs Cache, Cores vs Throughput, etc.)')
+        self.btn_gerar_metricas = QPushButton('📊 Gerar Métricas (4 cores)')
+        self.btn_gerar_metricas.clicked.connect(lambda: self.executar_teste('test_metrics'))
+        self.btn_gerar_metricas.setStyleSheet('background-color: #27ae60; color: white; font-weight: bold;')
+        self.btn_gerar_metricas.setToolTip('Executa teste de métricas com configuração atual de cores')
         
-        self.btn_gerar_metricas = QPushButton('📊 Métricas Simples')
-        self.btn_gerar_metricas.clicked.connect(lambda: self.executar_teste('test_metrics_complete'))
+        self.btn_gerar_todos = QPushButton('🎯 Gerar Todos (1,2,4,6 cores)')
+        self.btn_gerar_todos.clicked.connect(self.executar_todos_testes_cores)
+        self.btn_gerar_todos.setStyleSheet('background-color: #3498db; color: white; font-weight: bold;')
+        self.btn_gerar_todos.setToolTip('Executa testes para 1, 2, 4 e 6 cores')
         
-        self.btn_gerar_comparativo = QPushButton('⚖️ Comparativo')
-        self.btn_gerar_comparativo.clicked.connect(lambda: self.executar_teste('test_multicore_comparative'))
+        self.btn_abrir_graficos = QPushButton('📈 Gerar Gráficos Python')
+        self.btn_abrir_graficos.clicked.connect(self.executar_script_graficos)
         
         layout.addWidget(self.btn_atualizar)
-        layout.addWidget(self.btn_gerar_unificado)
         layout.addWidget(self.btn_gerar_metricas)
-        layout.addWidget(self.btn_gerar_comparativo)
+        layout.addWidget(self.btn_gerar_todos)
+        layout.addWidget(self.btn_abrir_graficos)
         layout.addStretch()
         
         # Status
@@ -662,28 +518,8 @@ class MonitorGUI(QWidget):
     def _atualizar_resumo(self):
         """Atualiza o resumo de dados carregados"""
         dm = self.data_manager
-        
-        linhas = []
-        
-        # Destacar se CSV unificado está disponível
-        if dm.df_unified is not None:
-            linhas.append(f"🎯 UNIFICADO: {len(dm.df_unified)} registros")
-            linhas.append("   (Cores vs Cache disponível!)")
-        
-        if dm.df_multicore is not None:
-            linhas.append(f"📊 Multicore: {len(dm.df_multicore)} registros")
-        if dm.df_metricas is not None:
-            linhas.append(f"📈 Métricas: {len(dm.df_metricas)} políticas")
-        if dm.dados_memoria:
-            linhas.append(f"💾 Memória: {len(dm.dados_memoria)} arquivos")
-        
-        politicas = dm.get_politicas_disponiveis()
-        linhas.append(f"\n🔹 Políticas: {', '.join(politicas)}")
-        
-        cores = dm.get_cores_disponiveis()
-        linhas.append(f"🔹 Cores: {', '.join(map(str, cores))}")
-        
-        self.lbl_resumo.setText('\n'.join(linhas))
+        resumo = dm.get_resumo_dados()
+        self.lbl_resumo.setText(resumo)
         
     def get_escalonadores_selecionados(self):
         """Retorna lista de escalonadores selecionados"""
@@ -925,11 +761,84 @@ class MonitorGUI(QWidget):
         self.test_worker.output.connect(self.console.append)
         self.test_worker.finished.connect(self._on_teste_finalizado)
         self.test_worker.start()
+    
+    def executar_todos_testes_cores(self):
+        """Executa testes para todas as configurações de cores (1, 2, 4, 6)"""
+        self.console.append('\n🎯 Executando testes para 1, 2, 4 e 6 cores...\n')
+        self.console.append('   Isso executará test_metrics 4 vezes com diferentes configurações.\n')
+        self.console.append('   Os CSVs serão gerados em dados_graficos/csv/\n\n')
+        
+        # Executar via shell script para alterar DEFAULT_NUM_CORES
+        import subprocess
+        
+        self.lbl_status.setText('Executando testes para todos os cores...')
+        
+        for num_cores in [1, 2, 4, 6]:
+            self.console.append(f'═══ Executando com {num_cores} core(s) ═══\n')
+            
+            # Alterar DEFAULT_NUM_CORES no arquivo
+            sed_cmd = f"sed -i 's/constexpr int DEFAULT_NUM_CORES = [0-9]*/constexpr int DEFAULT_NUM_CORES = {num_cores}/' test/test_metrics.cpp"
+            subprocess.run(sed_cmd, shell=True, cwd=self.base_dir)
+            
+            # Compilar e executar
+            result = subprocess.run(
+                ['make', 'test-metrics'],
+                capture_output=True,
+                text=True,
+                cwd=self.base_dir
+            )
+            
+            if result.returncode == 0:
+                self.console.append(f'✅ {num_cores} core(s): OK\n')
+            else:
+                self.console.append(f'❌ {num_cores} core(s): Erro\n')
+                self.console.append(result.stderr[:500] + '\n')
+        
+        # Restaurar para 4 cores
+        sed_cmd = "sed -i 's/constexpr int DEFAULT_NUM_CORES = [0-9]*/constexpr int DEFAULT_NUM_CORES = 4/' test/test_metrics.cpp"
+        subprocess.run(sed_cmd, shell=True, cwd=self.base_dir)
+        
+        self.console.append('\n✅ Todos os testes concluídos!\n')
+        self.console.append('   CSVs gerados: metricas_1cores.csv, metricas_2cores.csv, metricas_4cores.csv, metricas_6cores.csv\n')
+        self.lbl_status.setText('Pronto')
+        
+        # Recarregar dados
+        self.carregar_dados()
+    
+    def executar_script_graficos(self):
+        """Executa o script Python de geração de gráficos"""
+        import subprocess
+        
+        self.console.append('\n📈 Executando gerar_graficos_metricas.py...\n')
+        self.lbl_status.setText('Gerando gráficos...')
+        
+        script_path = os.path.join(self.dados_dir, 'gerar_graficos_metricas.py')
+        
+        if not os.path.exists(script_path):
+            self.console.append(f'❌ Script não encontrado: {script_path}\n')
+            return
+        
+        result = subprocess.run(
+            ['python3', script_path],
+            capture_output=True,
+            text=True,
+            cwd=self.dados_dir
+        )
+        
+        self.console.append(result.stdout)
+        if result.stderr:
+            self.console.append(result.stderr)
+        
+        if result.returncode == 0:
+            self.console.append('\n✅ Gráficos gerados em dados_graficos/graficos/\n')
+        else:
+            self.console.append(f'\n❌ Erro ao gerar gráficos (código {result.returncode})\n')
+        
+        self.lbl_status.setText('Pronto')
         
     def executar_todos_testes(self):
-        """Executa o teste unificado completo"""
-        self.console.append('\n🎯 Executando teste unificado completo...\n')
-        self.executar_teste('test_complete_unified')
+        """Executa o teste unificado completo (compatibilidade)"""
+        self.executar_todos_testes_cores()
         
     def _on_teste_finalizado(self, codigo):
         """Callback quando um teste termina"""
