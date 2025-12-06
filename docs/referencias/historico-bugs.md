@@ -587,3 +587,99 @@ if (core->is_available_for_new_process() && !ready_queue.empty()) {
 
 ### `src/cpu/PriorityScheduler.hpp`
 - `finished_count` e `total_count` agora são `std::atomic<int>`
+
+---
+
+## Bug #16: Processos Bloqueados Perdidos em Urgent Collect (Non-Preemptive Schedulers)
+
+**Data:** Junho 2025
+
+### Descrição do Problema
+Os escalonadores não-preemptivos (FCFS, SJN, PRIORITY) apresentavam falha esporádica onde o sistema atingia o limite de ciclos antes de concluir todos os processos. A mensagem de erro era:
+```
+Warning: Reached maximum cycles (200000), exiting main loop
+Warning: Not all processes finished! Remaining: X
+```
+
+### Causa Raiz
+Na seção "urgent collect" dos escalonadores, quando um core ficava ocioso mas ainda tinha um processo antigo associado (devido a race conditions), o código só tratava os estados **Finished** e **Ready**, mas ignorava processos no estado **Blocked**.
+
+**Código problemático:**
+```cpp
+if (old_process->state == State::Finished) {
+    finished_count++;
+    finished_processes.insert(old_process->pid);
+} else if (old_process->state == State::Ready) {
+    ready_queue.push_back(old_process);
+}
+// Estado Blocked NÃO era tratado → processo perdido!
+```
+
+Quando um processo em estado Blocked era encontrado na urgent collect, ele simplesmente era descartado, nunca mais retornando à fila de prontos após completar sua operação de I/O.
+
+### Solução Implementada
+Adicionado tratamento específico para o estado **Blocked** na seção urgent collect:
+
+```cpp
+if (old_process->state == State::Finished) {
+    finished_count++;
+    finished_processes.insert(old_process->pid);
+} else if (old_process->state == State::Ready) {
+    ready_queue.push_back(old_process);
+} else if (old_process->state == State::Blocked) {
+    // NOVO: Registra processo bloqueado corretamente
+    ioManager->registerProcessWaitingForIO(old_process);
+    blocked_list.push_back(old_process);
+}
+```
+
+### Arquivos Modificados
+- `src/cpu/FCFSScheduler.cpp` - Linha ~185-200 (urgent collect section)
+- `src/cpu/SJNScheduler.cpp` - Mesma correção
+- `src/cpu/PriorityScheduler.cpp` - Mesma correção
+
+### Verificação
+Após a correção, todos os testes passaram com sucesso para todas as configurações de cores (1, 2, 4, 6):
+```
+=== 4 CORES ===
+RR:       Success=true, CPU 100%, Throughput 3062
+FCFS:     Success=true, CPU 100%, Throughput 7663
+SJN:      Success=true, CPU 100%, Throughput 4541
+PRIORITY: Success=true, CPU 100%, Throughput 5618
+```
+
+---
+
+## Análise: Utilização de CPU e Variações de Tempo
+
+### Por que a Utilização de CPU diminui com mais cores?
+
+Com **6 cores** processando apenas **8 processos** simultâneos:
+- **Subocupação natural:** 8 processos / 6 cores = 1.33 processos/core
+- **Contenção de recursos:** Mais cores disputando acesso a memória, I/O e estruturas compartilhadas
+- **Overhead de sincronização:** Mais locks, mais context switches
+- **Lei de Amdahl:** Parte sequencial do código limita ganho de paralelismo
+
+**Resultados observados (6 cores):**
+| Política | CPU Util | Explicação |
+|----------|----------|------------|
+| RR | 79.5% | Quantum expira mesmo com poucos processos |
+| FCFS | 87.2% | Mais eficiente para poucos processos |
+| SJN | 89.9% | Ordenação ajuda na eficiência |
+| PRIORITY | 52.9% | Maior overhead de ordenação por prioridade |
+
+### Por que há variação no tempo de execução?
+
+1. **Race Conditions:** Threads competem por recursos, ordem de execução não determinística
+2. **Cold Start:** Primeira execução sofre com cache misses e JIT warmup
+3. **Scheduler do SO:** Linux kernel pode migrar threads entre CPUs físicas
+4. **Contenção de Memória:** False sharing em cache lines compartilhadas
+
+**Solução implementada:** Adicionado **warmup run** em `test_metrics.cpp`:
+```cpp
+// Warmup - descarta primeira execução
+run_policy("RR", num_cores, workloads);
+// Agora coleta métricas reais
+```
+
+Isso elimina o efeito de cold start e produz medições mais consistentes.

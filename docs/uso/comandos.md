@@ -128,8 +128,8 @@ PID,Priority,StartTime,EndTime,WaitTime,Turnaround,Instructions,ContextSwitches
 make run
 
 # Executar testes específicos
-make test-metrics      # gera CSV/TXT em dados_graficos
-make test-single-core  # validações determinísticas em test/output
+make test_multicore
+make test_metrics
 
 # Limpar e recompilar
 make clean && make
