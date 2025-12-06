@@ -188,183 +188,63 @@ Iniciando escalonador...
 
 ---
 
-## 🔬 Testando Escalabilidade Multicore
+## 🔬 Testando e Coletando Métricas (Atualizado em 06/12/2025)
 
-### Teste de Escalabilidade (1→8 núcleos)
+> **Importante:** Os alvos `test-multicore`, `test-throughput`, `test-all`, `test_metrics_complete`, `test-preemption` e derivados foram aposentados durante a limpeza de dezembro/2025. Utilize os comandos abaixo para validar o estado atual do simulador.
+
+### Teste de Métricas Multicore Consolidado
 
 ```bash
-make test-multicore
+make test-metrics
 ```
 
 **O que faz:**
-- Executa o mesmo workload com 1, 2, 4 e 8 núcleos
-- Mede tempo de execução em cada configuração
-- Calcula speedup e eficiência
-- Gera `logs/multicore/multicore_results.csv`
+- Executa FCFS, SJN e Priority com a configuração multicore padrão (4 núcleos)
+- Drena os schedulers com as mesmas rotinas do binário principal
+- Gera relatórios em `dados_graficos/csv/metricas_4cores.csv` e `dados_graficos/reports/relatorio_metricas_4cores.txt`
 
-**Saída esperada:**
-```
-🧪 Executando teste de escalabilidade multicore...
+**Use este teste quando:**
+- Precisar comparar o comportamento das políticas sem comandos adicionais
+- Desejar material direto para os gráficos do artigo
+- Quiser confirmar se a coleta de métricas não regressou após mudanças no core
 
-=== Teste com 1 núcleo ===
-Tempo: 2500ms
-Processos finalizados: 4
-
-=== Teste com 2 núcleos ===
-Tempo: 1282ms
-Speedup: 1.95x
-Eficiência: 97.5%
-
-=== Teste com 4 núcleos ===
-Tempo: 661ms
-Speedup: 3.78x
-Eficiência: 94.5%
-
-=== Teste com 8 núcleos ===
-Tempo: 389ms
-Speedup: 6.42x
-Eficiência: 80.2%
-
-✅ Resultados salvos em: logs/multicore/multicore_results.csv
-```
-
----
-
-### Teste Comparativo de Políticas
+### Teste Single-Core Determinístico (Sem Threads)
 
 ```bash
-make test-multicore-comparative
+make test-single-core
 ```
 
 **O que faz:**
-- Executa as 4 políticas com mesma carga
-- Compara métricas entre políticas
-- Gera relatório comparativo
+- Compila e executa `test/test_single_core_no_threads.cpp`
+- Roda todo o pipeline em um único core, eliminando concorrência
+- Salva artefatos em `test/output/`
 
-**Métricas comparadas:**
-- Tempo total de execução
-- Tempo médio de espera
-- Tempo médio de turnaround
-- Context switches
-- Throughput
+**Use este teste quando:**
+- Precisar depurar instruções/pipeline sem interferência de múltiplos núcleos
+- Verificar regressões causadas pelos novos escalonadores
+- Demonstrar execução determinística para o relatório
 
----
-
-### Teste de Throughput Confiável
+### Testes Estruturais de Registradores
 
 ```bash
-make test-throughput
-```
-
-**O que faz:**
-- Executa 10 rodadas com mesma configuração
-- Calcula média e desvio padrão
-- Valida estabilidade (CV < 15%)
-- Gera `logs/multicore/throughput_results.csv`
-
-**Saída esperada:**
-```
-🎯 Executando teste de throughput (medição confiável)...
-
-Rodada  1/10: 1245ms
-Rodada  2/10: 1238ms
-Rodada  3/10: 1251ms
-...
-Rodada 10/10: 1242ms
-
-📊 Resultados:
-Média: 1244.3ms
-Desvio: 4.2ms
-CV: 0.34% ✅ (Estável)
-
-Throughput: 3.22 processos/segundo
-```
-
----
-
-## 🧪 Executando Testes Automatizados
-
-### Bateria Completa de Testes
-
-```bash
-make test-all
-```
-
-**Executa todos os 12 testes:**
-
-1. ✅ Hash Register Test
-2. ✅ Register Bank Test
-3. ✅ Multicore Scalability Test
-4. ✅ Throughput Test
-5. ✅ Multicore Comparative Test
-6. ✅ Preemption Test
-7. ✅ Metrics Complete Test
-8. ✅ CPU Metrics Test
-9. ✅ Priority Preemptive Test
-10. ✅ Deep Inspection Test
-11. ✅ Race Condition Debug Test
-12. ✅ Verify Execution Test
-
-**Tempo estimado:** 5-10 minutos
-
----
-
-### Testes Individuais
-
-#### Teste de Registradores
-
-```bash
-# Testar sistema de registradores MIPS
+# Hash map dos registradores MIPS
 make test-hash
 
-# Testar banco de registradores
+# Banco completo de registradores
 make test-bank
 ```
 
-**Valida:**
-- Mapeamento correto de 32 registradores MIPS
-- Leitura/escrita funcionando
-- Proteção do registrador $zero
+Ambos continuam relevantes para validar integridade do mapeamento MIPS, mesmo após a remoção dos demais testes automatizados.
 
 ---
 
-#### Teste de Métricas Completas
+## 🧪 Executando os Alvos Disponíveis
 
-```bash
-make test-metrics-complete
-```
+- `make test-metrics`: métrica multicore end-to-end.
+- `make test-single-core`: execução determinística sem threads.
+- `make test-hash` / `make test-bank`: testes unitários da camada de registradores.
 
-**Gera:**
-- `logs/metrics/detailed_metrics.csv` com todas as métricas por processo
-- Validação de contadores (pipeline_cycles, memory_cycles, cache hits/misses)
-
----
-
-#### Teste de Preempção
-
-```bash
-make test-preemption
-```
-
-**Valida:**
-- Preempção por quantum funciona
-- Context switch preserva estado
-- PCB salva/restaura corretamente
-
----
-
-#### Teste de Prioridades
-
-```bash
-make test-priority-preemptive
-```
-
-**Cenário:**
-- 3 processos: alta, média e baixa prioridade
-- Valida que processo de alta prioridade executa primeiro
-- Verifica preempção quando chega processo mais prioritário
-
----
+Combine esses alvos com `make simulador` + `make run-sim` para validar a aplicação completa.
 
 ## 📊 Analisando Resultados
 
@@ -566,14 +446,22 @@ Hit Rate = 1234 / (1234 + 456) = 73.0%
 
 ### Cenário 4: Debugging de Race Conditions
 
+O alvo `make test-race-debug` foi removido. Para investigar condições de corrida hoje:
+
 ```bash
-make test-race-debug
+# 1) Reproduzir sem concorrência para validar lógica
+make test-single-core
+
+# 2) Reproduzir em modo multicore com coleta detalhada
+make test-metrics
+
+# 3) Opcional: instrumentar com TSAN
+make CXXFLAGS="-Wall -Wextra -g -std=c++17 -Isrc -fsanitize=thread" simulador
+./bin/simulador
 ```
 
-**Valida:**
-- Ausência de race conditions no scheduler
-- Consistência de contadores atômicos
-- Sincronização correta de threads
+- Compare os relatórios de `test/output/` (single-core) com `dados_graficos/csv/metricas_4cores.csv` para localizar divergências.
+- Utilize `gdb` ou `tsan` quando suspeitar de condições de corrida após as mudanças no scheduler.
 
 ---
 
@@ -626,29 +514,28 @@ make: *** No rule to make target 'test-multicore'
 ```
 
 **Solução:**
-```bash
-# Verificar targets disponíveis
-make help
-
-# Recompilar testes
-make clean
-make test-multicore
-```
+- Esse alvo foi removido em 06/12/2025. Utilize `make test-metrics` para obter as métricas multicore oficiais ou `make test-single-core` para execuções determinísticas.
+- Rode `make help` para ver todos os comandos que ainda existem.
 
 ---
 
 ### Problema 4: Resultados Inconsistentes
 
-**Sintoma:** Speedup varia muito entre execuções
+**Sintoma:** Métricas variam muito entre execuções
 
 **Solução:**
 ```bash
-# Usar teste de throughput para medição confiável
-make test-throughput
+# Rodar o teste oficial de métricas mais de uma vez
+make test-metrics
+make test-metrics
 
-# Verificar CV (Coeficiente de Variação)
-# Se CV > 15%, sistema está instável
+# Comparar os CSVs gerados
+diff -u dados_graficos/csv/metricas_4cores.csv dados_graficos/csv/metricas_4cores.csv.bak
+
+# Se precisar eliminar concorrência
+make test-single-core
 ```
+- Se a variância permanecer alta, habilite logs adicionais no scheduler e investigue possíveis starvation ou filas vazias.
 
 ---
 
@@ -687,9 +574,6 @@ make simulador
 # Ver ajuda
 ./bin/simulador --help
 
-# Rodar todos os testes
-make test-all
-
 # Limpar build
 make clean
 ```
@@ -722,16 +606,12 @@ make clean
 
 ## 🎯 Checklist de Execução Completa
 
-- [ ] Compilar o simulador
-- [ ] Executar com configuração padrão
-- [ ] Testar as 4 políticas de escalonamento
-- [ ] Rodar teste de escalabilidade multicore
-- [ ] Executar teste comparativo de políticas
-- [ ] Validar throughput com teste confiável
-- [ ] Rodar bateria completa de testes (test-all)
-- [ ] Analisar resultados em CSV
-- [ ] Gerar gráficos de desempenho
-- [ ] Validar ausência de race conditions
+- [ ] Compilar o simulador (`make simulador`)
+- [ ] Executar com a configuração padrão (`make run-sim`)
+- [ ] Rodar `make test-metrics` e arquivar `dados_graficos/csv/metricas_4cores.csv`
+- [ ] Rodar `make test-single-core` para confirmar execução determinística
+- [ ] Validar registradores com `make test-hash` e `make test-bank`
+- [ ] Exportar gráficos/relatórios desejados
 
 ---
 

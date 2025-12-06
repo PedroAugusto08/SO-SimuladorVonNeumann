@@ -23,20 +23,20 @@ de Von Neumann e Pipeline MIPS
 ## 🚀 Quick Start
 
 ```bash
-# Compilar e executar teste de métricas completas
-make test_metrics_complete && ./test_metrics_complete
+# Coletar métricas completas (FCFS/SJN/Priority)
+make test-metrics
 
-# Compilar e executar teste comparativo multicore
-make test_multicore_comparative && ./test_multicore_comparative
+# Validar execução determinística single-core (sem threads)
+make test-single-core
 
-# Ver resultados em CSV
-cat logs/detailed_metrics.csv
-cat logs/multicore_comparative_results.csv
+# Ver resultados consolidados
+ls dados_graficos/csv
+ls test/output
 ```
 
-**📊 Resultados:** 2 CSVs gerados com métricas de 5 políticas prontos para análise
+**📊 Resultados:** `make test-metrics` gera `dados_graficos/csv/metricas_4cores.csv` e `dados_graficos/reports/relatorio_metricas_4cores.txt`; o teste single-core escreve os relatórios em `test/output/`.
 
-**🎉 Nova Conquista:** Políticas FIFO e LRU de cache implementadas! (20/30 pontos - 67%)
+**ℹ️ Nota (06/12/2025):** Alvos antigos como `test-multicore`, `test-throughput`, `test-all` e `test_metrics_complete` foram aposentados nesta limpeza. Use os comandos acima para validar o projeto atual.
 
 ---
 

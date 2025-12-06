@@ -4,7 +4,6 @@
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
-#include <sstream>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -82,181 +81,6 @@ struct PolicyMetrics {
     bool success{false};
     std::string error;
 };
-
-static void dump_processes_debug(const std::vector<PCB*>& process_ptrs) {
-    std::cerr << "[DEBUG] Process states dump (" << process_ptrs.size() << " processes)\n";
-    for (const auto* p : process_ptrs) {
-        if (!p) continue;
-        std::cerr << "  P" << p->pid
-                  << " name=" << p->name
-                  << " state=" << static_cast<int>(p->state)
-                  << " prog_size=" << p->program_size
-                  << " pipe_cycles=" << p->pipeline_cycles.load()
-                  << " start_time=" << p->start_time.load()
-                  << " finish_time=" << p->finish_time.load()
-                  << " assigned_core=" << p->assigned_core.load()
-                  << " failed=" << p->failed.load()
-                  << "\n";
-    }
-}
-
-// Detailed dump of scheduler internals (cores, ready queue, blocked list)
-template <typename Scheduler>
-static void dump_scheduler_debug(const std::string& policy,
-                                 Scheduler& scheduler,
-                                 const std::vector<PCB*>& process_ptrs,
-                                 int cycles,
-                                 int cycle_budget) {
-    const char* env_verbose = std::getenv("TEST_VERBOSE_DUMP");
-    if (!(env_verbose && std::string(env_verbose) == "1")) return;
-
-    std::cerr << "[DEBUG] Scheduler dump for '" << policy << "' cycles=" << cycles
-              << " budget=" << cycle_budget << "\n";
-    // Persist a copy to logs/scheduler_dumps.log for post-mortem
-    std::ofstream logfile("logs/scheduler_dumps.log", std::ios::app);
-    if (logfile.is_open()) {
-        logfile << "[DUMP] " << policy << " cycles=" << cycles << " budget=" << cycle_budget << "\n";
-    }
-
-    // Cores
-    auto &cores = scheduler.get_cores();
-    for (const auto& core : cores) {
-        PCB* cur = core->get_current_process();
-        std::cerr << "  [CORE " << core->get_id() << "] idle=" << std::boolalpha << core->is_idle();
-        if (logfile.is_open()) logfile << "  [CORE " << core->get_id() << "] idle=" << std::boolalpha << core->is_idle();
-        if (cur) {
-            std::cerr << " cur=P" << cur->pid
-                      << " name=" << cur->name
-                      << " state=" << static_cast<int>(cur->state)
-                      << " prog_size=" << cur->program_size
-                      << " est_size=" << cur->estimated_job_size
-                      << " pipeline_cycles=" << cur->pipeline_cycles.load()
-                      << " assigned_core=" << cur->assigned_core.load()
-                      << " failed=" << std::boolalpha << cur->failed.load();
-        }
-        std::cerr << '\n';
-        if (logfile.is_open()) logfile << '\n';
-    }
-
-    // Ready queue
-    auto& rq = scheduler.get_ready_queue();
-    std::cerr << "  [READY_QUEUE] size=" << rq.size() << "\n";
-    if (logfile.is_open()) logfile << "  [READY_QUEUE] size=" << rq.size() << "\n";
-    for (const auto* p : rq) {
-        if (!p) continue;
-        std::ostringstream oss;
-        oss << "    P" << p->pid << " name=" << p->name
-            << " prog_size=" << p->program_size
-            << " est_size=" << p->estimated_job_size
-            << " wait_ms=" << std::fixed << std::setprecision(2)
-            << (static_cast<double>(p->get_wait_time()) / 1e6);
-        std::cerr << oss.str() << "\n";
-        if (logfile.is_open()) logfile << oss.str() << "\n";
-    }
-
-    // Blocked list
-    auto& bl = scheduler.get_blocked_list();
-    std::cerr << "  [BLOCKED_LIST] size=" << bl.size() << "\n";
-    if (logfile.is_open()) logfile << "  [BLOCKED_LIST] size=" << bl.size() << "\n";
-    for (const auto* p : bl) {
-        if (!p) continue;
-        std::ostringstream oss;
-        oss << "    P" << p->pid << " name=" << p->name
-            << " prog_size=" << p->program_size
-            << " est_size=" << p->estimated_job_size
-            << " state=" << static_cast<int>(p->state)
-            << " pipeline_cycles=" << p->pipeline_cycles.load();
-        std::cerr << oss.str() << "\n";
-        if (logfile.is_open()) logfile << oss.str() << "\n";
-    }
-
-    // Pending processes in the general list
-    std::cerr << "  [PENDING_PROCESSES]\n";
-    if (logfile.is_open()) logfile << "  [PENDING_PROCESSES]\n";
-    for (const auto* p : process_ptrs) {
-        if (!p) continue;
-        if (p->state == State::Finished) continue;
-        std::ostringstream oss;
-        oss << "    P" << p->pid << " name=" << p->name
-            << " state=" << static_cast<int>(p->state)
-            << " prog_size=" << p->program_size
-            << " est_size=" << p->estimated_job_size
-            << " pipeline_cycles=" << p->pipeline_cycles.load()
-            << " assigned_core=" << p->assigned_core.load()
-            << " failed=" << std::boolalpha << p->failed.load();
-        std::cerr << oss.str() << "\n";
-        if (logfile.is_open()) logfile << oss.str() << "\n";
-    }
-    if (logfile.is_open()) logfile << "\n";
-    logfile.close();
-}
-
-// Version with IOManager info
-template <typename Scheduler>
-static void dump_scheduler_debug_with_io(const std::string& policy,
-                                          Scheduler& scheduler,
-                                          IOManager* ioManager,
-                                          const std::vector<PCB*>& process_ptrs,
-                                          int cycles,
-                                          int cycle_budget) {
-    const char* env_verbose = std::getenv("TEST_VERBOSE_DUMP");
-    // Always dump to log file, but only to stderr if verbose
-    const bool verbose = env_verbose && std::string(env_verbose) == "1";
-
-    std::ofstream logfile("logs/scheduler_dumps.log", std::ios::app);
-    
-    auto out = [&](const std::string& s) {
-        if (verbose) std::cerr << s;
-        if (logfile.is_open()) logfile << s;
-    };
-    
-    out("[DUMP] " + policy + " cycles=" + std::to_string(cycles) + " budget=" + std::to_string(cycle_budget) + "\n");
-    
-    // IO Manager status
-    if (ioManager) {
-        out("  [IO_MANAGER] waiting=" + std::to_string(ioManager->getWaitingCount()) + 
-            " requests=" + std::to_string(ioManager->getRequestCount()) + "\n");
-    }
-
-    // Cores
-    auto &cores = scheduler.get_cores();
-    for (const auto& core : cores) {
-        std::ostringstream oss;
-        oss << "  [CORE " << core->get_id() << "] idle=" << std::boolalpha << core->is_idle();
-        PCB* cur = core->get_current_process();
-        if (cur) {
-            oss << " cur=P" << cur->pid << " state=" << static_cast<int>(cur->state);
-        }
-        oss << "\n";
-        out(oss.str());
-    }
-
-    // Ready queue
-    auto& rq = scheduler.get_ready_queue();
-    out("  [READY_QUEUE] size=" + std::to_string(rq.size()) + "\n");
-
-    // Blocked list
-    auto& bl = scheduler.get_blocked_list();
-    out("  [BLOCKED_LIST] size=" + std::to_string(bl.size()) + "\n");
-
-    // Pending processes
-    out("  [PENDING_PROCESSES]\n");
-    for (const auto* p : process_ptrs) {
-        if (!p) continue;
-        if (p->state == State::Finished) continue;
-        std::ostringstream oss;
-        oss << "    P" << p->pid << " name=" << p->name
-            << " state=" << static_cast<int>(p->state)
-            << " prog_size=" << p->program_size
-            << " est_size=" << p->estimated_job_size
-            << " pipeline_cycles=" << p->pipeline_cycles.load()
-            << " assigned_core=" << p->assigned_core.load()
-            << " failed=" << std::boolalpha << p->failed.load() << "\n";
-        out(oss.str());
-    }
-    out("\n");
-    logfile.close();
-}
 
 std::vector<WorkloadConfig> load_workloads(const std::string& process_dir,
                                            const std::string& tasks_dir) {
@@ -339,7 +163,6 @@ PolicyMetrics run_policy(const std::string& policy,
                 pcb->mark_failed(reason);
                 metrics.processes_failed++;
                 if (metrics.error.empty()) metrics.error = reason;
-                std::cerr << "[LOAD] Falha ao carregar PCB file=" << workload.process_file << ", reason=" << reason << "\n";
                 continue;
             }
             pcb->pid = static_cast<int>(i + 1);
@@ -359,7 +182,6 @@ PolicyMetrics run_policy(const std::string& policy,
                 pcb->mark_failed(ex.what());
                 metrics.processes_failed++;
                 if (metrics.error.empty()) metrics.error = ex.what();
-                std::cerr << "[LOAD] Falha ao carregar program=" << workload.tasks_file << ", exception=" << ex.what() << "\n";
                 continue;
             }
 
@@ -368,12 +190,10 @@ PolicyMetrics run_policy(const std::string& policy,
                 pcb->mark_failed("Empty program loaded");
                 metrics.processes_failed++;
                 if (metrics.error.empty()) metrics.error = "Empty program loaded";
-                std::cerr << "[LOAD] Empty program in file=" << workload.tasks_file << "\n";
                 continue;
             }
             pcb->estimated_job_size = pcb->program_size;
             pcb->priority = 10 - (static_cast<int>(i) % 3) * 3;
-            std::cout << "[LOAD] PCB P" << pcb->pid << " loaded: program_size=" << pcb->program_size << " base=" << pcb->segment_base_addr << " limit=" << pcb->segment_limit << "\n";
             process_ptrs.push_back(pcb.release());
         }
 
@@ -387,7 +207,6 @@ PolicyMetrics run_policy(const std::string& policy,
             // Heurística: assumimos 100 ciclos por unidade de estimated_job_size
             const uint64_t heuristic_cycles = total_est_size * 100ULL;
             if (heuristic_cycles > static_cast<uint64_t>(adjusted_cycle_budget)) {
-                std::cerr << "[INFO] Ajustando adjusted_cycle_budget para heurístico estimado: " << heuristic_cycles << " (base " << adjusted_cycle_budget << ")\n";
                 const uint64_t clamped = std::min<uint64_t>(heuristic_cycles, 50'000'000ULL);
                 adjusted_cycle_budget = static_cast<int>(clamped);
             }
@@ -443,16 +262,6 @@ PolicyMetrics run_policy(const std::string& policy,
             {
                 scheduler.add_process(pcb);
             }
-            // Diagnostic summary before scheduling
-            {
-                uint64_t total_est = 0;
-                for (const auto *p : process_ptrs) total_est += p->estimated_job_size;
-                std::cerr << "[INFO] FCFS start: processes=" << process_ptrs.size()
-                          << " ready=" << scheduler.get_ready_queue().size()
-                          << " blocked=" << scheduler.get_blocked_list().size()
-                          << " est_total=" << total_est
-                          << " adjusted_budget=" << adjusted_cycle_budget << "\n";
-            }
 
             int cycles = 0;
             while (scheduler.has_pending_processes() && cycles < adjusted_cycle_budget)
@@ -471,18 +280,7 @@ PolicyMetrics run_policy(const std::string& policy,
 
             if (hit_budget && still_pending && metrics.processes_finished < total_processes)
             {
-                scheduler.dump_state("max_cycles_fcfs", cycles, adjusted_cycle_budget);
-                dump_processes_debug(process_ptrs);
-                dump_scheduler_debug_with_io("FCFS", scheduler, ioManager.get(), process_ptrs, cycles, adjusted_cycle_budget);
-                std::cerr << "[WARN] FCFS atingiu MAX_CYCLES (" << adjusted_cycle_budget
-                          << ") com " << (total_processes - metrics.processes_finished) << " processos pendentes (de " << total_processes
-                          << ") - veja logs/scheduler_dumps.log\n";
                 metrics.error = "FCFS atingiu o limite de ciclos antes de concluir todos os processos";
-            }
-            else if (hit_budget)
-            {
-                std::cerr << "[INFO] FCFS atingiu o orçamento de ciclos, "
-                             "mas todos os processos foram concluídos.\n";
             }
 
             finalize_stats(scheduler.get_statistics());
@@ -494,15 +292,6 @@ PolicyMetrics run_policy(const std::string& policy,
             {
                 scheduler.add_process(pcb);
             }
-            {
-                uint64_t total_est = 0;
-                for (const auto *p : process_ptrs) total_est += p->estimated_job_size;
-                std::cerr << "[INFO] SJN start: processes=" << process_ptrs.size()
-                          << " ready=" << scheduler.get_ready_queue().size()
-                          << " blocked=" << scheduler.get_blocked_list().size()
-                          << " est_total=" << total_est
-                          << " adjusted_budget=" << adjusted_cycle_budget << "\n";
-            }
 
             int cycles = 0;
             while (scheduler.has_pending_processes() && cycles < adjusted_cycle_budget)
@@ -519,27 +308,9 @@ PolicyMetrics run_policy(const std::string& policy,
             const bool hit_budget = (cycles >= adjusted_cycle_budget);
             const bool still_pending = scheduler.has_pending_processes();
 
-            // Debug: mostrar contadores
-            std::cerr << "[DEBUG] SJN end: cycles=" << cycles 
-                      << " finished=" << metrics.processes_finished 
-                      << " total=" << total_processes
-                      << " hit_budget=" << hit_budget 
-                      << " still_pending=" << still_pending << "\n";
-
             if (hit_budget && still_pending && metrics.processes_finished < total_processes)
             {
-                scheduler.dump_state("max_cycles_sjn", cycles, adjusted_cycle_budget);
-                dump_processes_debug(process_ptrs);
-                dump_scheduler_debug_with_io("SJN", scheduler, ioManager.get(), process_ptrs, cycles, adjusted_cycle_budget);
-                std::cerr << "[WARN] SJN atingiu MAX_CYCLES (" << adjusted_cycle_budget
-                          << ") com " << (total_processes - metrics.processes_finished) << " processos pendentes (de " << total_processes
-                          << ") - veja logs/scheduler_dumps.log\n";
                 metrics.error = "SJN atingiu o limite de ciclos antes de concluir todos os processos";
-            }
-            else if (hit_budget)
-            {
-                std::cerr << "[INFO] SJN atingiu o orçamento de ciclos, "
-                             "mas todos os processos foram concluídos.\n";
             }
 
             finalize_stats(scheduler.get_statistics());
@@ -551,15 +322,6 @@ PolicyMetrics run_policy(const std::string& policy,
             {
                 scheduler.add_process(pcb);
             }
-            {
-                uint64_t total_est = 0;
-                for (const auto *p : process_ptrs) total_est += p->estimated_job_size;
-                std::cerr << "[INFO] PRIORITY start: processes=" << process_ptrs.size()
-                          << " ready=" << scheduler.get_ready_queue().size()
-                          << " blocked=" << scheduler.get_blocked_list().size()
-                          << " est_total=" << total_est
-                          << " adjusted_budget=" << adjusted_cycle_budget << "\n";
-            }
 
             int cycles = 0;
             while (scheduler.has_pending_processes() && cycles < adjusted_cycle_budget)
@@ -578,18 +340,7 @@ PolicyMetrics run_policy(const std::string& policy,
 
             if (hit_budget && still_pending && metrics.processes_finished < total_processes)
             {
-                std::cerr << "[WARN] PRIORITY atingiu MAX_CYCLES (" << adjusted_cycle_budget
-                          << ") com " << (total_processes - metrics.processes_finished) << " processos pendentes (de " << total_processes
-                          << ").\n";
-                dump_scheduler_debug_with_io("PRIORITY", scheduler, ioManager.get(), process_ptrs, cycles, adjusted_cycle_budget);
-                scheduler.dump_state("max_cycles_priority", cycles, adjusted_cycle_budget);
-                   dump_processes_debug(process_ptrs);
                 metrics.error = "PRIORITY atingiu o limite de ciclos antes de concluir todos os processos";
-            }
-            else if (hit_budget)
-            {
-                std::cerr << "[INFO] PRIORITY atingiu o orçamento de ciclos, "
-                             "mas todos os processos foram concluídos.\n";
             }
 
             finalize_stats(scheduler.get_statistics());
@@ -724,10 +475,6 @@ int main() {
     std::cout << "  • Workloads: " << workloads.size() << "\n";
     std::cout << "  • Listagem:\n";
     print_workloads(workloads);
-    const char* env_verbose = std::getenv("TEST_VERBOSE_DUMP");
-    if (env_verbose && std::string(env_verbose) == "1") {
-        std::cout << "  • TEST_VERBOSE_DUMP=1 (verbose dumps enabled)\n";
-    }
     const char* env_cap = std::getenv("TEST_MAX_CYCLE_CAP");
     if (env_cap) {
         std::cout << "  • TEST_MAX_CYCLE_CAP=" << env_cap << "\n";
