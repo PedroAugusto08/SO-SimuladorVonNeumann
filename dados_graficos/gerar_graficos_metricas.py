@@ -38,7 +38,7 @@ def carregar_todos_csvs():
     dados = []
     
     for num_cores in configs_cores:
-        arquivo = f'csv/metricas_{num_cores}cores.csv'
+        arquivo = f'dados_graficos/csv/metricas_{num_cores}cores.csv'
         if os.path.exists(arquivo):
             df = pd.read_csv(arquivo)
             df['Cores'] = num_cores
@@ -84,7 +84,7 @@ def grafico1_throughput_por_cores(df):
     
     ax.set_xlabel('Número de Cores', fontweight='bold', fontsize=12)
     ax.set_ylabel('Throughput (processos/segundo)', fontweight='bold', fontsize=12)
-    ax.set_title('Throughput por Política e Número de Cores\n(maior é melhor)', 
+    ax.set_title('Throughput por Política e Número de Cores\n', 
                 fontweight='bold', fontsize=14)
     ax.set_xticks(x)
     ax.set_xticklabels([f'{c} core(s)' for c in cores_list], fontsize=11)
@@ -121,7 +121,7 @@ def grafico2_throughput_linhas(df):
     
     ax.set_xlabel('Número de Cores', fontweight='bold', fontsize=12)
     ax.set_ylabel('Throughput (processos/segundo)', fontweight='bold', fontsize=12)
-    ax.set_title('Evolução do Throughput com Aumento de Cores\n(maior é melhor)', 
+    ax.set_title('Evolução do Throughput com Aumento de Cores\n', 
                 fontweight='bold', fontsize=14)
     ax.set_xticks(cores_list)
     ax.legend(title='Política', loc='best', fontsize=11)
@@ -171,7 +171,7 @@ def grafico3_tempo_espera(df):
     
     ax.set_xlabel('Número de Cores', fontweight='bold', fontsize=12)
     ax.set_ylabel('Tempo Médio de Espera (ms)', fontweight='bold', fontsize=12)
-    ax.set_title('Tempo Médio de Espera por Política e Número de Cores\n(menor é melhor)', 
+    ax.set_title('Tempo Médio de Espera por Política e Número de Cores\n', 
                 fontweight='bold', fontsize=14)
     ax.set_xticks(x)
     ax.set_xticklabels([f'{c} core(s)' for c in cores_list], fontsize=11)
@@ -208,7 +208,7 @@ def grafico4_tempo_execucao(df):
     
     ax.set_xlabel('Número de Cores', fontweight='bold', fontsize=12)
     ax.set_ylabel('Tempo Médio de Execução (ms)', fontweight='bold', fontsize=12)
-    ax.set_title('Tempo Médio de Execução vs Número de Cores\n(menor é melhor)', 
+    ax.set_title('Tempo Médio de Execução vs Número de Cores\n', 
                 fontweight='bold', fontsize=14)
     ax.set_xticks(cores_list)
     ax.legend(title='Política', loc='best', fontsize=11)
@@ -452,7 +452,7 @@ def grafico9_comparativo_geral(df):
                color=cor, linewidth=2, markersize=8, label=politica)
     ax.set_xlabel('Cores')
     ax.set_ylabel('Throughput (proc/s)')
-    ax.set_title('Throughput (maior é melhor)', fontweight='bold')
+    ax.set_title('Throughput ', fontweight='bold')
     ax.legend(loc='best')
     ax.grid(True, linestyle='--', alpha=0.5)
     ax.set_xticks(cores_list)
@@ -467,7 +467,7 @@ def grafico9_comparativo_geral(df):
                color=cor, linewidth=2, markersize=8, label=politica)
     ax.set_xlabel('Cores')
     ax.set_ylabel('Tempo de Espera (ms)')
-    ax.set_title('Tempo Médio de Espera (menor é melhor)', fontweight='bold')
+    ax.set_title('Tempo Médio de Espera ', fontweight='bold')
     ax.legend(loc='best')
     ax.grid(True, linestyle='--', alpha=0.5)
     ax.set_xticks(cores_list)
@@ -482,7 +482,7 @@ def grafico9_comparativo_geral(df):
                color=cor, linewidth=2, markersize=8, label=politica)
     ax.set_xlabel('Cores')
     ax.set_ylabel('Tempo de Execução (ms)')
-    ax.set_title('Tempo Médio de Execução (menor é melhor)', fontweight='bold')
+    ax.set_title('Tempo Médio de Execução ', fontweight='bold')
     ax.legend(loc='best')
     ax.grid(True, linestyle='--', alpha=0.5)
     ax.set_xticks(cores_list)
@@ -498,7 +498,7 @@ def grafico9_comparativo_geral(df):
     ax.axhline(y=100, color='gray', linestyle='--', alpha=0.5, linewidth=1)
     ax.set_xlabel('Cores')
     ax.set_ylabel('Utilização de CPU (%)')
-    ax.set_title('Utilização de CPU (maior é melhor)', fontweight='bold')
+    ax.set_title('Utilização de CPU ', fontweight='bold')
     ax.legend(loc='best')
     ax.grid(True, linestyle='--', alpha=0.5)
     ax.set_xticks(cores_list)

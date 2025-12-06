@@ -23,7 +23,7 @@ namespace fs = std::filesystem;
 namespace {
 constexpr int DEFAULT_NUM_CORES = 4;
 constexpr int QUANTUM = 10;
-constexpr int MAX_CYCLES = 10'000'000;
+constexpr int MAX_CYCLES = 2'000'000;
 constexpr const char* PROCESS_DIR = "processes";
 constexpr const char* TASKS_DIR = "tasks";
 constexpr const char* DATA_ROOT = "dados_graficos";

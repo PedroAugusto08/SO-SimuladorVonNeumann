@@ -1,171 +1,217 @@
+#include <algorithm>
+#include <filesystem>
+#include <iomanip>
 #include <iostream>
 #include <memory>
+#include <sstream>
+#include <string>
+#include <thread>
 #include <vector>
-#include <iomanip>
-#include <chrono>
 
-#include "memory/MemoryManager.hpp"
-#include "memory/cache.hpp"
 #include "IO/IOManager.hpp"
-#include "cpu/pcb_loader.hpp"
 #include "cpu/PCB.hpp"
-#include "cpu/CONTROL_UNIT.hpp"
-#include "cpu/TimeUtils.hpp"
+#include "cpu/RoundRobinScheduler.hpp"
+#include "cpu/pcb_loader.hpp"
+#include "memory/MemoryManager.hpp"
 #include "parser_json/parser_json.hpp"
 
 namespace {
 
-struct ExecutionStats {
-    int cycles = 0;
-    bool finished = false;
+namespace fs = std::filesystem;
+
+struct WorkloadEntry {
+    std::string key;
+    std::string process_path;
+    std::string task_path;
 };
 
-ExecutionStats run_process_single_core(PCB &process,
-                                       MemoryManager &memory_manager,
-                                       Cache &single_core_cache,
-                                       int max_cycles) {
-    ExecutionStats stats;
+std::vector<WorkloadEntry> load_workloads(const std::string& process_dir,
+                                          const std::string& tasks_dir) {
+    std::vector<WorkloadEntry> workloads;
+    if (!fs::exists(process_dir) || !fs::exists(tasks_dir)) {
+        return workloads;
+    }
 
-    // Usa cache dedicada para simular um único core sem threads
-    MemoryManager::setThreadCache(&single_core_cache);
+    const std::string prefix = "process_";
+    std::vector<fs::path> process_files;
+    for (const auto& entry : fs::directory_iterator(process_dir)) {
+        if (!entry.is_regular_file()) continue;
+        if (entry.path().extension() != ".json") continue;
+        const std::string stem = entry.path().stem().string();
+        if (stem.rfind(prefix, 0) != 0) continue;
+        process_files.push_back(entry.path());
+    }
 
-    Control_Unit control_unit;
-    std::vector<std::unique_ptr<IORequest>> io_requests;
-    bool print_lock = true;
-    int counter = 0;
-    int counter_for_end = 0;
-    bool end_program = false;
-    bool end_execution = false;
-
-    ControlContext context = {
-        .registers = process.regBank,
-        .memManager = memory_manager,
-        .ioRequests = io_requests,
-        .printLock = print_lock,
-        .process = process,
-        .counter = counter,
-        .counterForEnd = counter_for_end,
-        .endProgram = end_program,
-        .endExecution = end_execution
-    };
-
-    process.state = State::Running;
-    process.assigned_core = 0;
-    process.start_time = cpu_time::now_ns();
-
-    while (!context.endProgram && !context.endExecution && stats.cycles < max_cycles) {
-        try {
-            control_unit.Fetch(context);
-            if (context.endProgram) {
-                break;
-            }
-
-            Instruction_Data data;
-            control_unit.Decode(context.registers, data);
-            control_unit.Execute(data, context);
-            control_unit.Memory_Acess(data, context);
-            control_unit.Write_Back(data, context);
-
-            stats.cycles++;
-            process.pipeline_cycles++;
-        } catch (const std::exception &ex) {
-            std::cerr << "[SingleCore] Erro ao executar P" << process.pid
-                      << ": " << ex.what() << "\n";
-            context.endExecution = true;
-            break;
+    std::sort(process_files.begin(), process_files.end());
+    for (const auto& process_path : process_files) {
+        const std::string stem = process_path.stem().string();
+        const std::string suffix = stem.substr(prefix.size());
+        if (suffix == "loop_heavy") {
+            continue;
         }
+        fs::path tasks_path = fs::path(tasks_dir) / ("tasks_" + suffix + ".json");
+        if (!fs::exists(tasks_path)) {
+            std::cerr << "⚠️  Workload ignorado: ausência de " << tasks_path
+                      << " correspondente a " << process_path << "\n";
+            continue;
+        }
+        workloads.push_back({suffix, process_path.string(), tasks_path.string()});
     }
 
-    if (context.endProgram) {
-        process.state = State::Finished;
-        process.finish_time = cpu_time::now_ns();
-        stats.finished = true;
-    } else if (stats.cycles >= max_cycles) {
-        process.state = State::Ready;
-        std::cerr << "[SingleCore] P" << process.pid
-                  << " atingiu o limite de ciclos sem finalizar." << std::endl;
-    } else {
-        process.state = State::Blocked;
-    }
-
-    return stats;
+    return workloads;
 }
 
 } // namespace
 
 int main() {
     std::cout << "\n==============================================================\n";
-    std::cout << "  TESTE: Execução sequencial sem threads (1 core)\n";
+    std::cout << "  TESTE: Round Robin single-core (sem threads explícitas)\n";
     std::cout << "==============================================================\n\n";
 
-    constexpr int NUM_PROCESSES = 4;
-    constexpr int MAX_CYCLES_PER_PROCESS = 1'000'000;
-    const std::string process_file = "examples/processes/process1.json";
-    const std::string program_file = "examples/programs/tasks.json";
+    constexpr int MAX_CYCLES_PER_PROCESS = 2'000'000;
+    constexpr int IO_DRAIN_EXTRA_CYCLES = 500'000;
+    constexpr int IO_DRAIN_SLEEP_MS = 5;
+    constexpr int ROUND_ROBIN_QUANTUM = 10;
+    const std::string process_dir = "processes";
+    const std::string tasks_dir = "tasks";
+
+    const auto workloads = load_workloads(process_dir, tasks_dir);
+    if (workloads.empty()) {
+        std::cerr << "❌ Nenhum par process/tasks encontrado em '" << process_dir
+                  << "' e '" << tasks_dir << "'.\n";
+        return 1;
+    }
 
     MemoryManager memory_manager(4096, 32768);
     IOManager io_manager;
-    (void)io_manager; // Evita warning - mantido para futura extensão
+    (void)io_manager;
+
+    RoundRobinScheduler scheduler(1, &memory_manager, &io_manager, ROUND_ROBIN_QUANTUM);
 
     std::vector<std::unique_ptr<PCB>> processes;
-    processes.reserve(NUM_PROCESSES);
+    processes.reserve(workloads.size());
 
-    std::cout << "Carregando processos...\n";
-    for (int i = 0; i < NUM_PROCESSES; ++i) {
+    std::cout << "Carregando processos (" << workloads.size() << ")...\n";
+    for (size_t i = 0; i < workloads.size(); ++i) {
+        const auto& workload = workloads[i];
         auto pcb = std::make_unique<PCB>();
-        if (!load_pcb_from_json(process_file, *pcb)) {
-            std::cerr << "⚠️  Falha ao carregar " << process_file
+        if (!load_pcb_from_json(workload.process_path.c_str(), *pcb)) {
+            std::cerr << "⚠️  Falha ao carregar " << workload.process_path
                       << ". Abortando." << std::endl;
             return 1;
         }
 
-        int start_addr = i * 2048;
-        int end_addr = loadJsonProgram(program_file, memory_manager, *pcb, start_addr);
+        int start_addr = static_cast<int>(i) * 2048;
+        int end_addr = loadJsonProgram(workload.task_path, memory_manager, *pcb, start_addr);
         pcb->program_start_addr = start_addr;
         pcb->program_size = end_addr - start_addr;
         pcb->regBank.pc.write(start_addr);
         pcb->state = State::Ready;
+        pcb->pid = static_cast<int>(i + 1);
+        pcb->name = workload.key;
+        pcb->quantum = ROUND_ROBIN_QUANTUM;
 
-        std::cout << "  • P" << pcb->pid << " carregado: start=" << start_addr
+        std::cout << "  • " << workload.key << ": P" << pcb->pid
+                  << " start=" << start_addr
                   << " size=" << pcb->program_size << " bytes" << std::endl;
 
+        scheduler.add_process(pcb.get());
         processes.push_back(std::move(pcb));
     }
 
-    std::cout << "\nExecutando em um único core (sem threads)...\n";
-    Cache single_core_cache;
+    auto all_finished = [&]() {
+        for (const auto& pcb : processes) {
+            if (pcb->state != State::Finished) {
+                return false;
+            }
+        }
+        return true;
+    };
 
-    int finished = 0;
-    int total_cycles = 0;
+    std::cout << "\nExecutando Round Robin em um único core...\n";
+    const int max_total_cycles = MAX_CYCLES_PER_PROCESS * static_cast<int>(workloads.size());
+    int rr_cycles = 0;
+    while (!all_finished() && rr_cycles < max_total_cycles) {
+        if (!scheduler.has_pending_processes()) {
+            break;
+        }
+        scheduler.schedule_cycle();
+        ++rr_cycles;
+    }
 
-    for (const auto &pcb_ptr : processes) {
-        PCB &process = *pcb_ptr;
-        std::cout << "\n➡️  Iniciando P" << process.pid << "..." << std::endl;
-        auto stats = run_process_single_core(process, memory_manager,
-                                             single_core_cache, MAX_CYCLES_PER_PROCESS);
-
-        total_cycles += stats.cycles;
-        if (stats.finished) {
-            finished++;
-            std::cout << "   ✅ P" << process.pid << " finalizado em "
-                      << stats.cycles << " ciclos" << std::endl;
-        } else {
-            std::cout << "   ❌ P" << process.pid
-                      << " não finalizou (" << stats.cycles << " ciclos)" << std::endl;
+    if (!all_finished() && scheduler.has_pending_processes()) {
+        std::cout << "[SingleCore/RR] Aguardando conclusão de I/O pendente...\n";
+        int drain_cycles = 0;
+        while (!all_finished() && drain_cycles < IO_DRAIN_EXTRA_CYCLES) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(IO_DRAIN_SLEEP_MS));
+            scheduler.schedule_cycle();
+            ++rr_cycles;
+            ++drain_cycles;
         }
     }
 
-    std::cout << "\n==============================================================\n";
-    std::cout << "Resumo final" << std::endl;
-    std::cout << "  • Processos finalizados: " << finished << "/" << NUM_PROCESSES << std::endl;
-    std::cout << "  • Total de ciclos executados: " << total_cycles << std::endl;
+    const bool hit_budget = rr_cycles >= max_total_cycles && !all_finished();
+    const bool scheduler_pending = scheduler.has_pending_processes();
 
-    if (finished == NUM_PROCESSES) {
-        std::cout << "  ✅ Todos os processos foram executados sem threads!" << std::endl;
+    if (hit_budget && scheduler_pending) {
+        std::cerr << "[SingleCore/RR] Limite de ciclos (" << max_total_cycles
+                  << ") atingido com processos pendentes.\n";
+    }
+
+    int finished_pcbs = 0;
+    int failed_pcbs = 0;
+    std::vector<std::string> pending_labels;
+    for (const auto& pcb : processes) {
+        if (pcb->state == State::Finished) {
+            finished_pcbs++;
+            if (pcb->failed.load()) {
+                failed_pcbs++;
+            }
+        } else {
+            pending_labels.push_back(pcb->name.empty() ? ("P" + std::to_string(pcb->pid)) : pcb->name);
+        }
+    }
+
+    const auto stats = scheduler.get_statistics();
+
+
+    auto print_metric = [](const std::string& label, double value, int precision, const std::string& unit) {
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(precision) << value;
+        if (!unit.empty()) {
+            oss << " " << unit;
+        }
+        std::cout << "| " << std::left << std::setw(32) << label
+                  << " | " << std::right << std::setw(13) << oss.str() << " |\n";
+    };
+
+    std::cout << "\n+----------------------------------+---------------+\n";
+    std::cout << "| Métrica                          | Valor         |\n";
+    std::cout << "+----------------------------------+---------------+\n";
+    print_metric("Tempo médio de espera", stats.avg_wait_time, 2, "ms");
+    print_metric("Tempo médio de execução", stats.avg_turnaround_time, 2, "ms");
+    print_metric("Utilização média da CPU", stats.avg_cpu_utilization, 2, "%");
+    print_metric("Throughput", stats.throughput, 4, "proc/s");
+    print_metric("Eficiência", stats.avg_cpu_utilization, 2, "%");
+    std::cout << "+----------------------------------+---------------+\n";
+
+    if (!pending_labels.empty()) {
+        std::cout << "Pendentes: ";
+        for (size_t i = 0; i < pending_labels.size(); ++i) {
+            std::cout << pending_labels[i];
+            if (i + 1 < pending_labels.size()) {
+                std::cout << ", ";
+            }
+        }
+        std::cout << "\n";
+    }
+    if (finished_pcbs == static_cast<int>(workloads.size()) && failed_pcbs == 0 && !hit_budget) {
+        std::cout << "  ✅ Todos os processos concluídos via Round Robin!" << std::endl;
     } else {
         std::cout << "  ⚠️  Nem todos os processos finalizaram. Verifique o log." << std::endl;
     }
 
     std::cout << "==============================================================\n\n";
-    return (finished == NUM_PROCESSES) ? 0 : 2;
+    const bool success = (finished_pcbs == static_cast<int>(workloads.size())) && failed_pcbs == 0 && !hit_budget;
+    return success ? 0 : 2;
 }

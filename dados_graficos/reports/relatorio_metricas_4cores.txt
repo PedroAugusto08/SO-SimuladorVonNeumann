@@ -16,11 +16,11 @@ Política: RR
   • Status: OK
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     2.19 ms
-  • Tempo médio de execução:   5.00 ms
+  • Tempo médio de espera:     2.44 ms
+  • Tempo médio de execução:   4.50 ms
   • Utilização média da CPU:   100.00 %
   • Eficiência estimada:       100.00 %
-  • Throughput global:         1002.39 proc/s
+  • Throughput global:         1054.56 proc/s
 [Métricas de Memória]
   • Cache hits:                3
   • Cache misses:              46
@@ -31,11 +31,11 @@ Política: FCFS
   • Status: OK
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     0.89 ms
-  • Tempo médio de execução:   1.98 ms
+  • Tempo médio de espera:     1.19 ms
+  • Tempo médio de execução:   2.67 ms
   • Utilização média da CPU:   100.00 %
   • Eficiência estimada:       100.00 %
-  • Throughput global:         3291.02 proc/s
+  • Throughput global:         2372.30 proc/s
 [Métricas de Memória]
   • Cache hits:                3
   • Cache misses:              48
@@ -46,11 +46,11 @@ Política: SJN
   • Status: OK
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     0.54 ms
-  • Tempo médio de execução:   1.64 ms
+  • Tempo médio de espera:     0.62 ms
+  • Tempo médio de execução:   2.13 ms
   • Utilização média da CPU:   100.00 %
   • Eficiência estimada:       100.00 %
-  • Throughput global:         2951.73 proc/s
+  • Throughput global:         2154.91 proc/s
 [Métricas de Memória]
   • Cache hits:                3
   • Cache misses:              48
@@ -61,11 +61,11 @@ Política: PRIORITY
   • Status: OK
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     0.71 ms
-  • Tempo médio de execução:   2.02 ms
+  • Tempo médio de espera:     1.04 ms
+  • Tempo médio de execução:   2.69 ms
   • Utilização média da CPU:   100.00 %
   • Eficiência estimada:       100.00 %
-  • Throughput global:         2609.97 proc/s
+  • Throughput global:         1950.39 proc/s
 [Métricas de Memória]
   • Cache hits:                3
   • Cache misses:              48

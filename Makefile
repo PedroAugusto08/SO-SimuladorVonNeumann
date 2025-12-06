@@ -45,17 +45,19 @@ OBJ_SIM := $(SRC_SIM:.cpp=.o)
 
 	# Fontes para teste single-core sem threads
 	SRC_SINGLE_CORE := test/test_single_core_no_threads.cpp \
-			  src/cpu/CONTROL_UNIT.cpp \
-			  src/cpu/pcb_loader.cpp \
-			  src/cpu/REGISTER_BANK.cpp \
-			  src/cpu/ULA.cpp \
-			  src/memory/cache.cpp \
-			  src/memory/cachePolicy.cpp \
-			  src/memory/MAIN_MEMORY.cpp \
-			  src/memory/MemoryManager.cpp \
-			  src/memory/SECONDARY_MEMORY.cpp \
-			  src/parser_json/parser_json.cpp \
-			  src/IO/IOManager.cpp
+		  src/cpu/Core.cpp \
+		  src/cpu/RoundRobinScheduler.cpp \
+		  src/cpu/CONTROL_UNIT.cpp \
+		  src/cpu/pcb_loader.cpp \
+		  src/cpu/REGISTER_BANK.cpp \
+		  src/cpu/ULA.cpp \
+		  src/memory/cache.cpp \
+		  src/memory/cachePolicy.cpp \
+		  src/memory/MAIN_MEMORY.cpp \
+		  src/memory/MemoryManager.cpp \
+		  src/memory/SECONDARY_MEMORY.cpp \
+		  src/parser_json/parser_json.cpp \
+		  src/IO/IOManager.cpp
 	OBJ_SINGLE_CORE := $(SRC_SINGLE_CORE:.cpp=.o)
 
 # Fontes para teste de métricas (arquivo test/test_metrics.cpp)
