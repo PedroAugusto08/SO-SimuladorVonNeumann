@@ -3,77 +3,77 @@
 ╚══════════════════════════════════════════════════════════════╝
 
 Workloads utilizados (8):
-  - balanced
-  - cpu_bound
-  - io_bound
-  - long
-  - medium
-  - memory_intensive
-  - quick
-  - short
+  - balanced_2
+  - cpu_bound_2
+  - io_bound_2
+  - long_2
+  - medium_2
+  - memory_intensive_2
+  - quick_2
+  - short_2
 
 Política: RR
   • Status: OK
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     3.44 ms
-  • Tempo médio de execução:   0.01 µs
-  • Tempo médio de retorno:    4.04 ms
-  • Utilização média da CPU:   15.56 %
-  • Eficiência estimada:       15.56 %
-  • Throughput global:         1647.68 proc/s
+  • Tempo médio de espera:     4.11 ms
+  • Tempo médio de execução:   0.00 µs
+  • Tempo médio de retorno:    4.80 ms
+  • Utilização média da CPU:   15.23 %
+  • Eficiência estimada:       15.23 %
+  • Throughput global:         1411.24 proc/s
 [Métricas de Memória]
-  • Cache hits:                3
-  • Cache misses:              48
-  • Taxa de hit:               5.88 %
+  • Cache hits:                1
+  • Cache misses:              47
+  • Taxa de hit:               2.08 %
   • Processos com falha:      0
 
 Política: FCFS
   • Status: OK
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     2.44 ms
-  • Tempo médio de execução:   0.01 µs
-  • Tempo médio de retorno:    2.88 ms
-  • Utilização média da CPU:   66.67 %
-  • Eficiência estimada:       66.67 %
-  • Throughput global:         2088.32 proc/s
+  • Tempo médio de espera:     2.19 ms
+  • Tempo médio de execução:   0.00 µs
+  • Tempo médio de retorno:    2.60 ms
+  • Utilização média da CPU:   66.10 %
+  • Eficiência estimada:       66.10 %
+  • Throughput global:         2353.63 proc/s
 [Métricas de Memória]
-  • Cache hits:                3
-  • Cache misses:              48
-  • Taxa de hit:               5.88 %
+  • Cache hits:                1
+  • Cache misses:              47
+  • Taxa de hit:               2.08 %
   • Processos com falha:      0
 
 Política: SJN
   • Status: OK
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     1.37 ms
-  • Tempo médio de execução:   0.01 µs
-  • Tempo médio de retorno:    1.80 ms
-  • Utilização média da CPU:   66.67 %
-  • Eficiência estimada:       66.67 %
-  • Throughput global:         2256.54 proc/s
+  • Tempo médio de espera:     1.48 ms
+  • Tempo médio de execução:   0.00 µs
+  • Tempo médio de retorno:    1.97 ms
+  • Utilização média da CPU:   57.35 %
+  • Eficiência estimada:       57.35 %
+  • Throughput global:         1947.78 proc/s
 [Métricas de Memória]
-  • Cache hits:                3
-  • Cache misses:              48
-  • Taxa de hit:               5.88 %
+  • Cache hits:                1
+  • Cache misses:              47
+  • Taxa de hit:               2.08 %
   • Processos com falha:      0
 
 Política: PRIORITY
   • Status: OK
 ------------------------------------------------------------
 [Métricas de Escalonamento]
-  • Tempo médio de espera:     1.82 ms
-  • Tempo médio de execução:   0.01 µs
-  • Tempo médio de retorno:    2.24 ms
-  • Utilização média da CPU:   68.97 %
-  • Eficiência estimada:       68.97 %
-  • Throughput global:         2267.30 proc/s
+  • Tempo médio de espera:     1.84 ms
+  • Tempo médio de execução:   0.00 µs
+  • Tempo médio de retorno:    2.36 ms
+  • Utilização média da CPU:   73.58 %
+  • Eficiência estimada:       73.58 %
+  • Throughput global:         1922.47 proc/s
 [Métricas de Memória]
-  • Cache hits:                3
-  • Cache misses:              48
-  • Taxa de hit:               5.88 %
+  • Cache hits:                1
+  • Cache misses:              47
+  • Taxa de hit:               2.08 %
   • Processos com falha:      0
 
 Relatório gerado automaticamente por test_metrics.cpp

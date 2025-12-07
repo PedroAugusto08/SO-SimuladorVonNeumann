@@ -1,0 +1,6 @@
+{
+  "pid": 11,
+  "name": "cpu_bound_2",
+  "quantum": 10,
+  "priority": 1
+}

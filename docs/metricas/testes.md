@@ -12,6 +12,15 @@ test/
 └── test_single_core_no_threads.cpp # Execução determinística single-core
 ```
 
+### 🔄 Testando com diferentes lotes
+
+Os arquivos de processos e tarefas estão organizados em subpastas:
+- `processes/lote1` e `tasks/lote1` (lote padrão)
+- `processes/lote2` e `tasks/lote2` (lote alternativo)
+
+Para alternar o lote usado nos testes de métricas, edite a variável `lote` no início do arquivo `test/test_metrics.cpp` para `"lote1"` ou `"lote2"`.
+Assim, o teste irá buscar os arquivos no lote correspondente.
+
 ## Compilação
 
 ```bash

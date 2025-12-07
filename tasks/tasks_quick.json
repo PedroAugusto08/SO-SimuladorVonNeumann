@@ -1,7 +1,0 @@
-{
-  "program": [
-    { "instruction": "li", "rt": "$t0", "immediate": 2 },
-    { "instruction": "print", "rt": "$t0" },
-    { "instruction": "end" }
-  ]
-}

@@ -1,0 +1,11 @@
+{
+  "program": [
+    { "instruction": "li", "rt": "$t0", "immediate": 100 },
+    { "instruction": "li", "rt": "$t1", "immediate": 200 },
+    { "instruction": "sw", "rt": "$t0", "addr": "4($gp)" },
+    { "instruction": "sw", "rt": "$t1", "addr": "8($gp)" },
+    { "instruction": "lw", "rt": "$t2", "addr": "4($gp)" },
+    { "instruction": "print", "rt": "$t2" },
+    { "instruction": "end" }
+  ]
+}

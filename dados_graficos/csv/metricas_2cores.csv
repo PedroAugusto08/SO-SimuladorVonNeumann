@@ -1,5 +1,5 @@
 Politica,TempoMedioEspera_ms,TempoMedioExecucao_us,TempoMedioTurnaround_ms,CPUUtilizacao_pct,Eficiencia_pct,Throughput_proc_s,CacheHits,CacheMisses,TaxaHit_pct,FailedProcesses,Success,Error
-RR,3.55,0.01,5.12,0.00,0.00,972.2760,3,46,6.12,0,true,""
-FCFS,1.84,0.01,2.67,27.78,27.78,2274.9020,3,48,5.88,0,true,""
-SJN,1.01,0.01,1.65,3.53,3.53,2641.8055,3,48,5.88,0,true,""
-PRIORITY,1.13,0.01,1.79,7.29,7.29,2702.3028,3,48,5.88,0,true,""
+RR,2.50,0.00,3.55,4.60,4.60,1809.4602,1,47,2.08,0,true,""
+FCFS,2.59,0.00,3.67,79.59,79.59,1769.6637,1,47,2.08,0,true,""
+SJN,1.61,0.00,2.52,3.04,3.04,1931.9971,1,47,2.08,0,true,""
+PRIORITY,1.45,0.00,2.21,5.14,5.14,2339.6260,1,47,2.08,0,true,""

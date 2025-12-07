@@ -1,0 +1,11 @@
+{
+  "program": [
+    { "instruction": "li", "rt": "$t0", "immediate": 50 },
+    { "instruction": "li", "rt": "$t1", "immediate": 25 },
+    { "instruction": "add", "rd": "$t2", "rs": "$t0", "rt": "$t1" },
+    { "instruction": "mult", "rd": "$t3", "rs": "$t2", "rt": "$t1" },
+    { "instruction": "sub", "rd": "$t4", "rs": "$t3", "rt": "$t0" },
+    { "instruction": "print", "rt": "$t4" },
+    { "instruction": "end" }
+  ]
+}

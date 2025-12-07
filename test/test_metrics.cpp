@@ -21,13 +21,15 @@
 namespace fs = std::filesystem;
 
 namespace {
-constexpr int DEFAULT_NUM_CORES = 1;
+constexpr int DEFAULT_NUM_CORES = 6;
 constexpr int QUANTUM = 10;
 constexpr int MAX_CYCLES = 2'000'000;
-constexpr const char* PROCESS_DIR = "processes";
-constexpr const char* TASKS_DIR = "tasks";
-constexpr const char* DATA_ROOT = "dados_graficos";
-constexpr const char* NORMALIZED_TASK_DIR = "output/normalized_tasks";
+const std::string lote = "lote2"; // Altere para "lote2" para testar outro lote
+const std::string PROCESS_DIR = "processes/" + lote;
+const std::string TASKS_DIR = "tasks/" + lote;
+const std::string DATA_ROOT = "dados_graficos";
+
+const std::string NORMALIZED_TASK_DIR = "output/normalized_tasks";
 constexpr uint32_t SEGMENT_SIZE_BYTES = 2048;
 std::string build_csv_path(int num_cores) {
     return std::string(DATA_ROOT) + "/csv/metricas_" +

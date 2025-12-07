@@ -34,6 +34,15 @@ ls dados_graficos/csv
 ls test/output
 ```
 
+### 🔄 Testando com diferentes lotes
+
+Os arquivos de processos e tarefas estão organizados em subpastas:
+- `processes/lote1` e `tasks/lote1` (lote padrão)
+- `processes/lote2` e `tasks/lote2` (lote alternativo)
+
+Para alternar o lote usado nos testes de métricas, edite a variável `lote` no início do arquivo `test/test_metrics.cpp` para `"lote1"` ou `"lote2"`.
+Assim, o teste irá buscar os arquivos no lote correspondente.
+
 **📊 Resultados:** `make test-metrics` gera `dados_graficos/csv/metricas_4cores.csv` e `dados_graficos/reports/relatorio_metricas_4cores.txt`; o teste single-core escreve os relatórios em `test/output/`.
 
 **ℹ️ Nota (06/12/2025):** Alvos antigos como `test-multicore`, `test-throughput`, `test-all` e `test_metrics_complete` foram aposentados nesta limpeza. Use os comandos acima para validar o projeto atual.

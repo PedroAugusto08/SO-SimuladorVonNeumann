@@ -1,0 +1,6 @@
+{
+  "pid": 6,
+  "name": "memory_intensive",
+  "quantum": 8,
+  "priority": 2
+}
