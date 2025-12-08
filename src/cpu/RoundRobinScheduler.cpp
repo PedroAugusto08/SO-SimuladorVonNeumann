@@ -18,8 +18,6 @@ RoundRobinScheduler::RoundRobinScheduler(int num_cores,
       memory_manager(mem_manager),
       io_manager(io_manager)
 {
-    std::cout << "[Scheduler] Inicializando com " << num_cores
-              << " núcleos e quantum=" << default_quantum << "\n";
 
     for (int i = 0; i < num_cores; ++i) {
         cores.push_back(std::make_unique<Core>(i, memory_manager));
@@ -37,7 +35,6 @@ RoundRobinScheduler::RoundRobinScheduler(int num_cores,
 }
 
 RoundRobinScheduler::~RoundRobinScheduler() {
-    std::cout << "[Scheduler] Encerrando...\n";
     
     // Aguardar conclusão de todos os cores
     for (auto& core : cores) {
@@ -79,12 +76,6 @@ void RoundRobinScheduler::schedule_cycle() {
     // Verificação rápida antes de tentar lock
     bool should_schedule = (ready_count.load() > 0 && idle_cores.load() > 0);
     
-    if (current_time <= 20 && current_time % 5 == 0) {
-        std::cout << "[DEBUG] cycle=" << current_time 
-                  << " ready=" << ready_count.load() 
-                  << " idle=" << idle_cores.load() 
-                  << " should_schedule=" << should_schedule << "\n";
-    }
     
     // Batch scheduling: só trava mutex a cada N ciclos ou quando necessário
     if (current_time % batch_size == 0 || should_schedule) {
@@ -92,13 +83,6 @@ void RoundRobinScheduler::schedule_cycle() {
         
         handle_blocked_processes();
         
-        if (current_time <= 20 && !ready_queue.empty()) {
-            std::cout << "[DEBUG] Tentando agendar, ready_queue.size=" << ready_queue.size() << "\n";
-            for (size_t i = 0; i < cores.size(); i++) {
-                std::cout << "  Core " << i << ": is_idle=" << cores[i]->is_idle() 
-                          << " has_process=" << (cores[i]->get_current_process() != nullptr) << "\n";
-            }
-        }
         
         // Atribuir processos aos cores livres
         size_t max_attempts = ready_queue.size() * 2;
@@ -114,25 +98,18 @@ void RoundRobinScheduler::schedule_cycle() {
                     PCB* old_process = core->get_current_process();
                     if (old_process != nullptr) {
                         // Core está IDLE mas ainda tem processo antigo não coletado!
-                        std::cout << "[URGENT-COLLECT] Core " << core->get_id() 
-                                  << " tem P" << old_process->pid << " não coletado! Coletando agora...\n";
-                        
                         // Fazer join se necessário
                         if (core->is_thread_running()) {
                             core->wait_completion();
                         }
-                        
                         // Classificar e limpar
                         if (old_process->state == State::Finished) {
                             old_process->finish_time = cpu_time::now_ns();
                             finished_list.push_back(old_process);
                             finished_count.fetch_add(1);
-                            std::cout << "[Scheduler] P" << old_process->pid << " FINALIZADO! (urgent collect)\n";
                         } else if (old_process->state == State::Ready) {
                             enqueue_ready_process(old_process);
-                            std::cout << "[Scheduler] P" << old_process->pid << " RE-AGENDADO (urgent collect)\n";
                         }
-                        
                         core->clear_current_process();
                         idle_cores.fetch_add(1);
                     }
@@ -190,8 +167,6 @@ void RoundRobinScheduler::schedule_cycle() {
 void RoundRobinScheduler::assign_process_to_core(PCB* process, Core* core) {
     global_context_switches++;
     
-    std::cout << "[Scheduler] Atribuindo P" << process->pid
-              << " ao Core " << core->get_id() << " (quantum=" << process->quantum << ")\n";
 
     process->assigned_core = core->get_id();
 
@@ -214,20 +189,11 @@ void RoundRobinScheduler::assign_process_to_core(PCB* process, Core* core) {
 void RoundRobinScheduler::collect_finished_processes() {
     int collected = 0;
     
-    if (current_time <= 200 && current_time % 10 == 0) {
-        std::cout << "[DEBUG collect] cycle=" << current_time << "\n";
-    }
     
     for (auto& core : cores) {
         // Verificar se há processo para coletar
         PCB* process = core->get_current_process();
         
-        if (current_time <= 200 && current_time % 10 == 0) {
-            std::cout << "  Core " << core->get_id() 
-                      << ": process=" << (process ? process->pid : -1)
-                      << " thread_running=" << core->is_thread_running()
-                      << " is_idle=" << core->is_idle() << "\n";
-        }
         
         if (process == nullptr) {
             core->increment_idle_cycles(1);
@@ -242,10 +208,6 @@ void RoundRobinScheduler::collect_finished_processes() {
             continue;
         }
         
-        std::cout << "[COLLECT] Core " << core->get_id() << " coletando P" << process->pid 
-                  << " (state=" << (int)process->state 
-                  << " is_idle=" << is_idle 
-                  << " thread_done=" << thread_done << ")\n";
         
         if (core->is_thread_running()) {
             core->wait_completion();
@@ -260,17 +222,14 @@ void RoundRobinScheduler::collect_finished_processes() {
                 failed_count.fetch_add(1);
             }
             
-            std::cout << "[Scheduler] P" << process->pid << " FINALIZADO!\n";
         } else if (process->state == State::Blocked) {
             // Processo bloqueado (I/O)
             blocked_queue.push_back(process);
             
-            std::cout << "[Scheduler] P" << process->pid << " BLOQUEADO (I/O)\n";
         } else if (process->state == State::Ready) {
             // Processo preemptado (quantum expirou)
             enqueue_ready_process(process);
             
-            std::cout << "[Scheduler] P" << process->pid << " RE-AGENDADO (preemptado)\n";
         }
         
         core->clear_current_process();
@@ -288,9 +247,6 @@ void RoundRobinScheduler::drain_cores() {
     collect_finished_processes();
 }
 
-void RoundRobinScheduler::dump_state(const std::string &tag, int cycles, int cycle_budget) {
-    std::cerr << "[DUMP] " << tag << " cycles=" << cycles << " budget=" << cycle_budget << "\n";
-}
 
 void RoundRobinScheduler::handle_blocked_processes() {
     if (blocked_queue.empty()) return;

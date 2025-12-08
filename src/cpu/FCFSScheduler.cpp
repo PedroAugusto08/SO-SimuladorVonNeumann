@@ -7,7 +7,6 @@
 FCFSScheduler::FCFSScheduler(int num_cores, MemoryManager* memManager, IOManager* ioManager)
     : num_cores(num_cores), memManager(memManager), ioManager(ioManager) {
     
-    std::cout << "[FCFS] Inicializando com " << num_cores << " núcleos\n";
     
     for (int i = 0; i < num_cores; i++) {
         cores.push_back(std::make_unique<Core>(i, memManager));
@@ -27,7 +26,6 @@ FCFSScheduler::FCFSScheduler(int num_cores, MemoryManager* memManager, IOManager
 }
 
 FCFSScheduler::~FCFSScheduler() {
-    std::cout << "[FCFS] Encerrando...\n";
     
     // Aguardar conclusão de todos os cores
     for (auto& core : cores) {
@@ -89,16 +87,13 @@ void FCFSScheduler::collect_finished_processes() {
                 if (process->failed.load()) {
                     failed_count.fetch_add(1);
                 }
-                std::cout << "[FCFS] P" << process->pid << " FINALIZADO!\n";
                 break;
             case State::Blocked:
                 ioManager->registerProcessWaitingForIO(process);
                 blocked_list.push_back(process);
-                std::cout << "[FCFS] P" << process->pid << " BLOQUEADO (I/O)\n";
                 break;
             default:
                 enqueue_ready_process(process);
-                std::cout << "[FCFS] P" << process->pid << " RE-AGENDADO\n";
                 break;
         }
         
@@ -115,10 +110,6 @@ void FCFSScheduler::drain_cores() {
     }
     std::lock_guard<std::mutex> lock(scheduler_mutex);
     collect_finished_processes();
-}
-
-void FCFSScheduler::dump_state(const std::string &tag, int cycles, int cycle_budget) {
-    std::cerr << "[FCFS DUMP] " << tag << " cycles=" << cycles << " budget=" << cycle_budget << "\n";
 }
 
 void FCFSScheduler::schedule_cycle() {

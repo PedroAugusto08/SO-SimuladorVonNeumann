@@ -27,7 +27,7 @@ void Control_Unit::log_operation(const std::string &msg) {
     std::lock_guard<std::mutex> lock(log_mutex);
 
     // Imprime no console
-    std::cout << "[LOG] " << msg << std::endl;
+    // std::cout << "[LOG] " << msg << std::endl;
 
     // Cria nome de arquivo temporário aleatório
     static int temp_file_id = 1;  // pode ser mais sofisticado
@@ -136,8 +136,8 @@ void Control_Unit::Fetch(ControlContext &context) {
     // Verificar se PC saiu do espaço do programa (proteção contra loop infinito)
     uint32_t program_end = context.process.program_start_addr + context.process.program_size;
     if (next_pc >= program_end) {
-        std::cout << "[FETCH] PC fora do programa! PC=" << next_pc 
-                  << " >= program_end=" << program_end << " - Encerrando\n";
+        // std::cout << "[FETCH] PC fora do programa! PC=" << next_pc 
+        //           << " >= program_end=" << program_end << " - Encerrando\n";
         context.endProgram = true;
         return;
     }
@@ -310,8 +310,8 @@ void Control_Unit::Execute_Operation(Instruction_Data &data, ControlContext &con
             context.ioRequests.push_back(std::move(req));
 
             // TRACE PRINT from register
-            std::cout << "[PRINT-REQ] PRINT REG " << name << " value=" << value
-                      << " (pid=" << context.process.pid << ")\n";
+            // std::cout << "[PRINT-REQ] PRINT REG " << name << " value=" << value;
+            //           << " (pid=" << context.process.pid << ")\n";
 
             if (context.printLock) {
                 context.process.state = State::Blocked;
@@ -376,14 +376,14 @@ void Control_Unit::Memory_Acess(Instruction_Data &data, ControlContext &context)
         int value = context.memManager.read(addr, context.process);
         context.registers.writeRegister(name_rt, value);
 
-        std::cout << "[MEMORY] LW addr=" << addr << " value=" << value
-                  << " -> " << name_rt << "\n";
+        // std::cout << "[MEMORY] LW addr=" << addr << " value=" << value;
+        //           << " -> " << name_rt << "\n";
     } else if (data.op == "LA" || data.op == "LI") {
         uint32_t val = binaryStringToUint(data.addressRAMResult);
         context.registers.writeRegister(name_rt, static_cast<int>(val));
 
-        std::cout << "[MEMORY] " << data.op << " -> " << name_rt
-                  << " value=" << static_cast<int>(val) << "\n";
+        // std::cout << "[MEMORY] " << data.op << " -> " << name_rt;
+        //           << " value=" << static_cast<int>(val) << "\n";
     } else if (data.op == "PRINT" && data.target_register.empty()) {
         uint32_t addr = binaryStringToUint(data.addressRAMResult);
         int value = context.memManager.read(addr, context.process);
@@ -392,8 +392,8 @@ void Control_Unit::Memory_Acess(Instruction_Data &data, ControlContext &context)
         req->process = &context.process;
         context.ioRequests.push_back(std::move(req));
 
-        std::cout << "[PRINT-REQ] PRINT MEM addr=" << addr << " value=" << value
-                  << " (pid=" << context.process.pid << ")\n";
+        // std::cout << "[PRINT-REQ] PRINT MEM addr=" << addr << " value=" << value;
+        //           << " (pid=" << context.process.pid << ")\n";
 
         if (context.printLock) {
             context.process.state = State::Blocked;
@@ -410,8 +410,8 @@ void Control_Unit::Write_Back(Instruction_Data &data, ControlContext &context) {
         int value = context.registers.readRegister(name_rt);
         context.memManager.write(addr, value, context.process);
 
-        std::cout << "[WRITE-BACK] SW addr=" << addr << " value=" << value
-                  << " from reg " << name_rt << "\n";
+        // std::cout << "[WRITE-BACK] SW addr=" << addr << " value=" << value;
+        //           << " from reg " << name_rt << "\n";
     }
 }
 

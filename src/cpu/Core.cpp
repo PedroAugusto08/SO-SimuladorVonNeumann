@@ -14,7 +14,7 @@ Core::Core(int id, MemoryManager* mem_manager)
     // Cada núcleo tem sua própria cache para evitar contenção
     L1_cache = std::make_unique<Cache>();
     
-    std::cout << "[Core " << core_id << "] Inicializado com cache L1 privada\n";
+    // std::cout << "[Core " << core_id << "] Inicializado com cache L1 privada\n";
 }
 
 Core::~Core() {
@@ -25,7 +25,7 @@ Core::~Core() {
         execution_thread.join();
     }
     
-    std::cout << "[Core " << core_id << "] Finalizado\n";
+    // std::cout << "[Core " << core_id << "] Finalizado\n";
 }
 
 void Core::execute_async(PCB* process) {
@@ -52,8 +52,8 @@ void Core::execute_async(PCB* process) {
     // Marca núcleo como ocupado
     state.store(CoreState::BUSY);
     
-    std::cout << "[Core " << core_id << "] Iniciando execução do processo P" 
-              << process->pid << " (quantum=" << process->quantum << ")\n";
+    // std::cout << "[Core " << core_id << "] Iniciando execução do processo P" 
+    //           << process->pid << " (quantum=" << process->quantum << ")\n";
     
     // CRÍTICO: Se há thread anterior, fazer join antes de criar nova
     if (execution_thread.joinable()) {
@@ -98,8 +98,8 @@ void Core::run_process(PCB* process) {
         .endExecution = endExecution
     };
     
-    std::cout << "[Core " << core_id << "] Processo P" << process->pid 
-              << " executando (quantum=" << process->quantum << " ciclos)\n";
+    // std::cout << "[Core " << core_id << "] Processo P" << process->pid 
+    //           << " executando (quantum=" << process->quantum << " ciclos)\n";
     
     // Loop de execução respeitando o quantum
     int cycles_in_quantum = 0;
@@ -139,15 +139,15 @@ void Core::run_process(PCB* process) {
         process->state = State::Finished;
         process->finish_time = cpu_time::now_ns();
         
-        std::cout << "[Core " << core_id << "] P" << process->pid 
-                  << " FINALIZADO (total: " << process->pipeline_cycles.load() 
-                  << " ciclos)\n";
+        // std::cout << "[Core " << core_id << "] P" << process->pid 
+        //           << " FINALIZADO (total: " << process->pipeline_cycles.load() 
+        //           << " ciclos)\n";
         
     } else if (!ioRequests.empty()) {
         process->state = State::Blocked;
         
-        std::cout << "[Core " << core_id << "] P" << process->pid 
-                  << " BLOQUEADO (aguardando I/O)\n";
+        // std::cout << "[Core " << core_id << "] P" << process->pid 
+        //           << " BLOQUEADO (aguardando I/O)\n";
         
     } else {
         // Quantum expirou
@@ -155,14 +155,14 @@ void Core::run_process(PCB* process) {
         // 🆕 NÃO incrementar aqui - será feito no scheduler!
         // process->context_switches++;  // ❌ REMOVIDO
         
-        std::cout << "[Core " << core_id << "] P" << process->pid 
-                  << " PREEMPTADO (quantum expirado após " 
-                  << cycles_in_quantum << " ciclos)\n";
+        // std::cout << "[Core " << core_id << "] P" << process->pid 
+        //           << " PREEMPTADO (quantum expirado após " 
+        //           << cycles_in_quantum << " ciclos)\n";
     }
     
     // NÃO liberar núcleo aqui - isso será feito após o collect no scheduler!
     // Apenas marcar como idle para que scheduler saiba que terminou
     state.store(CoreState::IDLE);
     
-    std::cout << "[Core " << core_id << "] Finalizado (agora IDLE)\n";
+    // std::cout << "[Core " << core_id << "] Finalizado (agora IDLE)\n";
 }

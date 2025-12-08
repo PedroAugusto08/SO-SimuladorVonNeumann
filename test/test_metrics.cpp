@@ -485,12 +485,7 @@ int main() {
         std::cout << "  • TEST_MAX_CYCLE_CAP=" << env_cap << "\n";
     }
     
-    // Warmup run: descarta a primeira execução para evitar cold start
-    std::cout << "\n[Warmup] Executando teste de aquecimento (descartado)...\n";
-    {
-        PolicyMetrics warmup = run_policy("RR", num_cores, workloads);
-        std::cout << "  → Warmup " << (warmup.success ? "ok" : "falhou") << " (descartado)\n";
-    }
+    // Warmup run removido para não exibir prints extras
     
     std::cout << "\nExecutando métricas...\n";
 

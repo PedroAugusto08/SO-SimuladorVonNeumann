@@ -237,7 +237,7 @@ int parseData(const json &dataJson, MainMemory &ram, int startAddr){
                 for (auto &e : val){
                     int w = e.is_string()? static_cast<int>(std::stoul(e.get<string>(),nullptr,0))
                                           : e.get<int>();
-                    std::cout << "[DEBUG DATA] Escrevendo valor " << w << " no endereço " << addr << std::endl;
+                    // std::cout << "[DEBUG DATA] Escrevendo valor " << w << " no endereço " << addr << std::endl;
                     ram.WriteMem(addr, w); addr += 1;
                 }
             } else {
@@ -276,7 +276,7 @@ int parseData(const json &dataJson, MainMemory &ram, int startAddr){
                 } else {
                     int w = item["value"].is_string()? static_cast<int>(std::stoul(item["value"].get<string>(),nullptr,0))
                                                       : item["value"].get<int>();
-                    std::cout << "[DEBUG DATA] Escrevendo valor " << w << " no endereço " << addr << std::endl;
+                    // std::cout << "[DEBUG DATA] Escrevendo valor " << w << " no endereço " << addr << std::endl;
                     ram.WriteMem(addr, w); addr += 1;
                 }
             } else if (type=="byte"){

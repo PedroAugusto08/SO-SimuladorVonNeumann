@@ -221,14 +221,35 @@ int main(int argc, char* argv[]) {
     for (size_t i = 0; i < process_files.size(); i++) {
         const auto& [program_file, pcb_file] = process_files[i];
         auto pcb = std::make_unique<PCB>();
-        if (!load_pcb_from_json(pcb_file, *pcb)) {
+        bool loaded_pcb = load_pcb_from_json(pcb_file, *pcb);
+        if (!loaded_pcb) {
+            // Tenta novamente na raiz do projeto se não encontrar no caminho informado
+            std::filesystem::path pcb_path_alt = std::filesystem::path(pcb_file).filename();
+            loaded_pcb = load_pcb_from_json(pcb_path_alt.string(), *pcb);
+        }
+        if (!loaded_pcb) {
             std::cerr << "Erro ao carregar '" << pcb_file << "'.\n";
             return 1;
         }
-        loadJsonProgram(program_file, memManager, *pcb, next_base_address);
+        // Tenta carregar o programa (tasks.json) no caminho informado, se falhar tenta na raiz
+        bool loaded_prog = true;
+        try {
+            loadJsonProgram(program_file, memManager, *pcb, next_base_address);
+        } catch (...) {
+            std::filesystem::path prog_path_alt = std::filesystem::path(program_file).filename();
+            try {
+                loadJsonProgram(prog_path_alt.string(), memManager, *pcb, next_base_address);
+            } catch (...) {
+                loaded_prog = false;
+            }
+        }
+        if (!loaded_prog) {
+            std::cerr << "Erro ao carregar '" << program_file << "'.\n";
+            return 1;
+        }
         pcb->arrival_time = 0;
-            // Estimativa: usar tamanho do programa como proxy de job size
-            pcb->estimated_job_size = pcb->program_size;
+        // Estimativa: usar tamanho do programa como proxy de job size
+        pcb->estimated_job_size = pcb->program_size;
         next_base_address += 1024;
         if (SCHED_POLICY == "FCFS") fcfs_sched->add_process(pcb.get());
         else if (SCHED_POLICY == "SJN") sjn_sched->add_process(pcb.get());
@@ -236,7 +257,7 @@ int main(int argc, char* argv[]) {
         else rr_sched->add_process(pcb.get());
         process_list.push_back(std::move(pcb));
     }
-    std::cout << "✓ " << process_list.size() << " processo(s) carregado(s)\n\n";
+    // std::cout << "✓ " << process_list.size() << " processo(s) carregado(s)\n\n";
     // Loop principal
     std::cout << "\n===========================================\n";
     std::cout << "Iniciando escalonador...\n";

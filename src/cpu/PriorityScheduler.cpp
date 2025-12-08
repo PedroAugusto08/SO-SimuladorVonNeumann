@@ -6,9 +6,7 @@
 
 PriorityScheduler::PriorityScheduler(int num_cores, MemoryManager* memManager, IOManager* ioManager)
     : num_cores(num_cores), memManager(memManager), ioManager(ioManager) {
-    
-    std::cout << "[PRIORITY] Inicializando com " << num_cores << " núcleos (modo NÃO-PREEMPTIVO)\n";
-    
+
     for (int i = 0; i < num_cores; i++) {
         cores.push_back(std::make_unique<Core>(i, memManager));
         cores[i]->reset_metrics();
@@ -27,8 +25,6 @@ PriorityScheduler::PriorityScheduler(int num_cores, MemoryManager* memManager, I
 }
 
 PriorityScheduler::~PriorityScheduler() {
-    std::cout << "[PRIORITY] Encerrando...\n";
-    
     // Aguardar conclusão de todos os cores
     for (auto& core : cores) {
         if (!core->is_idle()) {
@@ -99,17 +95,13 @@ void PriorityScheduler::collect_finished_processes() {
                 if (process->failed.load()) {
                     failed_count.fetch_add(1);
                 }
-                std::cout << "[PRIORITY] P" << process->pid 
-                          << " FINALIZADO (prioridade: " << process->priority << ")\n";
                 break;
             case State::Blocked:
                 ioManager->registerProcessWaitingForIO(process);
                 blocked_list.push_back(process);
-                std::cout << "[PRIORITY] P" << process->pid << " BLOQUEADO (I/O)\n";
                 break;
             default:
                 enqueue_ready_process(process);
-                std::cout << "[PRIORITY] P" << process->pid << " RE-AGENDADO\n";
                 break;
         }
         
@@ -126,10 +118,6 @@ void PriorityScheduler::drain_cores() {
     }
     std::lock_guard<std::mutex> lock(scheduler_mutex);
     collect_finished_processes();
-}
-
-void PriorityScheduler::dump_state(const std::string &tag, int cycles, int cycle_budget) {
-    std::cerr << "[PRIORITY DUMP] " << tag << " cycles=" << cycles << " budget=" << cycle_budget << "\n";
 }
 
 void PriorityScheduler::schedule_cycle() {
@@ -231,10 +219,6 @@ void PriorityScheduler::schedule_cycle() {
                     
                     context_switches++;
                     process->context_switches++;
-                    
-                    std::cout << "[PRIORITY] Executando P" << process->pid 
-                              << " (prioridade: " << process->priority << ") no core " 
-                              << core->get_id() << "\n";
                     
                     idle_cores_count.fetch_sub(1);
                     core->execute_async(process);
